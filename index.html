@@ -138,6 +138,7 @@
     aside.collapsed .sidebar-footer-text { display: none !important; }
     aside.collapsed .nav-item-btn { justify-content: center !important; padding-left: 0 !important; padding-right: 0 !important; }
 
+    /* Print Document Styles */
     @media print {
       body * { visibility: hidden; }
       #print-area, #print-area *, #print-monthly-report-area, #print-monthly-report-area * { visibility: visible; }
@@ -151,26 +152,53 @@
       }
     }
   </style>
-</head>
-<body class="theme-mesh-bg min-h-screen flex flex-col selection:bg-purple-500 selection:text-white antialiased">
 
-  <!-- ================= CONFIG ================= -->
+  <!-- ================= TOP CONFIG & BASIC HANDLERS ================= -->
   <script>
     // *********************************************************************************
     // นำค่า URL และ ANON KEY ของ Supabase มาใส่ตรงนี้
     // *********************************************************************************
-    const SUPABASE_URL = "https://redopwauisijeizvtrgi.supabase.co";
+   const SUPABASE_URL = "https://redopwauisijeizvtrgi.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_5rbLPuTZVuerxBB_MURoRw_q7Y2WinB";
+
 
     const sbClient = (SUPABASE_URL && SUPABASE_ANON_KEY) 
       ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
       : null;
-  </script>
 
-  <!-- ================= TOAST CONTAINER ================= -->
+    // ฟังก์ชันจัดการหน้าจอพื้นฐาน (ป้องกัน ReferenceError เมื่อคลิกก่อนสคริปต์โหลดครบ)
+    function scrollToOverview() {
+      const el = document.getElementById('overview-section');
+      if (el) el.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function openLoginModal() {
+      const modal = document.getElementById('login-modal');
+      if (modal) modal.classList.remove('hidden');
+    }
+
+    function closeLoginModal() {
+      const modal = document.getElementById('login-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    function showModal(id) { 
+      const modal = document.getElementById(id); 
+      if (modal) modal.classList.remove('hidden'); 
+    }
+
+    function closeModal(id) { 
+      const modal = document.getElementById(id); 
+      if (modal) modal.classList.add('hidden'); 
+    }
+  </script>
+</head>
+<body class="theme-mesh-bg min-h-screen flex flex-col selection:bg-purple-500 selection:text-white antialiased">
+
+  <!-- TOAST CONTAINER -->
   <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4"></div>
 
-  <!-- ================= GLOBAL LOADER ================= -->
+  <!-- GLOBAL LOADER -->
   <div id="global-loader" class="fixed inset-0 bg-slate-950/60 backdrop-blur-md z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-200">
     <div class="glass-panel-heavy px-8 py-6 rounded-3xl flex items-center gap-4 border border-white/20 shadow-glass-glow">
       <div class="w-7 h-7 border-3 border-purple-400 border-t-transparent rounded-full animate-spin"></div>
@@ -191,7 +219,7 @@
         </div>
 
         <div class="flex items-center gap-3">
-          <button onclick="toggleDayNightMode()" class="p-2 rounded-xl glass-panel text-slate-300 hover:text-white transition" title="สลับโหมดกลางวัน/กลางคืน" aria-label="สลับโหมดแสง">
+          <button onclick="toggleDayNightMode()" class="p-2 rounded-xl glass-panel text-slate-300 hover:text-white transition" title="สลับโหมดกลางวัน/กลางคืน">
             <i id="theme-toggle-icon-landing" data-lucide="moon" class="w-4 h-4"></i>
           </button>
           <button onclick="scrollToOverview()" class="hidden md:flex items-center gap-1 text-xs opacity-80 hover:opacity-100 px-3 py-1.5 transition">
@@ -394,7 +422,7 @@
             <div id="sidebar-user-name" class="text-xs font-semibold truncate">User Name</div>
             <div id="sidebar-user-role" class="text-[10px] text-cyan-400 capitalize truncate">Role</div>
           </div>
-          <button onclick="confirmLogout()" class="opacity-70 hover:text-rose-400 p-1.5 rounded-xl transition shrink-0" title="ออกจากระบบ" aria-label="ออกจากระบบ">
+          <button onclick="confirmLogout()" class="opacity-70 hover:text-rose-400 p-1.5 rounded-xl transition shrink-0" title="ออกจากระบบ">
             <i data-lucide="log-out" class="w-4 h-4"></i>
           </button>
         </div>
@@ -403,14 +431,13 @@
 
     <!-- MAIN CONTENT AREA -->
     <div class="flex-1 flex flex-col min-w-0 pb-20 md:pb-6">
-      
       <header class="h-16 glass-panel border-b border-white/10 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-20">
         <div class="flex items-center gap-3">
           <h2 id="top-page-title" class="text-base md:text-lg font-bold font-inter">ภาพรวมระบบ (Executive Dashboard)</h2>
         </div>
 
         <div class="flex items-center gap-3">
-          <button onclick="toggleDayNightMode()" class="p-2 rounded-xl glass-panel opacity-80 hover:opacity-100 transition" title="สลับโหมดกลางวัน/กลางคืน" aria-label="สลับโหมดแสง">
+          <button onclick="toggleDayNightMode()" class="p-2 rounded-xl glass-panel opacity-80 hover:opacity-100 transition" title="สลับโหมดกลางวัน/กลางคืน">
             <i id="theme-toggle-icon-header" data-lucide="moon" class="w-4 h-4"></i>
           </button>
 
@@ -981,7 +1008,6 @@
     </div>
   </div>
 
-  <!-- OFFICIAL EXECUTIVE MONTHLY REPORT (PDF) -->
   <div id="print-monthly-report-area" class="hidden p-8 font-sans bg-white text-black">
     <div class="flex items-center justify-between border-b-2 border-black pb-4 mb-4">
       <div class="flex items-center gap-4">
@@ -1064,711 +1090,7 @@
 
   <!-- ================= JAVASCRIPT CONTROLLERS ================= -->
   <script>
-    /* ================= SMART AUTOCOMPLETE SEARCH FOR REPAIR ================= */
-    function handleSmartSearch(query) {
-      const resultsContainer = document.getElementById('smart-search-results');
-      const q = query.trim().toLowerCase();
-
-      if (!q) {
-        resultsContainer.classList.add('hidden');
-        resultsContainer.innerHTML = '';
-        return;
-      }
-
-      const matched = STATE.devices.filter(d => {
-        return (d.device_uid && d.device_uid.toLowerCase().includes(q)) ||
-               (d.serial_number && d.serial_number.toLowerCase().includes(q)) ||
-               (d.asset_code && d.asset_code.toLowerCase().includes(q)) ||
-               (d.assigned_user && d.assigned_user.toLowerCase().includes(q)) ||
-               (d.user_code && d.user_code.toLowerCase().includes(q));
-      });
-
-      if (matched.length === 0) {
-        resultsContainer.innerHTML = `<div class="p-3 text-center text-xs opacity-60">ไม่พบเครื่อง iPad ที่ตรงกับคำค้นหา</div>`;
-        resultsContainer.classList.remove('hidden');
-        return;
-      }
-
-      resultsContainer.innerHTML = matched.slice(0, 6).map(d => `
-        <div onclick="selectSmartDevice('${d.id}')" class="p-2.5 rounded-xl glass-panel hover:border-cyan-400 cursor-pointer transition flex items-center justify-between">
-          <div>
-            <div class="flex items-center gap-2">
-              <span class="text-xs font-mono font-bold text-cyan-400">${d.device_uid || 'ksp-xxx'}</span>
-              <span class="text-xs font-semibold">${d.assigned_user}</span>
-            </div>
-            <div class="text-[11px] opacity-80 mt-0.5">${d.device_model} (SN: ${d.serial_number})</div>
-            <div class="text-[10px] opacity-60">${d.holder_type === 'นักเรียน' ? 'ชั้น ' + (d.grade_level || '-') + '/' + (d.classroom || '-') : d.holder_type}</div>
-          </div>
-          <span class="text-[10px] px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-400 font-medium">เลือกเครื่องนี้</span>
-        </div>
-      `).join('');
-
-      resultsContainer.classList.remove('hidden');
-    }
-
-    function selectSmartDevice(deviceId) {
-      const dev = STATE.devices.find(d => d.id === deviceId);
-      if (!dev) return;
-
-      document.getElementById('repair-selected-device-id').value = dev.id;
-      document.getElementById('repair-serial').value = dev.serial_number;
-      document.getElementById('repair-asset-code').value = dev.asset_code;
-      document.getElementById('repair-model').value = dev.device_model;
-      document.getElementById('smart-device-search').value = `[${dev.device_uid || 'ksp-xxx'}] ${dev.assigned_user} - ${dev.device_model}`;
-
-      const card = document.getElementById('selected-device-card');
-      document.getElementById('card-dev-uid').innerText = dev.device_uid || 'ksp-xxx';
-      document.getElementById('card-dev-status').innerText = dev.device_status;
-      document.getElementById('card-dev-user').innerText = `${dev.assigned_user} (${dev.holder_type === 'นักเรียน' ? 'ชั้น ' + (dev.grade_level || '-') + '/' + (dev.classroom || '-') : dev.holder_type})`;
-      document.getElementById('card-dev-model').innerText = `${dev.device_model} • SN: ${dev.serial_number} • ครุภัณฑ์: ${dev.asset_code}`;
-      card.classList.remove('hidden');
-
-      document.getElementById('smart-search-results').classList.add('hidden');
-      showToast(`เลือกเครื่อง iPad [${dev.device_uid}] เรียบร้อย`, 'success');
-    }
-
-    function clearSmartSearch() {
-      document.getElementById('smart-device-search').value = '';
-      document.getElementById('repair-selected-device-id').value = '';
-      document.getElementById('repair-serial').value = '';
-      document.getElementById('repair-asset-code').value = '';
-      document.getElementById('repair-model').value = '';
-      document.getElementById('selected-device-card').classList.add('hidden');
-      document.getElementById('smart-search-results').classList.add('hidden');
-    }
-
-    /* ================= IPAD REPAIR WORKFLOW ================= */
-    function openRepairModal() {
-      populateConfigSelects();
-      document.getElementById('repair-form').reset();
-      clearSmartSearch();
-      showModal('repair-modal');
-    }
-
-    async function handleSaveRepair(e) {
-      e.preventDefault();
-      const user = STATE.currentUser;
-      const deviceId = document.getElementById('repair-selected-device-id').value || null;
-      const selectedDevice = STATE.devices.find(d => d.id === deviceId);
-      const serial = document.getElementById('repair-serial').value.trim();
-      const assetCode = document.getElementById('repair-asset-code').value.trim();
-      const model = document.getElementById('repair-model').value.trim();
-      const category = document.getElementById('repair-category').value;
-      const priority = document.querySelector('input[name="priority"]:checked')?.value || 'ปกติ';
-      const detail = document.getElementById('repair-detail').value.trim();
-      const imageFile = document.getElementById('repair-image-file').files[0];
-
-      showLoader('กำลังส่งเรื่องแจ้งซ่อม...');
-      try {
-        const ticketNo = `IPAD-2569-${String(Date.now()).slice(-4)}`;
-        const payload = {
-          ticket_no: ticketNo,
-          device_id: deviceId,
-          device_uid: selectedDevice ? selectedDevice.device_uid : null,
-          academic_year: selectedDevice ? (selectedDevice.academic_year || '2569') : '2569',
-          school_id: user.school_id || (STATE.schools[0]?.id || null),
-          user_id: user.id,
-          ipad_serial: serial,
-          ipad_asset_code: assetCode,
-          device_model: model,
-          problem_category: category,
-          problem_detail: detail,
-          priority: priority,
-          status: 'รอดำเนินการ',
-          reported_at: new Date().toISOString()
-        };
-
-        const { data: repairData, error } = await sbClient.from('repair_requests').insert([payload]).select().single();
-        if (error) throw error;
-
-        if (deviceId) {
-          await sbClient.from('ipad_devices').update({ device_status: 'กำลังส่งซ่อม' }).eq('id', deviceId);
-        }
-
-        await sbClient.from('repair_history').insert([{
-          repair_id: repairData.id,
-          status: 'รอดำเนินการ',
-          note: 'สร้างคำขอแจ้งซ่อมผ่านระบบ',
-          changed_by: user.full_name
-        }]);
-
-        if (imageFile) {
-          showLoader('กำลังบีบอัดรูปถ่าย...');
-          const compressed = await compressImage(imageFile, 1600, 1600, 0.75);
-          const filePath = `${repairData.id}/${Date.now()}_${compressed.name}`;
-          const { error: upErr } = await sbClient.storage.from('ipad-repair').upload(filePath, compressed);
-          if (!upErr) {
-            const { data: pubUrl } = sbClient.storage.from('ipad-repair').getPublicUrl(filePath);
-            await sbClient.from('repair_attachments').insert([{
-              repair_id: repairData.id,
-              file_path: filePath,
-              file_url: pubUrl.publicUrl,
-              file_type: 'image/jpeg',
-              file_size: compressed.size,
-              uploaded_by: user.full_name
-            }]);
-          }
-        }
-
-        logActivity('CREATE_REPAIR', 'repair_requests', repairData.id, `Ticket ${ticketNo}`);
-        showToast(`แจ้งซ่อมสำเร็จ หมายเลข Ticket: ${ticketNo}`, 'success');
-        closeModal('repair-modal');
-        await loadInitialData();
-        renderRepairsTable(STATE.repairs);
-      } catch (err) {
-        showToast('ไม่สามารถส่งคำขอแจ้งซ่อมได้', 'error');
-      } finally {
-        hideLoader();
-      }
-    }
-
-    function filterRepairs() {
-      const search = document.getElementById('repair-search-input').value.toLowerCase();
-      const year = document.getElementById('repair-filter-year').value;
-      const status = document.getElementById('repair-filter-status').value;
-
-      const filtered = STATE.repairs.filter(r => {
-        const matchesSearch = (r.ticket_no && r.ticket_no.toLowerCase().includes(search)) ||
-                              (r.device_uid && r.device_uid.toLowerCase().includes(search)) ||
-                              (r.ipad_serial && r.ipad_serial.toLowerCase().includes(search)) ||
-                              (r.users?.full_name && r.users.full_name.toLowerCase().includes(search));
-        const matchesYear = !year || r.academic_year === year;
-        const matchesStatus = !status || r.status === status;
-        return matchesSearch && matchesYear && matchesStatus;
-      });
-
-      renderRepairsTable(filtered);
-    }
-
-    function renderRepairsTable(data) {
-      const tbody = document.getElementById('repairs-table-body');
-      const mobileList = document.getElementById('repairs-mobile-list');
-      const emptyState = document.getElementById('repairs-empty');
-
-      if (!data || data.length === 0) {
-        tbody.innerHTML = '';
-        mobileList.innerHTML = '';
-        emptyState.classList.remove('hidden');
-        return;
-      }
-      emptyState.classList.add('hidden');
-
-      const priorityBadges = {
-        ต่ำ: 'opacity-70 bg-slate-500/20 border-slate-500/30',
-        ปกติ: 'text-cyan-400 bg-cyan-500/20 border-cyan-500/30',
-        สูง: 'text-amber-400 bg-amber-500/20 border-amber-500/30',
-        เร่งด่วน: 'text-rose-400 bg-rose-500/20 border-rose-500/30'
-      };
-
-      const statusBadges = {
-        รอดำเนินการ: 'text-amber-400 bg-amber-500/20 border-amber-500/30',
-        รับเรื่องแล้ว: 'text-cyan-400 bg-cyan-500/20 border-cyan-500/30',
-        กำลังตรวจสอบ: 'text-indigo-400 bg-indigo-500/20 border-indigo-500/30',
-        กำลังซ่อม: 'text-blue-400 bg-blue-500/20 border-blue-500/30',
-        รออะไหล่: 'text-purple-400 bg-purple-500/20 border-purple-500/30',
-        ซ่อมเสร็จแล้ว: 'text-emerald-400 bg-emerald-500/20 border-emerald-500/30',
-        ส่งคืนแล้ว: 'text-teal-400 bg-teal-500/20 border-teal-500/30',
-        ยกเลิก: 'opacity-70 bg-slate-500/20 border-slate-500/30'
-      };
-
-      tbody.innerHTML = data.map(r => `
-        <tr class="hover:bg-white/5 transition">
-          <td class="p-4">
-            <div class="font-bold font-mono text-cyan-400">${r.ticket_no}</div>
-            <div class="text-[11px] opacity-70">${r.device_uid ? '[' + r.device_uid + '] ' : ''}${r.device_model}</div>
-          </td>
-          <td class="p-4">
-            <div class="font-medium">${r.users?.full_name || 'ไม่ระบุ'}</div>
-            <div class="text-[10px] opacity-60">ปีการศึกษา ${r.academic_year || '2569'}</div>
-          </td>
-          <td class="p-4 font-semibold">${r.problem_category}</td>
-          <td class="p-4"><span class="px-2 py-0.5 rounded-full text-[10px] font-medium border ${priorityBadges[r.priority] || ''}">${r.priority}</span></td>
-          <td class="p-4"><span class="px-2.5 py-1 rounded-full text-[11px] font-medium border ${statusBadges[r.status] || ''}">${r.status}</span></td>
-          <td class="p-4 text-[11px] opacity-60">${formatDateThai(r.reported_at)}</td>
-          <td class="p-4 text-right">
-            <button onclick="openRepairDetail('${r.id}')" class="px-3 py-1.5 glass-panel text-xs rounded-xl">ดูรายละเอียด</button>
-          </td>
-        </tr>
-      `).join('');
-
-      mobileList.innerHTML = data.map(r => `
-        <div class="p-3.5 glass-panel rounded-2xl space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-mono font-bold text-cyan-400">${r.ticket_no}</span>
-            <span class="text-[10px] font-medium px-2 py-0.5 rounded-full border ${statusBadges[r.status] || ''}">${r.status}</span>
-          </div>
-          <div class="text-xs font-semibold">${r.problem_category} - ${r.device_model}</div>
-          <div class="text-[11px] opacity-80">ปีการศึกษา ${r.academic_year || '2569'} • ผู้แจ้ง: ${r.users?.full_name || '-'}</div>
-          <div class="flex items-center justify-between pt-2 border-t border-white/10">
-            <span class="text-[10px] opacity-60">${formatDateThai(r.reported_at)}</span>
-            <button onclick="openRepairDetail('${r.id}')" class="px-3 py-1 glass-panel text-cyan-400 rounded-lg text-xs font-medium">ดูไทม์ไลน์</button>
-          </div>
-        </div>
-      `).join('');
-
-      lucide.createIcons();
-    }
-
-    async function openRepairDetail(repairId) {
-      STATE.activeRepairDetailId = repairId;
-      const repair = STATE.repairs.find(r => r.id === repairId);
-      if (!repair) return;
-
-      document.getElementById('detail-ticket-no').innerText = repair.ticket_no;
-      document.getElementById('detail-reporter').innerText = repair.users?.full_name || 'ไม่ระบุ';
-      document.getElementById('detail-year').innerText = `ปีการศึกษา ${repair.academic_year || '2569'}`;
-      document.getElementById('detail-serial').innerText = `${repair.ipad_serial} (${repair.device_uid || '-'})`;
-      document.getElementById('detail-problem-desc').innerText = `${repair.problem_category}: ${repair.problem_detail}`;
-
-      const statusPill = document.getElementById('detail-status-pill');
-      statusPill.innerText = repair.status;
-      statusPill.className = `inline-block px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-cyan-500/20 text-cyan-400 border border-cyan-500/30`;
-
-      const gallery = document.getElementById('detail-attachments-gallery');
-      const box = document.getElementById('detail-attachments-box');
-      if (repair.repair_attachments && repair.repair_attachments.length > 0) {
-        box.classList.remove('hidden');
-        gallery.innerHTML = repair.repair_attachments.map(att => `
-          <a href="${att.file_url}" target="_blank" rel="noopener noreferrer" class="block w-20 h-20 rounded-2xl overflow-hidden glass-panel border border-white/20">
-            <img src="${att.file_url}" class="w-full h-full object-cover">
-          </a>
-        `).join('');
-      } else {
-        box.classList.add('hidden');
-      }
-
-      loadRepairTimeline(repairId);
-
-      const canManage = ['admin', 'technician'].includes(STATE.currentUser.role);
-      document.getElementById('technician-action-panel').classList.toggle('hidden', !canManage);
-      document.getElementById('tech-update-status').value = repair.status;
-      document.getElementById('tech-update-cost').value = repair.estimated_cost || '';
-      document.getElementById('tech-update-note').value = repair.replaced_parts || '';
-
-      showModal('repair-detail-modal');
-    }
-
-    async function loadRepairTimeline(repairId) {
-      const container = document.getElementById('repair-timeline-container');
-      container.innerHTML = '<p class="text-xs opacity-60">กำลังโหลดไทม์ไลน์...</p>';
-
-      try {
-        const { data: history } = await sbClient
-          .from('repair_history')
-          .select('*')
-          .eq('repair_id', repairId)
-          .order('created_at', { ascending: true });
-
-        if (!history || history.length === 0) {
-          container.innerHTML = '<p class="text-xs opacity-60">ยังไม่มีบันทึกสถานะ</p>';
-          return;
-        }
-
-        container.innerHTML = history.map((h, index) => `
-          <div class="relative flex items-start gap-3">
-            <span class="absolute -left-6 top-1.5 w-3 h-3 rounded-full border-2 border-slate-900 ${index === history.length - 1 ? 'bg-cyan-400 ring-4 ring-cyan-500/30' : 'bg-purple-500'}"></span>
-            <div>
-              <span class="text-[11px] font-semibold">${h.status}</span>
-              <p class="text-xs opacity-80 mt-0.5 font-light">${h.note || 'ไม่มีบันทึกเพิ่มเติม'}</p>
-              <span class="text-[10px] opacity-60">โดย: ${h.changed_by} • ${formatDateTimeThai(h.created_at)}</span>
-            </div>
-          </div>
-        `).join('');
-      } catch (err) {
-        container.innerHTML = '<p class="text-xs text-rose-400">ไม่สามารถโหลดไทม์ไลน์ได้</p>';
-      }
-    }
-
-    async function handleUpdateRepairStatus() {
-      const repairId = STATE.activeRepairDetailId;
-      const status = document.getElementById('tech-update-status').value;
-      const cost = parseFloat(document.getElementById('tech-update-cost').value) || 0.00;
-      const note = document.getElementById('tech-update-note').value.trim();
-
-      showLoader('กำลังอัปเดตสถานะงาน...');
-      try {
-        await sbClient.from('repair_requests').update({
-          status,
-          estimated_cost: cost,
-          replaced_parts: note,
-          completed_at: (status === 'ซ่อมเสร็จแล้ว' || status === 'ส่งคืนแล้ว') ? new Date().toISOString() : null
-        }).eq('id', repairId);
-
-        const repair = STATE.repairs.find(r => r.id === repairId);
-        if (repair && repair.device_id && (status === 'ซ่อมเสร็จแล้ว' || status === 'ส่งคืนแล้ว')) {
-          await sbClient.from('ipad_devices').update({ device_status: 'พร้อมใช้งาน' }).eq('id', repair.device_id);
-        }
-
-        await sbClient.from('repair_history').insert([{
-          repair_id: repairId,
-          status: status,
-          note: note ? `สถานะ: ${status} (อะไหล่: ${note})` : `สถานะ: ${status}`,
-          changed_by: STATE.currentUser.full_name
-        }]);
-
-        logActivity('UPDATE_REPAIR_STATUS', 'repair_requests', repairId, `ปรับสถานะเป็น ${status}`);
-        showToast('อัปเดตสถานะงานซ่อมเรียบร้อย', 'success');
-        await loadInitialData();
-        renderRepairsTable(STATE.repairs);
-        loadRepairTimeline(repairId);
-      } catch (err) {
-        showToast('ไม่สามารถอัปเดตสถานะได้', 'error');
-      } finally {
-        hideLoader();
-      }
-    }
-
-    function printRepairSlip() {
-      const repair = STATE.repairs.find(r => r.id === STATE.activeRepairDetailId);
-      if (!repair) return;
-
-      document.getElementById('slip-ticket-no').innerText = repair.ticket_no;
-      document.getElementById('slip-uid').innerText = repair.device_uid || '-';
-      document.getElementById('slip-date').innerText = formatDateTimeThai(repair.reported_at);
-      document.getElementById('slip-serial').innerText = repair.ipad_serial;
-      document.getElementById('slip-asset').innerText = repair.ipad_asset_code;
-      document.getElementById('slip-model').innerText = repair.device_model;
-      document.getElementById('slip-school').innerText = 'โรงเรียนกระสังพิทยาคม';
-      document.getElementById('slip-user').innerText = repair.users?.full_name || '-';
-      document.getElementById('slip-priority').innerText = repair.priority;
-      document.getElementById('slip-problem').innerText = `${repair.problem_category} - ${repair.problem_detail}`;
-
-      const printArea = document.getElementById('print-area');
-      printArea.classList.remove('hidden');
-      window.print();
-      printArea.classList.add('hidden');
-    }
-
-    /* ================= OFFICIAL EXECUTIVE MONTHLY REPORT (PDF) ================= */
-    function printMonthlyExecutiveReport() {
-      const selectedYear = document.getElementById('report-year-select')?.value || STATE.settings.academic_year;
-      const filteredRepairs = STATE.repairs.filter(r => !selectedYear || r.academic_year === selectedYear);
-      const filteredDevices = STATE.devices.filter(d => !selectedYear || d.academic_year === selectedYear);
-
-      const studentCount = filteredDevices.filter(d => d.holder_type === 'นักเรียน').length;
-      const teacherCount = filteredDevices.filter(d => d.holder_type === 'ครู').length;
-      const labCount = filteredDevices.filter(d => ['ห้องปฏิบัติการ', 'สำรอง'].includes(d.holder_type)).length;
-      const totalCount = filteredDevices.length || STATE.devices.length;
-
-      const totalRepairs = filteredRepairs.length;
-      const completedRepairs = filteredRepairs.filter(r => ['ซ่อมเสร็จแล้ว', 'ส่งคืนแล้ว'].includes(r.status)).length;
-      const totalCost = filteredRepairs.reduce((sum, r) => sum + (parseFloat(r.estimated_cost) || 0), 0);
-
-      document.getElementById('rpt-school-logo').src = STATE.settings.logo_url;
-      document.getElementById('rpt-print-date').innerText = formatDateTimeThai(new Date());
-      document.getElementById('rpt-academic-year').innerText = selectedYear || 'รวมทุกปีการศึกษา';
-      document.getElementById('rpt-admin-name').innerText = `(${STATE.currentUser?.full_name || 'นายเอกณัฏฐ์ ศิริพัฒน์'})`;
-
-      document.getElementById('rpt-count-student').innerText = `${studentCount.toLocaleString()} เครื่อง`;
-      document.getElementById('rpt-count-teacher').innerText = `${teacherCount.toLocaleString()} เครื่อง`;
-      document.getElementById('rpt-count-lab').innerText = `${labCount.toLocaleString()} เครื่อง`;
-      document.getElementById('rpt-count-total').innerText = `${totalCount.toLocaleString()} เครื่อง`;
-
-      document.getElementById('rpt-repair-total').innerText = `${totalRepairs} รายการ`;
-      document.getElementById('rpt-repair-completed').innerText = `${completedRepairs} รายการ`;
-      document.getElementById('rpt-cost-total').innerText = `${totalCost.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท`;
-
-      const tbody = document.getElementById('rpt-repairs-tbody');
-      if (filteredRepairs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-3 text-center">ไม่มีข้อมูลการแจ้งซ่อมในรอบปีการศึกษา ${selectedYear}</td></tr>`;
-      } else {
-        tbody.innerHTML = filteredRepairs.map(r => `
-          <tr class="border-b border-gray-300">
-            <td class="p-2 border-r border-gray-300 font-mono font-bold">${r.ticket_no}</td>
-            <td class="p-2 border-r border-gray-300 font-mono">${r.device_uid || '-'} (${r.ipad_serial})</td>
-            <td class="p-2 border-r border-gray-300">${r.problem_category}</td>
-            <td class="p-2 border-r border-gray-300">${r.status}</td>
-            <td class="p-2 border-r border-gray-300">${r.replaced_parts || '-'}</td>
-            <td class="p-2 text-right font-mono">${(parseFloat(r.estimated_cost) || 0).toLocaleString('th-TH', { minimumFractionDigits: 2 })}</td>
-          </tr>
-        `).join('');
-      }
-
-      const printArea = document.getElementById('print-monthly-report-area');
-      printArea.classList.remove('hidden');
-      window.print();
-      printArea.classList.add('hidden');
-    }
-
-    function printDeviceRegistryPDF() {
-      showToast('กำลังเตรียมเอกสาร PDF ทะเบียน iPad...', 'info');
-      printMonthlyExecutiveReport();
-    }
-
-    function printRepairsListPDF() {
-      showToast('กำลังเตรียมเอกสาร PDF สรุปงานซ่อมบำรุง...', 'info');
-      printMonthlyExecutiveReport();
-    }
-
-    /* ================= AUDIT LOGS ================= */
-    async function loadAuditLogs() {
-      if (!sbClient) return;
-      showLoader('กำลังโหลดประวัติการใช้งาน...');
-      try {
-        const { data: logs } = await sbClient.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(200);
-        STATE.auditLogs = logs || [];
-        renderAuditLogsTable(STATE.auditLogs);
-      } catch (err) {
-        showToast('ไม่สามารถโหลด Audit Logs ได้', 'error');
-      } finally {
-        hideLoader();
-      }
-    }
-
-    function filterAuditLogs() {
-      const search = document.getElementById('log-search-input').value.toLowerCase();
-      const action = document.getElementById('log-filter-action').value;
-
-      const filtered = STATE.auditLogs.filter(l => {
-        const matchesSearch = (l.user_id && l.user_id.toLowerCase().includes(search)) ||
-                              (l.description && l.description.toLowerCase().includes(search)) ||
-                              (l.table_name && l.table_name.toLowerCase().includes(search));
-        const matchesAction = !action || l.action === action;
-        return matchesSearch && matchesAction;
-      });
-
-      renderAuditLogsTable(filtered);
-    }
-
-    function renderAuditLogsTable(data) {
-      const tbody = document.getElementById('logs-table-body');
-      if (!data || data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center opacity-60">ไม่พบประวัติกิจกรรม</td></tr>`;
-        return;
-      }
-
-      tbody.innerHTML = data.map(l => `
-        <tr class="hover:bg-white/5 transition font-mono text-[11px]">
-          <td class="p-4 opacity-60">${formatDateTimeThai(l.created_at)}</td>
-          <td class="p-4 text-cyan-400 font-sans font-semibold">${l.user_id} <span class="text-[10px] opacity-60">(${l.user_role || 'user'})</span></td>
-          <td class="p-4"><span class="px-2 py-0.5 rounded text-[10px] bg-purple-500/20 text-purple-400 border border-purple-500/30">${l.action}</span></td>
-          <td class="p-4 opacity-80">${l.table_name}</td>
-          <td class="p-4 font-sans">${l.description || '-'}</td>
-        </tr>
-      `).join('');
-    }
-
-    /* ================= SYSTEM SETTINGS & MASTER DATA ================= */
-    function loadSettingsForm() {
-      const s = STATE.settings;
-      document.getElementById('set-system-name').value = s.system_name;
-      document.getElementById('set-system-subname').value = s.system_subname;
-      document.getElementById('set-org-name').value = s.organization_name;
-      document.getElementById('set-academic-year').value = s.academic_year;
-      document.getElementById('set-contact-phone').value = s.contact_phone || '';
-      document.getElementById('set-contact-email').value = s.contact_email || '';
-      document.getElementById('settings-preview-logo').src = s.logo_url;
-      document.getElementById('set-supported-models').value = (s.supported_models || []).join(', ');
-      document.getElementById('set-problem-categories').value = (s.problem_categories || []).join(', ');
-    }
-
-    async function handleLogoSelected(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      showLoader('กำลังอัปโหลดโลโก้...');
-      try {
-        const compressed = await compressImage(file, 600, 600, 0.85);
-        const filePath = `system/logo_${Date.now()}.jpg`;
-        const { error: upErr } = await sbClient.storage.from('system-assets').upload(filePath, compressed);
-        if (upErr) throw upErr;
-
-        const { data: pubUrl } = sbClient.storage.from('system-assets').getPublicUrl(filePath);
-        STATE.settings.logo_url = pubUrl.publicUrl;
-        document.getElementById('settings-preview-logo').src = pubUrl.publicUrl;
-        showToast('อัปโหลดโลโก้เรียบร้อย', 'success');
-      } catch (err) {
-        showToast('ไม่สามารถอัปโหลดโลโก้ได้', 'error');
-      } finally {
-        hideLoader();
-      }
-    }
-
-    async function handleSaveSettings(e) {
-      e.preventDefault();
-      const modelsStr = document.getElementById('set-supported-models').value.trim();
-      const categoriesStr = document.getElementById('set-problem-categories').value.trim();
-
-      const parsedModels = modelsStr ? modelsStr.split(',').map(m => m.trim()).filter(Boolean) : STATE.settings.supported_models;
-      const parsedCategories = categoriesStr ? categoriesStr.split(',').map(c => c.trim()).filter(Boolean) : STATE.settings.problem_categories;
-
-      const payload = {
-        system_name: document.getElementById('set-system-name').value.trim(),
-        system_subname: document.getElementById('set-system-subname').value.trim(),
-        organization_name: document.getElementById('set-org-name').value.trim(),
-        academic_year: document.getElementById('set-academic-year').value.trim(),
-        contact_phone: document.getElementById('set-contact-phone').value.trim(),
-        contact_email: document.getElementById('set-contact-email').value.trim(),
-        logo_url: STATE.settings.logo_url,
-        supported_models: parsedModels,
-        problem_categories: parsedCategories
-      };
-
-      showLoader('กำลังบันทึกการตั้งค่า...');
-      try {
-        await sbClient.from('system_settings').upsert({ id: 'default', ...payload });
-        STATE.settings = { ...STATE.settings, ...payload };
-        applySystemBrandSettings();
-        logActivity('UPDATE', 'system_settings', 'default', 'แก้ไขการตั้งค่าระบบและรายการรุ่น iPad');
-        showToast('บันทึกการตั้งค่าระบบสำเร็จ', 'success');
-      } catch (err) {
-        showToast('ไม่สามารถบันทึกการตั้งค่าได้', 'error');
-      } finally {
-        hideLoader();
-      }
-    }
-
-    /* ================= USER MANAGEMENT ================= */
-    function renderUsersTable(users) {
-      const tbody = document.getElementById('users-table-body');
-      tbody.innerHTML = users.map(u => `
-        <tr class="hover:bg-white/5 transition">
-          <td class="p-4">
-            <div class="flex items-center gap-3">
-              <img src="${u.avatar_url}" class="w-8 h-8 rounded-xl object-cover border border-white/20" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'">
-              <div class="font-semibold">${u.full_name}</div>
-            </div>
-          </td>
-          <td class="p-4 font-mono opacity-80">${u.username}</td>
-          <td class="p-4"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase bg-purple-500/20 text-purple-400 border border-purple-500/30">${u.role}</span></td>
-          <td class="p-4"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-medium ${u.is_active ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}">${u.is_active ? 'เปิดใช้งาน' : 'ระงับ'}</span></td>
-          <td class="p-4 text-[11px] opacity-60">${formatDateTimeThai(u.last_login)}</td>
-          <td class="p-4 text-right">
-            <button onclick="confirmDelete('users', '${u.id}')" class="p-1.5 text-rose-400 hover:opacity-100 glass-panel rounded-lg" title="ลบผู้ใช้"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-          </td>
-        </tr>
-      `).join('');
-      lucide.createIcons();
-    }
-
-    function openUserModal() {
-      document.getElementById('user-form').reset();
-      showModal('user-modal');
-    }
-
-    async function handleSaveUser(e) {
-      e.preventDefault();
-      const fullname = document.getElementById('user-form-fullname').value.trim();
-      const username = document.getElementById('user-form-username').value.trim();
-      const password = document.getElementById('user-form-password').value;
-      const role = document.getElementById('user-form-role').value;
-
-      if (!password || password.length < 6) {
-        showToast('กรุณาระบุรหัสผ่านอย่างน้อย 6 ตัวอักษร', 'warning');
-        return;
-      }
-
-      showLoader('กำลังบันทึกข้อมูลผู้ใช้...');
-      try {
-        const passwordHash = await sha256(password);
-        const payload = {
-          user_code: `USR-${String(Date.now()).slice(-4)}`,
-          username,
-          password_hash: passwordHash,
-          full_name: fullname,
-          role,
-          is_active: true
-        };
-
-        await sbClient.from('users').insert([payload]);
-        logActivity('CREATE_USER', 'users', username, `สร้างบัญชี Role: ${role}`);
-        showToast('เพิ่มผู้ใช้งานสำเร็จ', 'success');
-        closeModal('user-modal');
-        await loadInitialData();
-        renderUsersTable(STATE.users);
-      } catch (err) {
-        showToast('ไม่สามารถบันทึกได้ (Username ซ้ำ)', 'error');
-      } finally {
-        hideLoader();
-      }
-    }
-
-    /* ================= GENERAL DELETE ================= */
-    let pendingDelete = { table: null, id: null };
-    function confirmDelete(table, id) {
-      pendingDelete = { table, id };
-      document.getElementById('btn-confirm-delete-action').onclick = executeDelete;
-      showModal('delete-confirm-modal');
-    }
-
-    async function executeDelete() {
-      const { table, id } = pendingDelete;
-      if (!table || !id) return;
-      closeModal('delete-confirm-modal');
-      showLoader('กำลังลบข้อมูล...');
-      try {
-        await sbClient.from(table).delete().eq('id', id);
-        logActivity('DELETE', table, id, `ลบรายการข้อมูล`);
-        showToast('ลบข้อมูลเรียบร้อยแล้ว', 'success');
-        await loadInitialData();
-        if (table === 'ipad_devices') renderDevicesTable(STATE.devices);
-        if (table === 'users') renderUsersTable(STATE.users);
-        if (table === 'repair_requests') renderRepairsTable(STATE.repairs);
-      } catch (err) {
-        showToast('ไม่สามารถลบข้อมูลได้ มีข้อมูลอ้างอิงอยู่', 'error');
-      } finally {
-        hideLoader();
-      }
-    }
-
-    /* ================= PROFILE ================= */
-    function loadProfileData() {
-      const user = STATE.currentUser;
-      document.getElementById('profile-preview-avatar').src = user.avatar_url;
-      document.getElementById('profile-display-name').innerText = user.full_name;
-      document.getElementById('profile-display-role').innerText = `Role: ${user.role}`;
-      document.getElementById('profile-fullname').value = user.full_name;
-      document.getElementById('profile-username').value = user.username;
-      document.getElementById('profile-phone').value = user.phone || '';
-      document.getElementById('profile-email').value = user.email || '';
-    }
-
-    async function handleAvatarSelected(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      showLoader('กำลังอัปโหลดรูปโปรไฟล์...');
-      try {
-        const compressed = await compressImage(file, 800, 800, 0.8);
-        const filePath = `avatars/${STATE.currentUser.id}_${Date.now()}.jpg`;
-        await sbClient.storage.from('avatars').upload(filePath, compressed);
-        const { data: pubUrl } = sbClient.storage.from('avatars').getPublicUrl(filePath);
-
-        await sbClient.from('users').update({ avatar_url: pubUrl.publicUrl }).eq('id', STATE.currentUser.id);
-        STATE.currentUser.avatar_url = pubUrl.publicUrl;
-        document.getElementById('profile-preview-avatar').src = pubUrl.publicUrl;
-        document.getElementById('sidebar-user-avatar').src = pubUrl.publicUrl;
-        document.getElementById('header-user-avatar').src = pubUrl.publicUrl;
-        showToast('เปลี่ยนรูปโปรไฟล์สำเร็จ', 'success');
-      } catch (err) {
-        showToast('ไม่สามารถเปลี่ยนรูปโปรไฟล์ได้', 'error');
-      } finally {
-        hideLoader();
-      }
-    }
-
-    async function handleUpdateProfile(e) {
-      e.preventDefault();
-      const fullname = document.getElementById('profile-fullname').value.trim();
-      const phone = document.getElementById('profile-phone').value.trim();
-      const email = document.getElementById('profile-email').value.trim();
-
-      showLoader('กำลังบันทึกข้อมูล...');
-      try {
-        await sbClient.from('users').update({ full_name: fullname, phone, email }).eq('id', STATE.currentUser.id);
-        STATE.currentUser.full_name = fullname;
-        STATE.currentUser.phone = phone;
-        STATE.currentUser.email = email;
-        setupAppLayout();
-        showToast('อัปเดตข้อมูลส่วนตัวเรียบร้อย', 'success');
-      } catch (err) {
-        showToast('ไม่สามารถอัปเดตข้อมูลได้', 'error');
-      } finally {
-        hideLoader();
-      }
-    }
-
-    /* ================= CSV EXPORT ================= */
+    /* ================= CSV EXPORT UTILITIES ================= */
     function exportDevicesCSV() {
       const year = document.getElementById('report-year-select')?.value || '';
       const list = STATE.devices.filter(d => !year || d.academic_year === year);
