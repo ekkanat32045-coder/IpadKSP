@@ -55,7 +55,7 @@
     }
     .font-inter { font-family: 'Inter', sans-serif; }
 
-    /* Dark Mode Theme */
+    /* Theme: Dark Mesh Gradient */
     html.dark body { background-color: #090d16; color: #f1f5f9; }
     html.dark .theme-mesh-bg {
       background: radial-gradient(circle at 10% 20%, rgba(99, 102, 241, 0.35) 0%, transparent 40%),
@@ -85,7 +85,7 @@
       color: #f8fafc;
     }
 
-    /* Light Mode Theme */
+    /* Theme: Light Glassmorphism */
     html:not(.dark) body { background-color: #f8fafc; color: #0f172a; }
     html:not(.dark) .theme-mesh-bg {
       background: radial-gradient(circle at 10% 20%, rgba(199, 210, 254, 0.5) 0%, transparent 40%),
@@ -138,6 +138,7 @@
     aside.collapsed .sidebar-footer-text { display: none !important; }
     aside.collapsed .nav-item-btn { justify-content: center !important; padding-left: 0 !important; padding-right: 0 !important; }
 
+    /* Print Document Styles */
     @media print {
       body * { visibility: hidden; }
       #print-area, #print-area *, #print-monthly-report-area, #print-monthly-report-area * { visibility: visible; }
@@ -216,13 +217,15 @@
         </p>
       </div>
 
-      <!-- สถิติประเภท iPad พร้อมตัวกรองปีการศึกษา -->
+      <!-- สถิติประเภท iPad พร้อมตัวกรองปีการศึกษา (ดึงจากฐานข้อมูลจริง) -->
       <div id="overview-section" class="space-y-6">
         <div class="flex flex-wrap items-center justify-between gap-3 p-4 rounded-3xl glass-panel border border-cyan-500/30">
           <div class="flex items-center gap-2">
             <i data-lucide="calendar" class="w-4 h-4 text-cyan-400"></i>
             <span class="text-xs font-semibold">เลือกปีการศึกษาสำหรับดูสถิติ:</span>
-            <select id="landing-year-select" onchange="filterLandingStats(this.value)" class="glass-input text-xs rounded-xl px-3 py-1.5 font-semibold text-cyan-400"></select>
+            <select id="landing-year-select" onchange="filterLandingStats(this.value)" class="glass-input text-xs rounded-xl px-3 py-1.5 font-semibold text-cyan-400">
+              <!-- Rendered Dynamically from SQL -->
+            </select>
           </div>
           <div class="text-xs opacity-70 flex items-center gap-1.5">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
@@ -350,8 +353,8 @@
 
         <div class="flex items-center justify-between text-xs opacity-80 pt-1">
           <label class="flex items-center gap-2 cursor-pointer">
-            <input type="checkbox" id="remember-me" checked class="rounded bg-slate-900 border-white/20 text-purple-600 focus:ring-purple-500">
-            <span class="text-[11px]">จำการเข้าสู่ระบบ (Remember Session)</span>
+            <input type="checkbox" id="remember-me" class="rounded bg-slate-900 border-white/20 text-purple-600 focus:ring-purple-500">
+            <span class="text-[11px]">จำการเข้าสู่ระบบ</span>
           </label>
           <span class="text-[11px]">รหัสเริ่มต้น: password123</span>
         </div>
@@ -401,9 +404,10 @@
     <!-- MAIN CONTENT AREA -->
     <div class="flex-1 flex flex-col min-w-0 pb-20 md:pb-6">
       
+      <!-- Top Header -->
       <header class="h-16 glass-panel border-b border-white/10 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-20">
         <div class="flex items-center gap-3">
-          <h2 id="top-page-title" class="text-base md:text-lg font-bold font-inter">ภาพรวมระบบ (Executive Dashboard)</h2>
+          <h2 id="top-page-title" class="text-base md:text-lg font-bold font-inter">ภาพรวมระบบ (Dashboard)</h2>
         </div>
 
         <div class="flex items-center gap-3">
@@ -421,6 +425,7 @@
         </div>
       </header>
 
+      <!-- Main Canvas -->
       <main class="flex-1 p-4 sm:p-6 max-w-7xl w-full mx-auto" id="main-content">
         
         <!-- PAGE 1: DASHBOARD -->
@@ -429,7 +434,9 @@
             <div class="flex items-center gap-2">
               <i data-lucide="filter" class="w-4 h-4 text-cyan-400"></i>
               <span class="text-xs font-semibold">เลือกปีการศึกษาสำหรับแสดงผล Dashboard:</span>
-              <select id="dash-year-select" onchange="filterDashboardByYear(this.value)" class="glass-input text-xs rounded-xl px-3 py-1.5 font-medium"></select>
+              <select id="dash-year-select" onchange="filterDashboardByYear(this.value)" class="glass-input text-xs rounded-xl px-3 py-1.5 font-medium">
+                <!-- Rendered dynamically -->
+              </select>
             </div>
             <div class="text-xs opacity-70">
               * กราฟและตัวเลขทั้งหมดจะปรับปรุงตามปีการศึกษาที่เลือกทันที
@@ -507,7 +514,9 @@
               </div>
 
               <div>
-                <select id="device-filter-year" onchange="filterDevices()" class="w-full text-xs glass-input rounded-xl px-3 py-2"></select>
+                <select id="device-filter-year" onchange="filterDevices()" class="w-full text-xs glass-input rounded-xl px-3 py-2">
+                  <!-- Rendered dynamically -->
+                </select>
               </div>
             </div>
 
@@ -580,7 +589,9 @@
             </div>
 
             <div class="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end">
-              <select id="repair-filter-year" onchange="filterRepairs()" class="text-xs glass-input rounded-xl px-3 py-2"></select>
+              <select id="repair-filter-year" onchange="filterRepairs()" class="text-xs glass-input rounded-xl px-3 py-2">
+                <!-- Rendered dynamically -->
+              </select>
 
               <select id="repair-filter-status" onchange="filterRepairs()" class="text-xs glass-input rounded-xl px-3 py-2">
                 <option value="" class="bg-slate-900 text-white">ทุกสถานะงาน</option>
@@ -816,7 +827,9 @@
 
               <div class="flex items-center gap-2">
                 <span class="text-xs font-medium opacity-80">ปีการศึกษาสำหรับออกรายงาน:</span>
-                <select id="report-year-select" class="glass-input text-xs rounded-xl px-3 py-1.5 font-semibold text-cyan-400"></select>
+                <select id="report-year-select" class="glass-input text-xs rounded-xl px-3 py-1.5 font-semibold text-cyan-400">
+                  <!-- Rendered dynamically -->
+                </select>
               </div>
             </div>
 
@@ -1358,7 +1371,6 @@
       e.preventDefault();
       const usernameInput = document.getElementById('login-username').value.trim();
       const passwordInput = document.getElementById('login-password').value;
-      const rememberMe = document.getElementById('remember-me').checked;
 
       if (!sbClient) {
         showToast('กรุณาระบุค่า SUPABASE_URL และ SUPABASE_ANON_KEY ใน index.html ก่อนใช้งาน', 'error');
@@ -1386,25 +1398,14 @@
         logActivity('LOGIN', 'users', user.id, `เข้าสู่ระบบสำเร็จ`);
 
         STATE.currentUser = user;
-        if (rememberMe) {
-          localStorage.setItem('ksp_session', JSON.stringify({
-            id: user.id,
-            username: user.username,
-            role: user.role,
-            full_name: user.full_name,
-            school_id: user.school_id,
-            avatar_url: user.avatar_url
-          }));
-        } else {
-          sessionStorage.setItem('ksp_session', JSON.stringify({
-            id: user.id,
-            username: user.username,
-            role: user.role,
-            full_name: user.full_name,
-            school_id: user.school_id,
-            avatar_url: user.avatar_url
-          }));
-        }
+        localStorage.setItem('ksp_session', JSON.stringify({
+          id: user.id,
+          username: user.username,
+          role: user.role,
+          full_name: user.full_name,
+          school_id: user.school_id,
+          avatar_url: user.avatar_url
+        }));
 
         closeLoginModal();
         showToast(`ยินดีต้อนรับ, ${user.full_name}`, 'success');
@@ -1426,7 +1427,6 @@
       logActivity('LOGOUT', 'users', STATE.currentUser?.id, `ออกจากระบบ`);
       STATE.currentUser = null;
       localStorage.removeItem('ksp_session');
-      sessionStorage.removeItem('ksp_session');
       document.getElementById('app-layout').classList.add('hidden');
       document.getElementById('landing-view').classList.remove('hidden');
       showToast('ออกจากระบบเรียบร้อยแล้ว', 'info');
@@ -1439,7 +1439,7 @@
       lucide.createIcons();
       await fetchSystemSettings();
 
-      const savedSession = localStorage.getItem('ksp_session') || sessionStorage.getItem('ksp_session');
+      const savedSession = localStorage.getItem('ksp_session');
       if (savedSession && sbClient) {
         try {
           const parsed = JSON.parse(savedSession);
@@ -1453,7 +1453,6 @@
           }
         } catch (e) {
           localStorage.removeItem('ksp_session');
-          sessionStorage.removeItem('ksp_session');
         }
       }
 
@@ -1543,7 +1542,7 @@
       }
     }
 
-    /* ================= LANDING STATS ================= */
+    /* ================= LANDING STATS (REAL SQL QUERY) ================= */
     function filterLandingStats(year) {
       STATE.selectedLandingYear = year;
       showToast(`ดึงข้อมูลจริงประจำปีการศึกษา ${year}`, 'info');
@@ -1561,6 +1560,7 @@
       const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
       const year = STATE.selectedLandingYear || STATE.settings.academic_year;
 
+      // กรองจากข้อมูลที่ดึงมาจากฐานข้อมูลจริง
       const filteredDevices = STATE.devices.filter(d => !year || d.academic_year === year);
       const studentCount = filteredDevices.filter(d => d.holder_type === 'นักเรียน').length;
       const teacherCount = filteredDevices.filter(d => d.holder_type === 'ครู').length;
@@ -1576,6 +1576,7 @@
       document.getElementById('stat-holder-total').innerText = totalCount.toLocaleString();
       document.getElementById('stat-holder-ready-rate').innerText = `พร้อมใช้งาน ${readyRate}%`;
 
+      // 1. Donut Chart
       const ctxHolder = document.getElementById('landing-chart-holder');
       if (ctxHolder) {
         if (STATE.charts.landingHolder) STATE.charts.landingHolder.destroy();
@@ -1603,6 +1604,7 @@
         });
       }
 
+      // 2. Bar Chart (จำนวนแจ้งซ่อมจริงตามระดับชั้น ม.1 - ม.6)
       const grades = ['ม.1', 'ม.2', 'ม.3', 'ม.4', 'ม.5', 'ม.6'];
       const gradeRepairs = grades.map(g => {
         return STATE.repairs.filter(r => {
@@ -1802,6 +1804,79 @@
       if (pageId === 'profile') loadProfileData();
 
       lucide.createIcons();
+    }
+
+    /* ================= SMART AUTOCOMPLETE SEARCH FOR REPAIR ================= */
+    function handleSmartSearch(query) {
+      const resultsContainer = document.getElementById('smart-search-results');
+      const q = query.trim().toLowerCase();
+
+      if (!q) {
+        resultsContainer.classList.add('hidden');
+        resultsContainer.innerHTML = '';
+        return;
+      }
+
+      const matched = STATE.devices.filter(d => {
+        return (d.device_uid && d.device_uid.toLowerCase().includes(q)) ||
+               (d.serial_number && d.serial_number.toLowerCase().includes(q)) ||
+               (d.asset_code && d.asset_code.toLowerCase().includes(q)) ||
+               (d.assigned_user && d.assigned_user.toLowerCase().includes(q)) ||
+               (d.user_code && d.user_code.toLowerCase().includes(q));
+      });
+
+      if (matched.length === 0) {
+        resultsContainer.innerHTML = `<div class="p-3 text-center text-xs opacity-60">ไม่พบเครื่อง iPad ที่ตรงกับคำค้นหา</div>`;
+        resultsContainer.classList.remove('hidden');
+        return;
+      }
+
+      resultsContainer.innerHTML = matched.slice(0, 6).map(d => `
+        <div onclick="selectSmartDevice('${d.id}')" class="p-2.5 rounded-xl glass-panel hover:border-cyan-400 cursor-pointer transition flex items-center justify-between">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-mono font-bold text-cyan-400">${d.device_uid || 'ksp-xxx'}</span>
+              <span class="text-xs font-semibold">${d.assigned_user}</span>
+            </div>
+            <div class="text-[11px] opacity-80 mt-0.5">${d.device_model} (SN: ${d.serial_number})</div>
+            <div class="text-[10px] opacity-60">${d.holder_type === 'นักเรียน' ? 'ชั้น ' + (d.grade_level || '-') + '/' + (d.classroom || '-') : d.holder_type}</div>
+          </div>
+          <span class="text-[10px] px-2 py-0.5 rounded bg-cyan-500/20 text-cyan-400 font-medium">เลือกเครื่องนี้</span>
+        </div>
+      `).join('');
+
+      resultsContainer.classList.remove('hidden');
+    }
+
+    function selectSmartDevice(deviceId) {
+      const dev = STATE.devices.find(d => d.id === deviceId);
+      if (!dev) return;
+
+      document.getElementById('repair-selected-device-id').value = dev.id;
+      document.getElementById('repair-serial').value = dev.serial_number;
+      document.getElementById('repair-asset-code').value = dev.asset_code;
+      document.getElementById('repair-model').value = dev.device_model;
+      document.getElementById('smart-device-search').value = `[${dev.device_uid || 'ksp-xxx'}] ${dev.assigned_user} - ${dev.device_model}`;
+
+      const card = document.getElementById('selected-device-card');
+      document.getElementById('card-dev-uid').innerText = dev.device_uid || 'ksp-xxx';
+      document.getElementById('card-dev-status').innerText = dev.device_status;
+      document.getElementById('card-dev-user').innerText = `${dev.assigned_user} (${dev.holder_type === 'นักเรียน' ? 'ชั้น ' + (dev.grade_level || '-') + '/' + (dev.classroom || '-') : dev.holder_type})`;
+      document.getElementById('card-dev-model').innerText = `${dev.device_model} • SN: ${dev.serial_number} • ครุภัณฑ์: ${dev.asset_code}`;
+      card.classList.remove('hidden');
+
+      document.getElementById('smart-search-results').classList.add('hidden');
+      showToast(`เลือกเครื่อง iPad [${dev.device_uid}] เรียบร้อย`, 'success');
+    }
+
+    function clearSmartSearch() {
+      document.getElementById('smart-device-search').value = '';
+      document.getElementById('repair-selected-device-id').value = '';
+      document.getElementById('repair-serial').value = '';
+      document.getElementById('repair-asset-code').value = '';
+      document.getElementById('repair-model').value = '';
+      document.getElementById('selected-device-card').classList.add('hidden');
+      document.getElementById('smart-search-results').classList.add('hidden');
     }
 
     /* ================= IPAD DEVICE CRUD ================= */
@@ -2406,7 +2481,7 @@
 
     /* ================= OFFICIAL EXECUTIVE MONTHLY REPORT (PDF) ================= */
     function printMonthlyExecutiveReport() {
-      const selectedYear = document.getElementById('report-year-select')?.value || STATE.settings.academic_year;
+      const selectedYear = document.getElementById('report-year-select').value || STATE.settings.academic_year;
       const filteredRepairs = STATE.repairs.filter(r => !selectedYear || r.academic_year === selectedYear);
       const filteredDevices = STATE.devices.filter(d => !selectedYear || d.academic_year === selectedYear);
 
@@ -2513,7 +2588,7 @@
       `).join('');
     }
 
-    /* ================= SYSTEM SETTINGS ================= */
+    /* ================= SYSTEM SETTINGS & MASTER DATA ================= */
     function loadSettingsForm() {
       const s = STATE.settings;
       document.getElementById('set-system-name').value = s.system_name;
@@ -2575,7 +2650,7 @@
         STATE.settings = { ...STATE.settings, ...payload };
         applySystemBrandSettings();
         logActivity('UPDATE', 'system_settings', 'default', 'แก้ไขการตั้งค่าระบบและรายการรุ่น iPad');
-        showToast('บันทึกการตั้งค่าระบบสำเร็จ', 'success');
+        showToast('บันทึกการตั้งค่าระบบและข้อมูลรุ่น iPad สำเร็จ', 'success');
       } catch (err) {
         showToast('ไม่สามารถบันทึกการตั้งค่าได้', 'error');
       } finally {
