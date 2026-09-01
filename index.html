@@ -156,6 +156,9 @@
 
   <!-- ================= CONFIG ================= -->
   <script>
+    // *********************************************************************************
+    // IMPORTANT: ใส่ค่า SUPABASE_URL และ SUPABASE_ANON_KEY ของคุณที่นี่
+    // *********************************************************************************
     const SUPABASE_URL = "https://redopwauisijeizvtrgi.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_5rbLPuTZVuerxBB_MURoRw_q7Y2WinB";
 
@@ -300,7 +303,7 @@
         <p class="text-xs opacity-80 max-w-xl mx-auto font-light">
           เข้าสู่ระบบเพื่อจัดการทะเบียนเครื่อง iPad ประวัติการครอบครอง หรือสร้างรายการแจ้งซ่อม
         </p>
-        <button onclick="openLoginModal()" class="px-8 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-medium text-xs shadow-glass-glow transition transform active:scale-95 inline-flex items-center gap-2">
+        <button onclick="openLoginModal()" class="px-8 py-3 rounded-2xl bg-gradient-to-r from-cyan-500 via-indigo-500 to-purple-600 hover:from-cyan-400 hover:to-purple-500 text-white font-medium text-xs shadow-glass-glow transition duration-300 flex items-center gap-2 transform active:scale-95 mx-auto">
           <span>เข้าสู่ระบบทันที</span>
           <i data-lucide="arrow-right" class="w-4 h-4"></i>
         </button>
@@ -1108,6 +1111,113 @@
       charts: { status: null, category: null, landingHolder: null, landingGrades: null }
     };
 
+    /* ================= RENDER DASHBOARD & UTILS ================= */
+    function renderDashboard() {
+      const user = STATE.currentUser;
+      if (!user) return;
+      const isAdminOrTech = ['admin', 'inventory_manager', 'technician'].includes(user.role);
+
+      document.getElementById('admin-dashboard-widgets').classList.toggle('hidden', !isAdminOrTech);
+      document.getElementById('employee-dashboard-widgets').classList.toggle('hidden', isAdminOrTech);
+
+      if (isAdminOrTech) {
+        renderAdminDashboard();
+      } else {
+        renderStaffDashboard();
+      }
+    }
+
+    function renderAdminDashboard() {
+      const year = STATE.selectedDashYear || '2569';
+      const filteredDevices = STATE.devices.filter(d => !year || d.academic_year === year);
+      const filteredRepairs = STATE.repairs.filter(r => !year || r.academic_year === year);
+
+      const totalDevices = filteredDevices.length || STATE.devices.length;
+      const readyDevices = filteredDevices.filter(d => d.device_status === 'พร้อมใช้งาน').length;
+      const repairingDevices = filteredDevices.filter(d => d.device_status === 'กำลังส่งซ่อม').length;
+      const totalRepairs = filteredRepairs.length;
+
+      document.getElementById('stats-cards-container').innerHTML = `
+        <div class="glass-panel p-5 rounded-3xl glass-highlight flex items-center justify-between">
+          <div>
+            <span class="text-[11px] font-medium block opacity-70">iPad ในระบบ (ปี ${year})</span>
+            <span class="text-2xl font-bold font-inter">${totalDevices} เครื่อง</span>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center border border-cyan-500/30">
+            <i data-lucide="tablet" class="w-5 h-5"></i>
+          </div>
+        </div>
+
+        <div class="glass-panel p-5 rounded-3xl glass-highlight flex items-center justify-between">
+          <div>
+            <span class="text-[11px] font-medium block opacity-70">พร้อมใช้งาน</span>
+            <span class="text-2xl font-bold text-emerald-400 font-inter">${readyDevices} เครื่อง</span>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+            <i data-lucide="check-circle" class="w-5 h-5"></i>
+          </div>
+        </div>
+
+        <div class="glass-panel p-5 rounded-3xl glass-highlight flex items-center justify-between">
+          <div>
+            <span class="text-[11px] font-medium block opacity-70">กำลังส่งซ่อม</span>
+            <span class="text-2xl font-bold text-indigo-400 font-inter">${repairingDevices} เครื่อง</span>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30">
+            <i data-lucide="wrench" class="w-5 h-5"></i>
+          </div>
+        </div>
+
+        <div class="glass-panel p-5 rounded-3xl glass-highlight flex items-center justify-between">
+          <div>
+            <span class="text-[11px] font-medium block opacity-70">รายการแจ้งซ่อมปี ${year}</span>
+            <span class="text-2xl font-bold text-purple-400 font-inter">${totalRepairs} ครั้ง</span>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center border border-purple-500/30">
+            <i data-lucide="activity" class="w-5 h-5"></i>
+          </div>
+        </div>
+      `;
+
+      renderCharts(filteredDevices, filteredRepairs);
+    }
+
+    function renderStaffDashboard() {
+      const user = STATE.currentUser;
+      document.getElementById('staff-dash-name').innerText = user.full_name;
+      document.getElementById('staff-dash-avatar').src = user.avatar_url;
+      document.getElementById('staff-dash-school').innerText = 'โรงเรียนกระสังพิทยาคม สพม.บุรีรัมย์';
+
+      const myDevices = STATE.devices;
+      const readyDev = myDevices.filter(d => d.device_status === 'พร้อมใช้งาน').length;
+      const myRepairs = STATE.repairs;
+      const pendingRepairs = myRepairs.filter(r => r.status === 'รอดำเนินการ').length;
+      const completedRepairs = myRepairs.filter(r => ['ซ่อมเสร็จแล้ว', 'ส่งคืนแล้ว'].includes(r.status)).length;
+
+      document.getElementById('staff-stat-cards').innerHTML = `
+        <div class="glass-panel p-4 rounded-2xl text-center"><span class="opacity-70 text-xs">iPad ทั้งหมด</span><p class="text-xl font-bold mt-1 font-inter">${myDevices.length}</p></div>
+        <div class="glass-panel p-4 rounded-2xl text-center"><span class="opacity-70 text-xs">พร้อมใช้งาน</span><p class="text-xl font-bold text-emerald-400 mt-1 font-inter">${readyDev}</p></div>
+        <div class="glass-panel p-4 rounded-2xl text-center"><span class="opacity-70 text-xs">รอดำเนินการซ่อม</span><p class="text-xl font-bold text-amber-400 mt-1 font-inter">${pendingRepairs}</p></div>
+        <div class="glass-panel p-4 rounded-2xl text-center"><span class="opacity-70 text-xs">ซ่อมเสร็จสิ้น</span><p class="text-xl font-bold text-cyan-400 mt-1 font-inter">${completedRepairs}</p></div>
+      `;
+
+      const listContainer = document.getElementById('staff-recent-repairs-list');
+      if (myRepairs.length === 0) {
+        listContainer.innerHTML = `<p class="text-xs opacity-60 text-center py-4">ยังไม่มีประวัติการแจ้งซ่อม</p>`;
+      } else {
+        listContainer.innerHTML = myRepairs.slice(0, 3).map(r => `
+          <div class="p-3.5 rounded-2xl glass-panel flex items-center justify-between">
+            <div>
+              <span class="text-xs font-mono font-bold text-cyan-400">${r.ticket_no}</span>
+              <p class="text-xs font-medium mt-0.5">${r.problem_category} - ${r.device_model}</p>
+              <span class="text-[10px] opacity-60">${formatDateThai(r.reported_at)}</span>
+            </div>
+            <button onclick="openRepairDetail('${r.id}')" class="px-3 py-1.5 glass-panel text-xs rounded-xl">ดูสถานะ</button>
+          </div>
+        `).join('');
+      }
+    }
+
     /* ================= THEME SWITCHER ================= */
     function initTheme() {
       const savedTheme = localStorage.getItem('ksp_theme');
@@ -1543,268 +1653,7 @@
       }
     }
 
-    /* ================= LANDING STATS ================= */
-    function filterLandingStats(year) {
-      STATE.selectedLandingYear = year;
-      showToast(`ดึงข้อมูลจริงประจำปีการศึกษา ${year}`, 'info');
-      renderLandingCharts();
-    }
-
-    async function loadLandingStats() {
-      populateDynamicYearDropdowns();
-      renderLandingCharts();
-    }
-
-    function renderLandingCharts() {
-      const isDark = STATE.isDarkMode;
-      const textColor = isDark ? '#cbd5e1' : '#475569';
-      const gridColor = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
-      const year = STATE.selectedLandingYear || STATE.settings.academic_year;
-
-      const filteredDevices = STATE.devices.filter(d => !year || d.academic_year === year);
-      const studentCount = filteredDevices.filter(d => d.holder_type === 'นักเรียน').length;
-      const teacherCount = filteredDevices.filter(d => d.holder_type === 'ครู').length;
-      const labCount = filteredDevices.filter(d => ['ห้องปฏิบัติการ', 'สำรอง'].includes(d.holder_type)).length;
-      const totalCount = filteredDevices.length || STATE.devices.length;
-
-      const readyCount = filteredDevices.filter(d => d.device_status === 'พร้อมใช้งาน').length;
-      const readyRate = totalCount > 0 ? ((readyCount / totalCount) * 100).toFixed(1) : 0;
-
-      document.getElementById('stat-holder-student').innerText = studentCount.toLocaleString();
-      document.getElementById('stat-holder-teacher').innerText = teacherCount.toLocaleString();
-      document.getElementById('stat-holder-lab').innerText = labCount.toLocaleString();
-      document.getElementById('stat-holder-total').innerText = totalCount.toLocaleString();
-      document.getElementById('stat-holder-ready-rate').innerText = `พร้อมใช้งาน ${readyRate}%`;
-
-      const ctxHolder = document.getElementById('landing-chart-holder');
-      if (ctxHolder) {
-        if (STATE.charts.landingHolder) STATE.charts.landingHolder.destroy();
-        STATE.charts.landingHolder = new Chart(ctxHolder, {
-          type: 'doughnut',
-          data: {
-            labels: [`iPad นักเรียน (${studentCount} เครื่อง)`, `iPad ครู (${teacherCount} เครื่อง)`, `ห้องปฏิบัติการ/สำรอง (${labCount} เครื่อง)`],
-            datasets: [{
-              data: [studentCount, teacherCount, labCount],
-              backgroundColor: ['#06b6d4', '#a855f7', '#3b82f6'],
-              borderColor: isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.05)',
-              borderWidth: 1.5
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: {
-                position: 'bottom',
-                labels: { color: textColor, font: { family: 'Sarabun', size: 11 } }
-              }
-            }
-          }
-        });
-      }
-
-      const grades = ['ม.1', 'ม.2', 'ม.3', 'ม.4', 'ม.5', 'ม.6'];
-      const gradeRepairs = grades.map(g => {
-        return STATE.repairs.filter(r => {
-          const matchedDev = STATE.devices.find(d => d.id === r.device_id || d.device_uid === r.device_uid || d.serial_number === r.ipad_serial);
-          const isYearMatch = !year || r.academic_year === year;
-          return isYearMatch && matchedDev && matchedDev.grade_level === g;
-        }).length;
-      });
-
-      const ctxGrades = document.getElementById('landing-chart-grades');
-      if (ctxGrades) {
-        if (STATE.charts.landingGrades) STATE.charts.landingGrades.destroy();
-        STATE.charts.landingGrades = new Chart(ctxGrades, {
-          type: 'bar',
-          data: {
-            labels: grades,
-            datasets: [{
-              label: `จำนวนงานแจ้งซ่อมจริงปี ${year} (รายการ)`,
-              data: gradeRepairs,
-              backgroundColor: 'rgba(168, 85, 247, 0.75)',
-              borderColor: '#a855f7',
-              borderWidth: 1,
-              borderRadius: 8
-            }]
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { legend: { display: false } },
-            scales: {
-              y: { beginAtZero: true, ticks: { stepSize: 1, color: textColor, font: { family: 'Sarabun' } }, grid: { color: gridColor } },
-              x: { ticks: { color: textColor, font: { family: 'Sarabun', size: 10 } }, grid: { display: false } }
-            }
-          }
-        });
-      }
-    }
-
-    function setupAppLayout() {
-      document.getElementById('landing-view').classList.add('hidden');
-      document.getElementById('app-layout').classList.remove('hidden');
-
-      const user = STATE.currentUser;
-      document.getElementById('sidebar-user-name').innerText = user.full_name;
-      document.getElementById('sidebar-user-role').innerText = `Role: ${user.role}`;
-      document.getElementById('sidebar-user-avatar').src = user.avatar_url;
-      document.getElementById('header-user-avatar').src = user.avatar_url;
-
-      const desktopNav = document.getElementById('desktop-nav');
-      let navItems = [
-        { id: 'dashboard', label: 'ภาพรวมระบบ', icon: 'layout-dashboard' },
-        { id: 'devices', label: 'ทะเบียนครุภัณฑ์ iPad', icon: 'tablet' },
-        { id: 'repairs', label: 'แจ้งซ่อม iPad', icon: 'wrench' },
-      ];
-
-      if (user.role === 'admin') {
-        navItems.push({ id: 'users', label: 'จัดการผู้ใช้งาน', icon: 'users' });
-        navItems.push({ id: 'audit-logs', label: 'ประวัติการใช้งาน (Log)', icon: 'history' });
-        navItems.push({ id: 'settings', label: 'การตั้งค่าระบบ', icon: 'settings' });
-      }
-
-      if (['admin', 'inventory_manager'].includes(user.role)) {
-        navItems.push({ id: 'reports', label: 'ศูนย์รายงานและส่งออก (PDF/CSV)', icon: 'file-spreadsheet' });
-      }
-
-      navItems.push({ id: 'profile', label: 'ข้อมูลส่วนตัว', icon: 'user' });
-
-      desktopNav.innerHTML = navItems.map(item => `
-        <button onclick="showPage('${item.id}')" id="nav-item-${item.id}" class="nav-item-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-medium opacity-80 hover:opacity-100 hover:bg-white/10 transition">
-          <i data-lucide="${item.icon}" class="w-4 h-4 shrink-0"></i>
-          <span class="sidebar-text truncate">${item.label}</span>
-        </button>
-      `).join('');
-
-      const mobileNav = document.getElementById('mobile-bottom-nav');
-      if (user.role === 'admin') {
-        mobileNav.innerHTML = `
-          <button onclick="showPage('dashboard')" class="flex flex-col items-center gap-1 opacity-70 hover:opacity-100">
-            <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-            <span class="text-[10px]">หน้าหลัก</span>
-          </button>
-          <button onclick="showPage('devices')" class="flex flex-col items-center gap-1 opacity-70 hover:opacity-100">
-            <i data-lucide="tablet" class="w-5 h-5"></i>
-            <span class="text-[10px]">ทะเบียน iPad</span>
-          </button>
-          <button onclick="toggleBottomSheet()" class="-mt-5 bg-gradient-to-tr from-cyan-500 via-indigo-500 to-purple-600 text-white p-3.5 rounded-2xl shadow-glass-glow">
-            <i data-lucide="layout-grid" class="w-5 h-5"></i>
-          </button>
-          <button onclick="showPage('repairs')" class="flex flex-col items-center gap-1 opacity-70 hover:opacity-100">
-            <i data-lucide="wrench" class="w-5 h-5"></i>
-            <span class="text-[10px]">แจ้งซ่อม</span>
-          </button>
-          <button onclick="showPage('profile')" class="flex flex-col items-center gap-1 opacity-70 hover:opacity-100">
-            <i data-lucide="user" class="w-5 h-5"></i>
-            <span class="text-[10px]">โปรไฟล์</span>
-          </button>
-        `;
-        renderMobileSheetGrid();
-      } else {
-        mobileNav.innerHTML = `
-          <button onclick="showPage('dashboard')" class="flex flex-col items-center gap-1 opacity-70 hover:opacity-100">
-            <i data-lucide="layout-dashboard" class="w-5 h-5"></i>
-            <span class="text-[10px]">หน้าหลัก</span>
-          </button>
-          <button onclick="showPage('devices')" class="flex flex-col items-center gap-1 opacity-70 hover:opacity-100">
-            <i data-lucide="tablet" class="w-5 h-5"></i>
-            <span class="text-[10px]">ทะเบียน iPad</span>
-          </button>
-          <button onclick="openRepairModal()" class="-mt-5 bg-gradient-to-tr from-emerald-500 to-teal-600 text-white p-3.5 rounded-2xl shadow-glass">
-            <i data-lucide="plus" class="w-5 h-5"></i>
-          </button>
-          <button onclick="showPage('repairs')" class="flex flex-col items-center gap-1 opacity-70 hover:opacity-100">
-            <i data-lucide="wrench" class="w-5 h-5"></i>
-            <span class="text-[10px]">แจ้งซ่อม</span>
-          </button>
-          <button onclick="showPage('profile')" class="flex flex-col items-center gap-1 opacity-70 hover:opacity-100">
-            <i data-lucide="user" class="w-5 h-5"></i>
-            <span class="text-[10px]">โปรไฟล์</span>
-          </button>
-        `;
-      }
-
-      lucide.createIcons();
-    }
-
-    function renderMobileSheetGrid() {
-      const grid = document.getElementById('mobile-sheet-grid');
-      grid.innerHTML = `
-        <button onclick="showPage('users'); toggleBottomSheet(false);" class="flex flex-col items-center p-3 rounded-2xl glass-panel">
-          <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-1.5"><i data-lucide="users" class="w-5 h-5"></i></div>
-          <span class="text-[11px] font-medium">จัดการ Users</span>
-        </button>
-        <button onclick="showPage('audit-logs'); toggleBottomSheet(false);" class="flex flex-col items-center p-3 rounded-2xl glass-panel">
-          <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-1.5"><i data-lucide="history" class="w-5 h-5"></i></div>
-          <span class="text-[11px] font-medium">ประวัติ (Log)</span>
-        </button>
-        <button onclick="showPage('settings'); toggleBottomSheet(false);" class="flex flex-col items-center p-3 rounded-2xl glass-panel">
-          <div class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center mb-1.5"><i data-lucide="settings" class="w-5 h-5"></i></div>
-          <span class="text-[11px] font-medium">การตั้งค่า</span>
-        </button>
-        <button onclick="showPage('reports'); toggleBottomSheet(false);" class="flex flex-col items-center p-3 rounded-2xl glass-panel">
-          <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-1.5"><i data-lucide="file-spreadsheet" class="w-5 h-5"></i></div>
-          <span class="text-[11px] font-medium">รายงาน</span>
-        </button>
-        <button onclick="showPage('profile'); toggleBottomSheet(false);" class="flex flex-col items-center p-3 rounded-2xl glass-panel">
-          <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center mb-1.5"><i data-lucide="user" class="w-5 h-5"></i></div>
-          <span class="text-[11px] font-medium">โปรไฟล์</span>
-        </button>
-        <button onclick="confirmLogout()" class="flex flex-col items-center p-3 rounded-2xl glass-panel text-rose-400">
-          <div class="w-10 h-10 rounded-xl bg-rose-500/20 text-rose-400 flex items-center justify-center mb-1.5"><i data-lucide="log-out" class="w-5 h-5"></i></div>
-          <span class="text-[11px] font-medium">ออกระบบ</span>
-        </button>
-      `;
-    }
-
-    function showPage(pageId) {
-      STATE.currentPage = pageId;
-      const pages = ['dashboard', 'devices', 'repairs', 'users', 'audit-logs', 'settings', 'reports', 'profile'];
-      
-      pages.forEach(p => {
-        const el = document.getElementById(`page-${p}`);
-        if (el) el.classList.add('hidden');
-      });
-
-      const activeEl = document.getElementById(`page-${pageId}`);
-      if (activeEl) activeEl.classList.remove('hidden');
-
-      const titles = {
-        dashboard: 'ภาพรวมระบบ (Executive Dashboard)',
-        devices: 'ทะเบียนครุภัณฑ์ iPad เพื่อการศึกษา (iPad Inventory)',
-        repairs: 'ระบบแจ้งซ่อม iPad (iPad Service Center)',
-        users: 'จัดการบัญชีผู้ใช้งาน (User Management)',
-        'audit-logs': 'ประวัติและบันทึกกิจกรรมระบบ (Audit Logs)',
-        settings: 'การตั้งค่าระบบและกำหนดสิทธิ์ (System Settings)',
-        reports: 'ศูนย์รายงานและส่งออกข้อมูล (Reports & Export Center)',
-        profile: 'ข้อมูลโปรไฟล์ผู้ใช้งาน (User Profile)'
-      };
-      document.getElementById('top-page-title').innerText = titles[pageId] || 'ระบบจัดการ';
-
-      pages.forEach(p => {
-        const navBtn = document.getElementById(`nav-item-${p}`);
-        if (navBtn) {
-          if (p === pageId) {
-            navBtn.className = "nav-item-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-medium text-white bg-gradient-to-r from-purple-500/40 to-indigo-500/40 border border-purple-500/50 shadow-glass";
-          } else {
-            navBtn.className = "nav-item-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-medium opacity-80 hover:opacity-100 hover:bg-white/10 transition";
-          }
-        }
-      });
-
-      if (pageId === 'dashboard') renderDashboard();
-      if (pageId === 'devices') renderDevicesTable(STATE.devices);
-      if (pageId === 'repairs') renderRepairsTable(STATE.repairs);
-      if (pageId === 'users') renderUsersTable(STATE.users);
-      if (pageId === 'audit-logs') loadAuditLogs();
-      if (pageId === 'settings') loadSettingsForm();
-      if (pageId === 'profile') loadProfileData();
-
-      lucide.createIcons();
-    }
-
-    /* ================= SUPABASE DATA SYNC ================= */
+    /* ================= SUPABASE DATA LOADERS ================= */
     async function loadInitialData() {
       if (!sbClient) return;
       showLoader('กำลังโหลดข้อมูลระบบ...');
@@ -1831,941 +1680,6 @@
         populateDynamicYearDropdowns();
       } catch (err) {
         showToast('ไม่สามารถโหลดข้อมูลระบบได้ครบถ้วน', 'error');
-      } finally {
-        hideLoader();
-      }
-    }
-
-    function filterDashboardByYear(year) {
-      STATE.selectedDashYear = year;
-      showToast(`กรองข้อมูลแดชบอร์ดตามปีการศึกษา ${year}`, 'info');
-      renderDashboard();
-    }
-
-    /* ================= IPAD DEVICE CRUD ================= */
-    function filterDevices() {
-      const search = document.getElementById('device-search-input').value.toLowerCase();
-      const grade = document.getElementById('device-filter-grade').value;
-      const year = document.getElementById('device-filter-year').value;
-      const holder = document.getElementById('device-filter-holder').value;
-      const status = document.getElementById('device-filter-status').value;
-
-      const filtered = STATE.devices.filter(d => {
-        const matchesSearch = (d.device_uid && d.device_uid.toLowerCase().includes(search)) ||
-                              (d.serial_number && d.serial_number.toLowerCase().includes(search)) ||
-                              (d.asset_code && d.asset_code.toLowerCase().includes(search)) ||
-                              (d.assigned_user && d.assigned_user.toLowerCase().includes(search)) ||
-                              (d.user_code && d.user_code.toLowerCase().includes(search));
-        const matchesGrade = !grade || d.grade_level === grade;
-        const matchesYear = !year || d.academic_year === year;
-        const matchesHolder = !holder || d.holder_type === holder;
-        const matchesStatus = !status || d.device_status === status;
-        return matchesSearch && matchesGrade && matchesYear && matchesHolder && matchesStatus;
-      });
-
-      renderDevicesTable(filtered);
-    }
-
-    function renderDevicesTable(data) {
-      const tbody = document.getElementById('devices-table-body');
-      const mobileList = document.getElementById('devices-mobile-list');
-      const emptyState = document.getElementById('devices-empty');
-
-      if (!data || data.length === 0) {
-        tbody.innerHTML = '';
-        mobileList.innerHTML = '';
-        emptyState.classList.remove('hidden');
-        return;
-      }
-      emptyState.classList.add('hidden');
-
-      const statusBadges = {
-        'พร้อมใช้งาน': 'text-emerald-400 bg-emerald-500/20 border-emerald-500/30',
-        'กำลังส่งซ่อม': 'text-amber-400 bg-amber-500/20 border-amber-500/30',
-        'สำรอง': 'text-cyan-400 bg-cyan-500/20 border-cyan-500/30',
-        'ชำรุดรอจำหน่าย': 'text-rose-400 bg-rose-500/20 border-rose-500/30',
-        'สูญหาย': 'opacity-70 bg-slate-500/20 border-slate-500/30'
-      };
-
-      tbody.innerHTML = data.map(d => {
-        const studentDetail = d.holder_type === 'นักเรียน' 
-          ? `ชั้น ${d.grade_level || '-'}/${d.classroom || '-'} (เลขที่ ${d.student_no || '-'})`
-          : `<span class="text-purple-400 font-medium">${d.holder_type}</span>`;
-
-        return `
-        <tr class="hover:bg-white/5 transition">
-          <td class="p-4">
-            <span class="text-xs font-mono font-bold px-2 py-0.5 rounded-lg bg-cyan-500/20 text-cyan-400 border border-cyan-500/30">${d.device_uid || 'ksp-xxx'}</span>
-            <div class="font-mono text-xs font-medium mt-1">${d.serial_number}</div>
-            <div class="text-[10px] opacity-60 font-mono">${d.asset_code}</div>
-          </td>
-          <td class="p-4">
-            <span class="px-2 py-0.5 rounded text-[10px] font-semibold ${d.holder_type === 'นักเรียน' ? 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20' : 'bg-purple-500/10 text-purple-400 border border-purple-500/20'}">${d.holder_type}</span>
-            <div class="text-[11px] opacity-70 mt-1">ปีการศึกษา ${d.academic_year || '2569'}</div>
-          </td>
-          <td class="p-4">
-            <div class="font-semibold">${d.assigned_user}</div>
-            <div class="text-[10px] opacity-60 font-mono">${d.user_code ? 'รหัส: ' + d.user_code : '-'}</div>
-          </td>
-          <td class="p-4">${studentDetail}</td>
-          <td class="p-4">
-            <div class="text-[11px]">ครู: ${d.advisor_name || '-'}</div>
-            <div class="text-[10px] opacity-70">ผปค: ${d.parent_name || '-'} (${d.contact_phone || '-'})</div>
-          </td>
-          <td class="p-4 text-[11px] opacity-80">${formatDateThai(d.borrow_date)}</td>
-          <td class="p-4 text-center">
-            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-medium border ${statusBadges[d.device_status] || ''}">${d.device_status}</span>
-          </td>
-          <td class="p-4 text-right">
-            <div class="flex items-center justify-end gap-1.5">
-              <button onclick="openDeviceHistoryModal('${d.id}')" class="p-1.5 text-purple-400 hover:opacity-100 glass-panel rounded-lg" title="ดูประวัติการครอบครอง/ซ่อมรายปี">
-                <i data-lucide="history" class="w-4 h-4"></i>
-              </button>
-              <button onclick="editDevice('${d.id}')" class="p-1.5 text-cyan-400 hover:opacity-100 glass-panel rounded-lg" title="แก้ไข">
-                <i data-lucide="edit-3" class="w-4 h-4"></i>
-              </button>
-              <button onclick="confirmDelete('ipad_devices', '${d.id}')" class="p-1.5 text-rose-400 hover:opacity-100 glass-panel rounded-lg" title="ลบ">
-                <i data-lucide="trash-2" class="w-4 h-4"></i>
-              </button>
-            </div>
-          </td>
-        </tr>
-      `}).join('');
-
-      mobileList.innerHTML = data.map(d => `
-        <div class="p-3.5 glass-panel rounded-2xl space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-mono font-bold text-cyan-400">${d.device_uid || 'ksp-xxx'} • ${d.serial_number}</span>
-            <span class="text-[10px] font-medium px-2 py-0.5 rounded-full border ${statusBadges[d.device_status] || ''}">${d.device_status}</span>
-          </div>
-          <div class="text-xs font-semibold">${d.assigned_user} (${d.holder_type === 'นักเรียน' ? d.grade_level + '/' + d.classroom : d.holder_type})</div>
-          <div class="text-[11px] opacity-80">ปีการศึกษา ${d.academic_year || '2569'} • ยืมเมื่อ: ${formatDateThai(d.borrow_date)}</div>
-          <div class="flex items-center justify-end gap-2 pt-2 border-t border-white/10">
-            <button onclick="openDeviceHistoryModal('${d.id}')" class="px-3 py-1 glass-panel text-purple-400 rounded-lg text-xs font-medium">ประวัติการใช้งาน</button>
-            <button onclick="editDevice('${d.id}')" class="px-3 py-1 glass-panel text-cyan-400 rounded-lg text-xs font-medium">แก้ไข</button>
-            <button onclick="confirmDelete('ipad_devices', '${d.id}')" class="px-3 py-1 glass-panel text-rose-400 rounded-lg text-xs font-medium">ลบ</button>
-          </div>
-        </div>
-      `).join('');
-
-      lucide.createIcons();
-    }
-
-    function openDeviceModal(device = null) {
-      populateConfigSelects();
-      const nextUid = device ? device.device_uid : generateNextDeviceUid();
-      document.getElementById('device-form-id').value = device ? device.id : '';
-      document.getElementById('device-form-uid').value = nextUid;
-      document.getElementById('device-form-uid-badge').innerText = `Auto ID: ${nextUid}`;
-
-      document.getElementById('device-form-holder-type').value = device ? device.holder_type : 'นักเรียน';
-      document.getElementById('device-form-academic-year').value = device ? (device.academic_year || '2569') : '2569';
-
-      document.getElementById('device-form-serial').value = device ? device.serial_number : '';
-      document.getElementById('device-form-asset').value = device ? device.asset_code : '';
-      document.getElementById('device-form-model').value = device ? device.device_model : STATE.settings.supported_models[0];
-      document.getElementById('device-form-storage').value = device ? device.storage_capacity : '64GB';
-      document.getElementById('device-form-color').value = device ? device.color : 'Silver';
-
-      document.getElementById('device-form-user-code').value = device ? (device.user_code || '') : '';
-      document.getElementById('device-form-user').value = device ? device.assigned_user : '';
-      document.getElementById('device-form-grade').value = device ? (device.grade_level || 'ม.1') : 'ม.1';
-      document.getElementById('device-form-classroom').value = device ? (device.classroom || '') : '';
-      document.getElementById('device-form-student-no').value = device ? (device.student_no || '') : '';
-
-      document.getElementById('device-form-advisor').value = device ? (device.advisor_name || '') : '';
-      document.getElementById('device-form-parent').value = device ? (device.parent_name || '') : '';
-      document.getElementById('device-form-phone').value = device ? (device.contact_phone || '') : '';
-      document.getElementById('device-form-borrow-date').value = device ? (device.borrow_date || '') : new Date().toISOString().split('T')[0];
-
-      document.getElementById('device-form-stylus').checked = device ? !!device.has_stylus : true;
-      document.getElementById('device-form-keyboard').checked = device ? !!device.has_keyboard_case : true;
-      document.getElementById('device-form-adapter').checked = device ? !!device.has_adapter_cable : true;
-      document.getElementById('device-form-status').value = device ? device.device_status : 'พร้อมใช้งาน';
-
-      toggleHolderFormFields(document.getElementById('device-form-holder-type').value);
-      document.getElementById('device-modal-title').innerText = device ? 'แก้ไขข้อมูลทะเบียน iPad' : 'เพิ่มทะเบียน iPad ใหม่ (Auto-ID)';
-      showModal('device-modal');
-    }
-
-    function editDevice(id) {
-      const dev = STATE.devices.find(d => d.id === id);
-      if (dev) openDeviceModal(dev);
-    }
-
-    async function handleSaveDevice(e) {
-      e.preventDefault();
-      const id = document.getElementById('device-form-id').value;
-      const holderType = document.getElementById('device-form-holder-type').value;
-      const academicYear = document.getElementById('device-form-academic-year').value.trim() || '2569';
-      const userCode = document.getElementById('device-form-user-code').value.trim() || null;
-      const assignedUser = document.getElementById('device-form-user').value.trim();
-      const gradeLevel = holderType === 'นักเรียน' ? document.getElementById('device-form-grade').value : null;
-      const classroom = holderType === 'นักเรียน' ? document.getElementById('device-form-classroom').value.trim() || null : null;
-      const studentNo = holderType === 'นักเรียน' ? document.getElementById('device-form-student-no').value.trim() || null : null;
-      const advisorName = document.getElementById('device-form-advisor').value.trim() || null;
-      const parentName = document.getElementById('device-form-parent').value.trim() || null;
-      const contactPhone = document.getElementById('device-form-phone').value.trim() || null;
-      const borrowDate = document.getElementById('device-form-borrow-date').value || new Date().toISOString().split('T')[0];
-
-      const payload = {
-        device_uid: document.getElementById('device-form-uid').value,
-        serial_number: document.getElementById('device-form-serial').value.trim(),
-        asset_code: document.getElementById('device-form-asset').value.trim(),
-        device_model: document.getElementById('device-form-model').value,
-        storage_capacity: document.getElementById('device-form-storage').value,
-        color: document.getElementById('device-form-color').value.trim(),
-        school_id: STATE.currentUser?.school_id || (STATE.schools[0]?.id || null),
-
-        holder_type: holderType,
-        academic_year: academicYear,
-        user_code: userCode,
-        assigned_user: assignedUser,
-        grade_level: gradeLevel,
-        classroom: classroom,
-        student_no: studentNo,
-        advisor_name: advisorName,
-        parent_name: parentName,
-        contact_phone: contactPhone,
-        borrow_date: borrowDate,
-
-        has_stylus: document.getElementById('device-form-stylus').checked,
-        has_keyboard_case: document.getElementById('device-form-keyboard').checked,
-        has_adapter_cable: document.getElementById('device-form-adapter').checked,
-        device_status: document.getElementById('device-form-status').value
-      };
-
-      showLoader('กำลังบันทึกข้อมูล iPad...');
-      try {
-        let targetDeviceId = id;
-        if (id) {
-          await sbClient.from('ipad_devices').update(payload).eq('id', id);
-          logActivity('UPDATE', 'ipad_devices', id, `แก้ไขเครื่อง ${payload.device_uid} (${payload.assigned_user})`);
-          showToast('แก้ไขข้อมูล iPad สำเร็จ', 'success');
-        } else {
-          const { data: insertedDev, error: insErr } = await sbClient.from('ipad_devices').insert([payload]).select().single();
-          if (insErr) throw insErr;
-          targetDeviceId = insertedDev.id;
-          logActivity('CREATE', 'ipad_devices', payload.device_uid, `เพิ่มทะเบียน iPad รหัส ${payload.device_uid}`);
-          showToast(`เพิ่มทะเบียน iPad รหัส ${payload.device_uid} สำเร็จ`, 'success');
-        }
-
-        await sbClient.from('device_custody_history').insert([{
-          device_id: targetDeviceId,
-          device_uid: payload.device_uid,
-          academic_year: academicYear,
-          holder_type: holderType,
-          user_code: userCode,
-          assigned_user: assignedUser,
-          grade_level: gradeLevel,
-          classroom: classroom,
-          student_no: studentNo,
-          advisor_name: advisorName,
-          parent_name: parentName,
-          contact_phone: contactPhone,
-          borrow_date: borrowDate,
-          recorded_by: STATE.currentUser?.full_name || 'admin'
-        }]);
-
-        closeModal('device-modal');
-        await loadInitialData();
-        renderDevicesTable(STATE.devices);
-      } catch (err) {
-        showToast('ไม่สามารถบันทึกได้ (Serial No หรือ รหัสครุภัณฑ์ ซ้ำ)', 'error');
-      } finally {
-        hideLoader();
-      }
-    }
-
-    /* ================= DEVICE CUSTODY & REPAIR LIFECYCLE MODAL ================= */
-    async function openDeviceHistoryModal(deviceId) {
-      const dev = STATE.devices.find(d => d.id === deviceId);
-      if (!dev) return;
-
-      document.getElementById('hist-dev-uid').innerText = dev.device_uid || 'ksp-xxx';
-      document.getElementById('hist-dev-serial').innerText = dev.serial_number;
-      document.getElementById('hist-dev-asset').innerText = dev.asset_code;
-      document.getElementById('hist-dev-model').innerText = `${dev.device_model} (${dev.storage_capacity})`;
-      document.getElementById('hist-dev-status').innerText = dev.device_status;
-      document.getElementById('hist-dev-status').className = `inline-block px-2 py-0.5 rounded text-[11px] font-medium ${dev.device_status === 'พร้อมใช้งาน' ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`;
-
-      const custodyList = document.getElementById('hist-custody-list');
-      const devCustody = STATE.custodyHistory.filter(c => c.device_id === deviceId || c.device_uid === dev.device_uid);
-      if (devCustody.length === 0) {
-        custodyList.innerHTML = `<p class="text-xs opacity-60 glass-panel p-3 rounded-xl text-center">ยังไม่มีประวัติการครอบครองย้อนหลัง</p>`;
-      } else {
-        custodyList.innerHTML = devCustody.map(c => `
-          <div class="p-3.5 rounded-2xl glass-panel border border-emerald-500/20 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-            <div>
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-bold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400">ปีการศึกษา ${c.academic_year}</span>
-                <span class="text-xs font-semibold">${c.assigned_user}</span>
-                <span class="text-[10px] opacity-70">(${c.holder_type})</span>
-              </div>
-              <div class="text-[11px] opacity-80 mt-1">
-                ${c.holder_type === 'นักเรียน' ? 'ชั้น ' + (c.grade_level || '-') + '/' + (c.classroom || '-') + ' เลขที่ ' + (c.student_no || '-') : 'บุคลากร'}
-                ${c.advisor_name ? ' • ครูที่ปรึกษา: ' + c.advisor_name : ''}
-              </div>
-              <div class="text-[10px] opacity-60 mt-0.5">
-                ยืมเมื่อ: ${formatDateThai(c.borrow_date)} ${c.return_date ? ' • คืนเมื่อ: ' + formatDateThai(c.return_date) : ' • กำลังถือครอง'}
-              </div>
-            </div>
-          </div>
-        `).join('');
-      }
-
-      const repairList = document.getElementById('hist-repair-list');
-      const devRepairs = STATE.repairs.filter(r => r.device_id === deviceId || r.device_uid === dev.device_uid || r.ipad_serial === dev.serial_number);
-      if (devRepairs.length === 0) {
-        repairList.innerHTML = `<p class="text-xs opacity-60 glass-panel p-3 rounded-xl text-center">ไม่พบประวัติการส่งซ่อมหรือเคลมประกัน</p>`;
-      } else {
-        repairList.innerHTML = devRepairs.map(r => `
-          <div class="p-3.5 rounded-2xl glass-panel border border-purple-500/20 space-y-1.5">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-bold px-2 py-0.5 rounded bg-purple-500/20 text-purple-400 font-mono">${r.ticket_no}</span>
-                <span class="text-xs font-semibold">${r.problem_category}</span>
-              </div>
-              <span class="text-[10px] px-2 py-0.5 rounded-full bg-slate-500/20 font-medium">${r.status}</span>
-            </div>
-            <p class="text-xs opacity-80 font-light">${r.problem_detail}</p>
-            <div class="flex items-center justify-between text-[10px] opacity-60 pt-1 border-t border-white/5">
-              <span>วันที่แจ้ง: ${formatDateThai(r.reported_at)} • ค่าซ่อม: ${(parseFloat(r.estimated_cost) || 0).toLocaleString()} บาท</span>
-              <span>อะไหล่: ${r.replaced_parts || 'ไม่มี'}</span>
-            </div>
-          </div>
-        `).join('');
-      }
-
-      showModal('device-history-modal');
-    }
-
-    /* ================= IPAD REPAIR WORKFLOW ================= */
-    function openRepairModal() {
-      populateConfigSelects();
-      document.getElementById('repair-form').reset();
-      clearSmartSearch();
-      showModal('repair-modal');
-    }
-
-    async function handleSaveRepair(e) {
-      e.preventDefault();
-      const user = STATE.currentUser;
-      const deviceId = document.getElementById('repair-selected-device-id').value || null;
-      const selectedDevice = STATE.devices.find(d => d.id === deviceId);
-      const serial = document.getElementById('repair-serial').value.trim();
-      const assetCode = document.getElementById('repair-asset-code').value.trim();
-      const model = document.getElementById('repair-model').value.trim();
-      const category = document.getElementById('repair-category').value;
-      const priority = document.querySelector('input[name="priority"]:checked')?.value || 'ปกติ';
-      const detail = document.getElementById('repair-detail').value.trim();
-      const imageFile = document.getElementById('repair-image-file').files[0];
-
-      showLoader('กำลังส่งเรื่องแจ้งซ่อม...');
-      try {
-        const ticketNo = `IPAD-2569-${String(Date.now()).slice(-4)}`;
-        const payload = {
-          ticket_no: ticketNo,
-          device_id: deviceId,
-          device_uid: selectedDevice ? selectedDevice.device_uid : null,
-          academic_year: selectedDevice ? (selectedDevice.academic_year || '2569') : '2569',
-          school_id: user.school_id || (STATE.schools[0]?.id || null),
-          user_id: user.id,
-          ipad_serial: serial,
-          ipad_asset_code: assetCode,
-          device_model: model,
-          problem_category: category,
-          problem_detail: detail,
-          priority: priority,
-          status: 'รอดำเนินการ',
-          reported_at: new Date().toISOString()
-        };
-
-        const { data: repairData, error } = await sbClient.from('repair_requests').insert([payload]).select().single();
-        if (error) throw error;
-
-        if (deviceId) {
-          await sbClient.from('ipad_devices').update({ device_status: 'กำลังส่งซ่อม' }).eq('id', deviceId);
-        }
-
-        await sbClient.from('repair_history').insert([{
-          repair_id: repairData.id,
-          status: 'รอดำเนินการ',
-          note: 'สร้างคำขอแจ้งซ่อมผ่านระบบ',
-          changed_by: user.full_name
-        }]);
-
-        if (imageFile) {
-          showLoader('กำลังบีบอัดรูปถ่าย...');
-          const compressed = await compressImage(imageFile, 1600, 1600, 0.75);
-          const filePath = `${repairData.id}/${Date.now()}_${compressed.name}`;
-          const { error: upErr } = await sbClient.storage.from('ipad-repair').upload(filePath, compressed);
-          if (!upErr) {
-            const { data: pubUrl } = sbClient.storage.from('ipad-repair').getPublicUrl(filePath);
-            await sbClient.from('repair_attachments').insert([{
-              repair_id: repairData.id,
-              file_path: filePath,
-              file_url: pubUrl.publicUrl,
-              file_type: 'image/jpeg',
-              file_size: compressed.size,
-              uploaded_by: user.full_name
-            }]);
-          }
-        }
-
-        logActivity('CREATE_REPAIR', 'repair_requests', repairData.id, `Ticket ${ticketNo}`);
-        showToast(`แจ้งซ่อมสำเร็จ หมายเลข Ticket: ${ticketNo}`, 'success');
-        closeModal('repair-modal');
-        await loadInitialData();
-        renderRepairsTable(STATE.repairs);
-      } catch (err) {
-        showToast('ไม่สามารถส่งคำขอแจ้งซ่อมได้', 'error');
-      } finally {
-        hideLoader();
-      }
-    }
-
-    function filterRepairs() {
-      const search = document.getElementById('repair-search-input').value.toLowerCase();
-      const year = document.getElementById('repair-filter-year').value;
-      const status = document.getElementById('repair-filter-status').value;
-
-      const filtered = STATE.repairs.filter(r => {
-        const matchesSearch = (r.ticket_no && r.ticket_no.toLowerCase().includes(search)) ||
-                              (r.device_uid && r.device_uid.toLowerCase().includes(search)) ||
-                              (r.ipad_serial && r.ipad_serial.toLowerCase().includes(search)) ||
-                              (r.users?.full_name && r.users.full_name.toLowerCase().includes(search));
-        const matchesYear = !year || r.academic_year === year;
-        const matchesStatus = !status || r.status === status;
-        return matchesSearch && matchesYear && matchesStatus;
-      });
-
-      renderRepairsTable(filtered);
-    }
-
-    function renderRepairsTable(data) {
-      const tbody = document.getElementById('repairs-table-body');
-      const mobileList = document.getElementById('repairs-mobile-list');
-      const emptyState = document.getElementById('repairs-empty');
-
-      if (!data || data.length === 0) {
-        tbody.innerHTML = '';
-        mobileList.innerHTML = '';
-        emptyState.classList.remove('hidden');
-        return;
-      }
-      emptyState.classList.add('hidden');
-
-      const priorityBadges = {
-        ต่ำ: 'opacity-70 bg-slate-500/20 border-slate-500/30',
-        ปกติ: 'text-cyan-400 bg-cyan-500/20 border-cyan-500/30',
-        สูง: 'text-amber-400 bg-amber-500/20 border-amber-500/30',
-        เร่งด่วน: 'text-rose-400 bg-rose-500/20 border-rose-500/30'
-      };
-
-      const statusBadges = {
-        รอดำเนินการ: 'text-amber-400 bg-amber-500/20 border-amber-500/30',
-        รับเรื่องแล้ว: 'text-cyan-400 bg-cyan-500/20 border-cyan-500/30',
-        กำลังตรวจสอบ: 'text-indigo-400 bg-indigo-500/20 border-indigo-500/30',
-        กำลังซ่อม: 'text-blue-400 bg-blue-500/20 border-blue-500/30',
-        รออะไหล่: 'text-purple-400 bg-purple-500/20 border-purple-500/30',
-        ซ่อมเสร็จแล้ว: 'text-emerald-400 bg-emerald-500/20 border-emerald-500/30',
-        ส่งคืนแล้ว: 'text-teal-400 bg-teal-500/20 border-teal-500/30',
-        ยกเลิก: 'opacity-70 bg-slate-500/20 border-slate-500/30'
-      };
-
-      tbody.innerHTML = data.map(r => `
-        <tr class="hover:bg-white/5 transition">
-          <td class="p-4">
-            <div class="font-bold font-mono text-cyan-400">${r.ticket_no}</div>
-            <div class="text-[11px] opacity-70">${r.device_uid ? '[' + r.device_uid + '] ' : ''}${r.device_model}</div>
-          </td>
-          <td class="p-4">
-            <div class="font-medium">${r.users?.full_name || 'ไม่ระบุ'}</div>
-            <div class="text-[10px] opacity-60">ปีการศึกษา ${r.academic_year || '2569'}</div>
-          </td>
-          <td class="p-4 font-semibold">${r.problem_category}</td>
-          <td class="p-4"><span class="px-2 py-0.5 rounded-full text-[10px] font-medium border ${priorityBadges[r.priority] || ''}">${r.priority}</span></td>
-          <td class="p-4"><span class="px-2.5 py-1 rounded-full text-[11px] font-medium border ${statusBadges[r.status] || ''}">${r.status}</span></td>
-          <td class="p-4 text-[11px] opacity-60">${formatDateThai(r.reported_at)}</td>
-          <td class="p-4 text-right">
-            <button onclick="openRepairDetail('${r.id}')" class="px-3 py-1.5 glass-panel text-xs rounded-xl">ดูรายละเอียด</button>
-          </td>
-        </tr>
-      `).join('');
-
-      mobileList.innerHTML = data.map(r => `
-        <div class="p-3.5 glass-panel rounded-2xl space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-mono font-bold text-cyan-400">${r.ticket_no}</span>
-            <span class="text-[10px] font-medium px-2 py-0.5 rounded-full border ${statusBadges[r.status] || ''}">${r.status}</span>
-          </div>
-          <div class="text-xs font-semibold">${r.problem_category} - ${r.device_model}</div>
-          <div class="text-[11px] opacity-80">ปีการศึกษา ${r.academic_year || '2569'} • ผู้แจ้ง: ${r.users?.full_name || '-'}</div>
-          <div class="flex items-center justify-between pt-2 border-t border-white/10">
-            <span class="text-[10px] opacity-60">${formatDateThai(r.reported_at)}</span>
-            <button onclick="openRepairDetail('${r.id}')" class="px-3 py-1 glass-panel text-cyan-400 rounded-lg text-xs font-medium">ดูไทม์ไลน์</button>
-          </div>
-        </div>
-      `).join('');
-
-      lucide.createIcons();
-    }
-
-    async function openRepairDetail(repairId) {
-      STATE.activeRepairDetailId = repairId;
-      const repair = STATE.repairs.find(r => r.id === repairId);
-      if (!repair) return;
-
-      document.getElementById('detail-ticket-no').innerText = repair.ticket_no;
-      document.getElementById('detail-reporter').innerText = repair.users?.full_name || 'ไม่ระบุ';
-      document.getElementById('detail-year').innerText = `ปีการศึกษา ${repair.academic_year || '2569'}`;
-      document.getElementById('detail-serial').innerText = `${repair.ipad_serial} (${repair.device_uid || '-'})`;
-      document.getElementById('detail-problem-desc').innerText = `${repair.problem_category}: ${repair.problem_detail}`;
-
-      const statusPill = document.getElementById('detail-status-pill');
-      statusPill.innerText = repair.status;
-      statusPill.className = `inline-block px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-cyan-500/20 text-cyan-400 border border-cyan-500/30`;
-
-      const gallery = document.getElementById('detail-attachments-gallery');
-      const box = document.getElementById('detail-attachments-box');
-      if (repair.repair_attachments && repair.repair_attachments.length > 0) {
-        box.classList.remove('hidden');
-        gallery.innerHTML = repair.repair_attachments.map(att => `
-          <a href="${att.file_url}" target="_blank" rel="noopener noreferrer" class="block w-20 h-20 rounded-2xl overflow-hidden glass-panel border border-white/20">
-            <img src="${att.file_url}" class="w-full h-full object-cover">
-          </a>
-        `).join('');
-      } else {
-        box.classList.add('hidden');
-      }
-
-      loadRepairTimeline(repairId);
-
-      const canManage = ['admin', 'technician'].includes(STATE.currentUser.role);
-      document.getElementById('technician-action-panel').classList.toggle('hidden', !canManage);
-      document.getElementById('tech-update-status').value = repair.status;
-      document.getElementById('tech-update-cost').value = repair.estimated_cost || '';
-      document.getElementById('tech-update-note').value = repair.replaced_parts || '';
-
-      showModal('repair-detail-modal');
-    }
-
-    async function loadRepairTimeline(repairId) {
-      const container = document.getElementById('repair-timeline-container');
-      container.innerHTML = '<p class="text-xs opacity-60">กำลังโหลดไทม์ไลน์...</p>';
-
-      try {
-        const { data: history } = await sbClient
-          .from('repair_history')
-          .select('*')
-          .eq('repair_id', repairId)
-          .order('created_at', { ascending: true });
-
-        if (!history || history.length === 0) {
-          container.innerHTML = '<p class="text-xs opacity-60">ยังไม่มีบันทึกสถานะ</p>';
-          return;
-        }
-
-        container.innerHTML = history.map((h, index) => `
-          <div class="relative flex items-start gap-3">
-            <span class="absolute -left-6 top-1.5 w-3 h-3 rounded-full border-2 border-slate-900 ${index === history.length - 1 ? 'bg-cyan-400 ring-4 ring-cyan-500/30' : 'bg-purple-500'}"></span>
-            <div>
-              <span class="text-[11px] font-semibold">${h.status}</span>
-              <p class="text-xs opacity-80 mt-0.5 font-light">${h.note || 'ไม่มีบันทึกเพิ่มเติม'}</p>
-              <span class="text-[10px] opacity-60">โดย: ${h.changed_by} • ${formatDateTimeThai(h.created_at)}</span>
-            </div>
-          </div>
-        `).join('');
-      } catch (err) {
-        container.innerHTML = '<p class="text-xs text-rose-400">ไม่สามารถโหลดไทม์ไลน์ได้</p>';
-      }
-    }
-
-    async function handleUpdateRepairStatus() {
-      const repairId = STATE.activeRepairDetailId;
-      const status = document.getElementById('tech-update-status').value;
-      const cost = parseFloat(document.getElementById('tech-update-cost').value) || 0.00;
-      const note = document.getElementById('tech-update-note').value.trim();
-
-      showLoader('กำลังอัปเดตสถานะงาน...');
-      try {
-        await sbClient.from('repair_requests').update({
-          status,
-          estimated_cost: cost,
-          replaced_parts: note,
-          completed_at: (status === 'ซ่อมเสร็จแล้ว' || status === 'ส่งคืนแล้ว') ? new Date().toISOString() : null
-        }).eq('id', repairId);
-
-        const repair = STATE.repairs.find(r => r.id === repairId);
-        if (repair && repair.device_id && (status === 'ซ่อมเสร็จแล้ว' || status === 'ส่งคืนแล้ว')) {
-          await sbClient.from('ipad_devices').update({ device_status: 'พร้อมใช้งาน' }).eq('id', repair.device_id);
-        }
-
-        await sbClient.from('repair_history').insert([{
-          repair_id: repairId,
-          status: status,
-          note: note ? `สถานะ: ${status} (อะไหล่: ${note})` : `สถานะ: ${status}`,
-          changed_by: STATE.currentUser.full_name
-        }]);
-
-        logActivity('UPDATE_REPAIR_STATUS', 'repair_requests', repairId, `ปรับสถานะเป็น ${status}`);
-        showToast('อัปเดตสถานะงานซ่อมเรียบร้อย', 'success');
-        await loadInitialData();
-        renderRepairsTable(STATE.repairs);
-        loadRepairTimeline(repairId);
-      } catch (err) {
-        showToast('ไม่สามารถอัปเดตสถานะได้', 'error');
-      } finally {
-        hideLoader();
-      }
-    }
-
-    function printRepairSlip() {
-      const repair = STATE.repairs.find(r => r.id === STATE.activeRepairDetailId);
-      if (!repair) return;
-
-      document.getElementById('slip-ticket-no').innerText = repair.ticket_no;
-      document.getElementById('slip-uid').innerText = repair.device_uid || '-';
-      document.getElementById('slip-date').innerText = formatDateTimeThai(repair.reported_at);
-      document.getElementById('slip-serial').innerText = repair.ipad_serial;
-      document.getElementById('slip-asset').innerText = repair.ipad_asset_code;
-      document.getElementById('slip-model').innerText = repair.device_model;
-      document.getElementById('slip-school').innerText = 'โรงเรียนกระสังพิทยาคม';
-      document.getElementById('slip-user').innerText = repair.users?.full_name || '-';
-      document.getElementById('slip-priority').innerText = repair.priority;
-      document.getElementById('slip-problem').innerText = `${repair.problem_category} - ${repair.problem_detail}`;
-
-      const printArea = document.getElementById('print-area');
-      printArea.classList.remove('hidden');
-      window.print();
-      printArea.classList.add('hidden');
-    }
-
-    /* ================= OFFICIAL EXECUTIVE MONTHLY REPORT (PDF) ================= */
-    function printMonthlyExecutiveReport() {
-      const selectedYear = document.getElementById('report-year-select')?.value || STATE.settings.academic_year;
-      const filteredRepairs = STATE.repairs.filter(r => !selectedYear || r.academic_year === selectedYear);
-      const filteredDevices = STATE.devices.filter(d => !selectedYear || d.academic_year === selectedYear);
-
-      const studentCount = filteredDevices.filter(d => d.holder_type === 'นักเรียน').length;
-      const teacherCount = filteredDevices.filter(d => d.holder_type === 'ครู').length;
-      const labCount = filteredDevices.filter(d => ['ห้องปฏิบัติการ', 'สำรอง'].includes(d.holder_type)).length;
-      const totalCount = filteredDevices.length || STATE.devices.length;
-
-      const totalRepairs = filteredRepairs.length;
-      const completedRepairs = filteredRepairs.filter(r => ['ซ่อมเสร็จแล้ว', 'ส่งคืนแล้ว'].includes(r.status)).length;
-      const totalCost = filteredRepairs.reduce((sum, r) => sum + (parseFloat(r.estimated_cost) || 0), 0);
-
-      document.getElementById('rpt-school-logo').src = STATE.settings.logo_url;
-      document.getElementById('rpt-print-date').innerText = formatDateTimeThai(new Date());
-      document.getElementById('rpt-academic-year').innerText = selectedYear || 'รวมทุกปีการศึกษา';
-      document.getElementById('rpt-admin-name').innerText = `(${STATE.currentUser?.full_name || 'นายเอกณัฏฐ์ ศิริพัฒน์'})`;
-
-      document.getElementById('rpt-count-student').innerText = `${studentCount.toLocaleString()} เครื่อง`;
-      document.getElementById('rpt-count-teacher').innerText = `${teacherCount.toLocaleString()} เครื่อง`;
-      document.getElementById('rpt-count-lab').innerText = `${labCount.toLocaleString()} เครื่อง`;
-      document.getElementById('rpt-count-total').innerText = `${totalCount.toLocaleString()} เครื่อง`;
-
-      document.getElementById('rpt-repair-total').innerText = `${totalRepairs} รายการ`;
-      document.getElementById('rpt-repair-completed').innerText = `${completedRepairs} รายการ`;
-      document.getElementById('rpt-cost-total').innerText = `${totalCost.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท`;
-
-      const tbody = document.getElementById('rpt-repairs-tbody');
-      if (filteredRepairs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-3 text-center">ไม่มีข้อมูลการแจ้งซ่อมในรอบปีการศึกษา ${selectedYear}</td></tr>`;
-      } else {
-        tbody.innerHTML = filteredRepairs.map(r => `
-          <tr class="border-b border-gray-300">
-            <td class="p-2 border-r border-gray-300 font-mono font-bold">${r.ticket_no}</td>
-            <td class="p-2 border-r border-gray-300 font-mono">${r.device_uid || '-'} (${r.ipad_serial})</td>
-            <td class="p-2 border-r border-gray-300">${r.problem_category}</td>
-            <td class="p-2 border-r border-gray-300">${r.status}</td>
-            <td class="p-2 border-r border-gray-300">${r.replaced_parts || '-'}</td>
-            <td class="p-2 text-right font-mono">${(parseFloat(r.estimated_cost) || 0).toLocaleString('th-TH', { minimumFractionDigits: 2 })}</td>
-          </tr>
-        `).join('');
-      }
-
-      const printArea = document.getElementById('print-monthly-report-area');
-      printArea.classList.remove('hidden');
-      window.print();
-      printArea.classList.add('hidden');
-    }
-
-    function printDeviceRegistryPDF() {
-      showToast('กำลังเตรียมเอกสาร PDF ทะเบียน iPad...', 'info');
-      printMonthlyExecutiveReport();
-    }
-
-    function printRepairsListPDF() {
-      showToast('กำลังเตรียมเอกสาร PDF สรุปงานซ่อมบำรุง...', 'info');
-      printMonthlyExecutiveReport();
-    }
-
-    /* ================= AUDIT LOGS ================= */
-    async function loadAuditLogs() {
-      if (!sbClient) return;
-      showLoader('กำลังโหลดประวัติการใช้งาน...');
-      try {
-        const { data: logs } = await sbClient.from('audit_logs').select('*').order('created_at', { ascending: false }).limit(200);
-        STATE.auditLogs = logs || [];
-        renderAuditLogsTable(STATE.auditLogs);
-      } catch (err) {
-        showToast('ไม่สามารถโหลด Audit Logs ได้', 'error');
-      } finally {
-        hideLoader();
-      }
-    }
-
-    function filterAuditLogs() {
-      const search = document.getElementById('log-search-input').value.toLowerCase();
-      const action = document.getElementById('log-filter-action').value;
-
-      const filtered = STATE.auditLogs.filter(l => {
-        const matchesSearch = (l.user_id && l.user_id.toLowerCase().includes(search)) ||
-                              (l.description && l.description.toLowerCase().includes(search)) ||
-                              (l.table_name && l.table_name.toLowerCase().includes(search));
-        const matchesAction = !action || l.action === action;
-        return matchesSearch && matchesAction;
-      });
-
-      renderAuditLogsTable(filtered);
-    }
-
-    function renderAuditLogsTable(data) {
-      const tbody = document.getElementById('logs-table-body');
-      if (!data || data.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="p-6 text-center opacity-60">ไม่พบประวัติกิจกรรม</td></tr>`;
-        return;
-      }
-
-      tbody.innerHTML = data.map(l => `
-        <tr class="hover:bg-white/5 transition font-mono text-[11px]">
-          <td class="p-4 opacity-60">${formatDateTimeThai(l.created_at)}</td>
-          <td class="p-4 text-cyan-400 font-sans font-semibold">${l.user_id} <span class="text-[10px] opacity-60">(${l.user_role || 'user'})</span></td>
-          <td class="p-4"><span class="px-2 py-0.5 rounded text-[10px] bg-purple-500/20 text-purple-400 border border-purple-500/30">${l.action}</span></td>
-          <td class="p-4 opacity-80">${l.table_name}</td>
-          <td class="p-4 font-sans">${l.description || '-'}</td>
-        </tr>
-      `).join('');
-    }
-
-    /* ================= SYSTEM SETTINGS ================= */
-    function loadSettingsForm() {
-      const s = STATE.settings;
-      document.getElementById('set-system-name').value = s.system_name;
-      document.getElementById('set-system-subname').value = s.system_subname;
-      document.getElementById('set-org-name').value = s.organization_name;
-      document.getElementById('set-academic-year').value = s.academic_year;
-      document.getElementById('set-contact-phone').value = s.contact_phone || '';
-      document.getElementById('set-contact-email').value = s.contact_email || '';
-      document.getElementById('settings-preview-logo').src = s.logo_url;
-      document.getElementById('set-supported-models').value = (s.supported_models || []).join(', ');
-      document.getElementById('set-problem-categories').value = (s.problem_categories || []).join(', ');
-    }
-
-    async function handleLogoSelected(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      showLoader('กำลังอัปโหลดโลโก้...');
-      try {
-        const compressed = await compressImage(file, 600, 600, 0.85);
-        const filePath = `system/logo_${Date.now()}.jpg`;
-        const { error: upErr } = await sbClient.storage.from('system-assets').upload(filePath, compressed);
-        if (upErr) throw upErr;
-
-        const { data: pubUrl } = sbClient.storage.from('system-assets').getPublicUrl(filePath);
-        STATE.settings.logo_url = pubUrl.publicUrl;
-        document.getElementById('settings-preview-logo').src = pubUrl.publicUrl;
-        showToast('อัปโหลดโลโก้เรียบร้อย', 'success');
-      } catch (err) {
-        showToast('ไม่สามารถอัปโหลดโลโก้ได้', 'error');
-      } finally {
-        hideLoader();
-      }
-    }
-
-    async function handleSaveSettings(e) {
-      e.preventDefault();
-      const modelsStr = document.getElementById('set-supported-models').value.trim();
-      const categoriesStr = document.getElementById('set-problem-categories').value.trim();
-
-      const parsedModels = modelsStr ? modelsStr.split(',').map(m => m.trim()).filter(Boolean) : STATE.settings.supported_models;
-      const parsedCategories = categoriesStr ? categoriesStr.split(',').map(c => c.trim()).filter(Boolean) : STATE.settings.problem_categories;
-
-      const payload = {
-        system_name: document.getElementById('set-system-name').value.trim(),
-        system_subname: document.getElementById('set-system-subname').value.trim(),
-        organization_name: document.getElementById('set-org-name').value.trim(),
-        academic_year: document.getElementById('set-academic-year').value.trim(),
-        contact_phone: document.getElementById('set-contact-phone').value.trim(),
-        contact_email: document.getElementById('set-contact-email').value.trim(),
-        logo_url: STATE.settings.logo_url,
-        supported_models: parsedModels,
-        problem_categories: parsedCategories
-      };
-
-      showLoader('กำลังบันทึกการตั้งค่า...');
-      try {
-        await sbClient.from('system_settings').upsert({ id: 'default', ...payload });
-        STATE.settings = { ...STATE.settings, ...payload };
-        applySystemBrandSettings();
-        logActivity('UPDATE', 'system_settings', 'default', 'แก้ไขการตั้งค่าระบบและรายการรุ่น iPad');
-        showToast('บันทึกการตั้งค่าระบบสำเร็จ', 'success');
-      } catch (err) {
-        showToast('ไม่สามารถบันทึกการตั้งค่าได้', 'error');
-      } finally {
-        hideLoader();
-      }
-    }
-
-    /* ================= USER MANAGEMENT ================= */
-    function renderUsersTable(users) {
-      const tbody = document.getElementById('users-table-body');
-      tbody.innerHTML = users.map(u => `
-        <tr class="hover:bg-white/5 transition">
-          <td class="p-4">
-            <div class="flex items-center gap-3">
-              <img src="${u.avatar_url}" class="w-8 h-8 rounded-xl object-cover border border-white/20" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80'">
-              <div class="font-semibold">${u.full_name}</div>
-            </div>
-          </td>
-          <td class="p-4 font-mono opacity-80">${u.username}</td>
-          <td class="p-4"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-semibold uppercase bg-purple-500/20 text-purple-400 border border-purple-500/30">${u.role}</span></td>
-          <td class="p-4"><span class="px-2.5 py-0.5 rounded-full text-[10px] font-medium ${u.is_active ? 'bg-emerald-500/20 text-emerald-400' : 'bg-rose-500/20 text-rose-400'}">${u.is_active ? 'เปิดใช้งาน' : 'ระงับ'}</span></td>
-          <td class="p-4 text-[11px] opacity-60">${formatDateTimeThai(u.last_login)}</td>
-          <td class="p-4 text-right">
-            <button onclick="confirmDelete('users', '${u.id}')" class="p-1.5 text-rose-400 hover:opacity-100 glass-panel rounded-lg" title="ลบผู้ใช้"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
-          </td>
-        </tr>
-      `).join('');
-      lucide.createIcons();
-    }
-
-    function openUserModal() {
-      document.getElementById('user-form').reset();
-      showModal('user-modal');
-    }
-
-    async function handleSaveUser(e) {
-      e.preventDefault();
-      const fullname = document.getElementById('user-form-fullname').value.trim();
-      const username = document.getElementById('user-form-username').value.trim();
-      const password = document.getElementById('user-form-password').value;
-      const role = document.getElementById('user-form-role').value;
-
-      if (!password || password.length < 6) {
-        showToast('กรุณาระบุรหัสผ่านอย่างน้อย 6 ตัวอักษร', 'warning');
-        return;
-      }
-
-      showLoader('กำลังบันทึกข้อมูลผู้ใช้...');
-      try {
-        const passwordHash = await sha256(password);
-        const payload = {
-          user_code: `USR-${String(Date.now()).slice(-4)}`,
-          username,
-          password_hash: passwordHash,
-          full_name: fullname,
-          role,
-          is_active: true
-        };
-
-        await sbClient.from('users').insert([payload]);
-        logActivity('CREATE_USER', 'users', username, `สร้างบัญชี Role: ${role}`);
-        showToast('เพิ่มผู้ใช้งานสำเร็จ', 'success');
-        closeModal('user-modal');
-        await loadInitialData();
-        renderUsersTable(STATE.users);
-      } catch (err) {
-        showToast('ไม่สามารถบันทึกได้ (Username ซ้ำ)', 'error');
-      } finally {
-        hideLoader();
-      }
-    }
-
-    /* ================= GENERAL DELETE ================= */
-    let pendingDelete = { table: null, id: null };
-    function confirmDelete(table, id) {
-      pendingDelete = { table, id };
-      document.getElementById('btn-confirm-delete-action').onclick = executeDelete;
-      showModal('delete-confirm-modal');
-    }
-
-    async function executeDelete() {
-      const { table, id } = pendingDelete;
-      if (!table || !id) return;
-      closeModal('delete-confirm-modal');
-      showLoader('กำลังลบข้อมูล...');
-      try {
-        await sbClient.from(table).delete().eq('id', id);
-        logActivity('DELETE', table, id, `ลบรายการข้อมูล`);
-        showToast('ลบข้อมูลเรียบร้อยแล้ว', 'success');
-        await loadInitialData();
-        if (table === 'ipad_devices') renderDevicesTable(STATE.devices);
-        if (table === 'users') renderUsersTable(STATE.users);
-        if (table === 'repair_requests') renderRepairsTable(STATE.repairs);
-      } catch (err) {
-        showToast('ไม่สามารถลบข้อมูลได้ มีข้อมูลอ้างอิงอยู่', 'error');
-      } finally {
-        hideLoader();
-      }
-    }
-
-    /* ================= PROFILE ================= */
-    function loadProfileData() {
-      const user = STATE.currentUser;
-      document.getElementById('profile-preview-avatar').src = user.avatar_url;
-      document.getElementById('profile-display-name').innerText = user.full_name;
-      document.getElementById('profile-display-role').innerText = `Role: ${user.role}`;
-      document.getElementById('profile-fullname').value = user.full_name;
-      document.getElementById('profile-username').value = user.username;
-      document.getElementById('profile-phone').value = user.phone || '';
-      document.getElementById('profile-email').value = user.email || '';
-    }
-
-    async function handleAvatarSelected(e) {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      showLoader('กำลังอัปโหลดรูปโปรไฟล์...');
-      try {
-        const compressed = await compressImage(file, 800, 800, 0.8);
-        const filePath = `avatars/${STATE.currentUser.id}_${Date.now()}.jpg`;
-        await sbClient.storage.from('avatars').upload(filePath, compressed);
-        const { data: pubUrl } = sbClient.storage.from('avatars').getPublicUrl(filePath);
-
-        await sbClient.from('users').update({ avatar_url: pubUrl.publicUrl }).eq('id', STATE.currentUser.id);
-        STATE.currentUser.avatar_url = pubUrl.publicUrl;
-        document.getElementById('profile-preview-avatar').src = pubUrl.publicUrl;
-        document.getElementById('sidebar-user-avatar').src = pubUrl.publicUrl;
-        document.getElementById('header-user-avatar').src = pubUrl.publicUrl;
-        showToast('เปลี่ยนรูปโปรไฟล์สำเร็จ', 'success');
-      } catch (err) {
-        showToast('ไม่สามารถเปลี่ยนรูปโปรไฟล์ได้', 'error');
-      } finally {
-        hideLoader();
-      }
-    }
-
-    async function handleUpdateProfile(e) {
-      e.preventDefault();
-      const fullname = document.getElementById('profile-fullname').value.trim();
-      const phone = document.getElementById('profile-phone').value.trim();
-      const email = document.getElementById('profile-email').value.trim();
-
-      showLoader('กำลังบันทึกข้อมูล...');
-      try {
-        await sbClient.from('users').update({ full_name: fullname, phone, email }).eq('id', STATE.currentUser.id);
-        STATE.currentUser.full_name = fullname;
-        STATE.currentUser.phone = phone;
-        STATE.currentUser.email = email;
-        setupAppLayout();
-        showToast('อัปเดตข้อมูลส่วนตัวเรียบร้อย', 'success');
-      } catch (err) {
-        showToast('ไม่สามารถอัปเดตข้อมูลได้', 'error');
       } finally {
         hideLoader();
       }
