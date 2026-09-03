@@ -138,7 +138,6 @@
     aside.collapsed .sidebar-footer-text { display: none !important; }
     aside.collapsed .nav-item-btn { justify-content: center !important; padding-left: 0 !important; padding-right: 0 !important; }
 
-    /* Print Document Styles */
     @media print {
       body * { visibility: hidden; }
       #print-area, #print-area *, #print-monthly-report-area, #print-monthly-report-area * { visibility: visible; }
@@ -153,20 +152,17 @@
     }
   </style>
 
-  <!-- ================= TOP CONFIG & BASIC HANDLERS ================= -->
+  <!-- ================= TOP CONFIG & CLIENT SCRIPT ================= -->
   <script>
-    // *********************************************************************************
-    // นำค่า URL และ ANON KEY ของ Supabase มาใส่ตรงนี้
-    // *********************************************************************************
-   const SUPABASE_URL = "https://redopwauisijeizvtrgi.supabase.co";
+    // Supabase Credentials
+    const SUPABASE_URL = "https://redopwauisijeizvtrgi.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_5rbLPuTZVuerxBB_MURoRw_q7Y2WinB";
-
 
     const sbClient = (SUPABASE_URL && SUPABASE_ANON_KEY) 
       ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
       : null;
 
-    // ฟังก์ชันจัดการหน้าจอพื้นฐาน (ป้องกัน ReferenceError เมื่อคลิกก่อนสคริปต์โหลดครบ)
+    // Top-level UI Handlers (Available immediately to prevent ReferenceError)
     function scrollToOverview() {
       const el = document.getElementById('overview-section');
       if (el) el.scrollIntoView({ behavior: 'smooth' });
@@ -431,6 +427,7 @@
 
     <!-- MAIN CONTENT AREA -->
     <div class="flex-1 flex flex-col min-w-0 pb-20 md:pb-6">
+      
       <header class="h-16 glass-panel border-b border-white/10 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-20">
         <div class="flex items-center gap-3">
           <h2 id="top-page-title" class="text-base md:text-lg font-bold font-inter">ภาพรวมระบบ (Executive Dashboard)</h2>
@@ -1088,9 +1085,8 @@
     </div>
   </div>
 
-  <!-- ================= JAVASCRIPT CONTROLLERS ================= -->
+  <!-- ================= JAVASCRIPT EXPORT UTILITIES ================= -->
   <script>
-    /* ================= CSV EXPORT UTILITIES ================= */
     function exportDevicesCSV() {
       const year = document.getElementById('report-year-select')?.value || '';
       const list = STATE.devices.filter(d => !year || d.academic_year === year);
