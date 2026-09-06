@@ -16,7 +16,7 @@
   <!-- Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="https://cdn.jsdelivr.net/npm/Chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
@@ -628,7 +628,6 @@
       logAction("System", "Initial Load & Render");
     });
 
-    // Check 24-hour Admin Session
     function checkAdminSession() {
       const loginTime = localStorage.getItem('ksp_admin_login_time');
       if (loginTime && (Date.now() - parseInt(loginTime) < 24 * 60 * 60 * 1000)) {
@@ -688,8 +687,13 @@
       if (savedIssues) APP_STATE.issueTypes = JSON.parse(savedIssues);
     }
 
-    // Chart Integrations
+    // Chart Integrations (Safe-Guarded)
     function initLiveCharts() {
+      if (typeof Chart === 'undefined') {
+        console.warn("Chart.js library is not loaded yet.");
+        return;
+      }
+
       const ctx = document.getElementById('unifiedLiveChart');
       if (!ctx) return;
 
@@ -712,7 +716,6 @@
         options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, color: tColor }, grid: { color: gColor } }, x: { ticks: { color: tColor }, grid: { display: false } } } }
       });
 
-      // Grade Distribution Chart
       const gradeCtx = document.getElementById('gradeDistributionChart');
       if (gradeCtx) {
         const grades = ["ม.1", "ม.2", "ม.3", "ม.4", "ม.5", "ม.6"];
@@ -1128,7 +1131,6 @@
       });
     }
 
-    // Sticker Batch Print Generation
     function openStickerBatchPrintModal() {
       const container = document.getElementById('sticker-print-area');
       const list = APP_STATE.devices.filter(d => d.academic_year === APP_STATE.currentYear);
@@ -1315,7 +1317,7 @@
       if (holder !== 'ALL') list = list.filter(d => d.holder_type === holder);
 
       const tbl = document.getElementById('rep-preview-table');
-      document.getElementById('rep-preview-container').classList.remove('hidden');
+      document.getElementById('report-preview-container').classList.remove('hidden');
       document.getElementById('rep-preview-title').innerText = `รายงาน ${type === 'circ' ? 'ทะเบียนครุภัณฑ์' : 'การแจ้งซ่อม'} (กรอง ${list.length} รายการ)`;
 
       if (type === 'circ') {
