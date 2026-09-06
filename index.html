@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title id="html-head-title">Smart iPad Inventory & Maintenance Hub KSP - โรงเรียนกระสังพิทยาคม</title>
+  <title id="html-head-title">Smart iPad Inventory & Maintenance Hub KSP (Anywhere Anytime) - โรงเรียนกระสังพิทยาคม</title>
 
   <!-- Google Fonts: Sarabun & Inter -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -58,8 +58,8 @@
     @page { size: A4 portrait; margin: 12mm 15mm; }
     @media print {
       body * { visibility: hidden !important; }
-      #print-area, #print-area * { visibility: visible !important; }
-      #print-area {
+      #print-area, #print-area *, #print-monthly-report-area, #print-monthly-report-area * { visibility: visible !important; }
+      #print-area, #print-monthly-report-area {
         position: absolute !important;
         left: 0 !important;
         top: 0 !important;
@@ -72,6 +72,25 @@
 
   <!-- ================= TOP UTILITIES & GLOBAL STATE ================= -->
   <script>
+    // Essential Date & Helper Functions (ประกาศไว้บนสุดเพื่อป้องกัน ReferenceError)
+    function formatDateThai(dateStr) {
+      if (!dateStr) return '-';
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      return d.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
+    function debounce(func, wait) {
+      let timeout;
+      return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+      };
+    }
+
+    function showModal(id) { const el = document.getElementById(id); if (el) el.classList.remove('hidden'); }
+    function closeModal(id) { const el = document.getElementById(id); if (el) el.classList.add('hidden'); }
+
     // Global State Store
     const APP_STATE = {
       isAdmin: false,
@@ -105,25 +124,6 @@
       pagination: { circPage: 1, circPageSize: 4, maintPage: 1, maintPageSize: 4 },
       charts: { loan: null, repair: null }
     };
-
-    // Essential Date & Helper Functions (ประกาศไว้บนสุดเพื่อป้องกัน ReferenceError)
-    function formatDateThai(dateStr) {
-      if (!dateStr) return '-';
-      const d = new Date(dateStr);
-      if (isNaN(d.getTime())) return dateStr;
-      return d.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
-    }
-
-    function debounce(func, wait) {
-      let timeout;
-      return function(...args) {
-        clearTimeout(timeout);
-        timeout = setTimeout(() => func.apply(this, args), wait);
-      };
-    }
-
-    function showModal(id) { const el = document.getElementById(id); if (el) el.classList.remove('hidden'); }
-    function closeModal(id) { const el = document.getElementById(id); if (el) el.classList.add('hidden'); }
   </script>
 </head>
 <body class="min-h-screen flex flex-col antialiased selection:bg-green-700 selection:text-white">
@@ -135,7 +135,7 @@
         <img id="header-brand-logo" src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&w=120&q=80" alt="Logo" class="w-11 h-11 rounded-xl object-cover border-2 border-white border-opacity-30 shadow" />
         <div>
           <h1 class="text-base sm:text-lg font-bold tracking-wide leading-tight">Smart iPad Inventory & Maintenance Hub KSP</h1>
-          <p id="header-org-name" class="text-xs text-green-100 opacity-90 font-light">โรงเรียนกระสังพิทยาคม สพม.บุรีรัมย์</p>
+          <p id="header-org-name" class="text-xs text-green-100 opacity-90 font-light">โรงเรียนกระสังพิทยาคม สพม.บุรีรัมย์ • นโยบาย Anywhere Anytime</p>
         </div>
       </div>
 
@@ -153,26 +153,26 @@
     </div>
   </header>
 
-  <!-- ================= 2. PUBLIC DASHBOARD VIEW (REDESIGNED PROFESSIONAL HOME) ================= -->
+  <!-- ================= 2. PUBLIC DASHBOARD VIEW (ANYWHERE ANYTIME PROFESSIONAL HOME) ================= -->
   <div id="public-view" class="flex-1 flex flex-col">
-    <!-- Hero Banner & Welcome Section -->
+    <!-- Hero Banner & Policy Highlight -->
     <div class="bg-gradient-to-r from-ksp-primary via-green-800 to-ksp-primary-dark text-white py-8 px-4 sm:px-8 shadow-inner">
       <div class="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
         <div class="space-y-2 text-center md:text-left">
           <span class="px-3 py-1 rounded-full bg-white bg-opacity-10 border border-white border-opacity-20 text-xs font-medium text-green-200">
-            Digital Education Platform • สพม.บุรีรัมย์
+            โครงการขับเคลื่อนการเรียนรู้ Anywhere Anytime สพฐ.
           </span>
-          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">ศูนย์บริหารจัดการครุภัณฑ์แท็บเล็ตและงานซ่อมบำรุง</h2>
+          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">ระบบบริหารจัดการครุภัณฑ์และบริการซ่อมบำรุง iPad</h2>
           <p class="text-xs sm:text-sm text-green-100 opacity-90 max-w-2xl font-light">
-            ระบบติดตามสถานะการยืม-คืนอุปกรณ์ iPad และแจ้งซ่อมบำรุงสำหรับครู นักเรียน และบุคลากรโรงเรียนกระสังพิทยาคมอย่างโปร่งใสและรวดเร็ว
+            สนับสนุนการเรียนรู้ดิจิทัลอย่างไร้รอยต่อ รองรับการเบิกยืมอุปกรณ์และการแจ้งซ่อมฉุกเฉินเพื่อสร้างความต่อเนื่องในการศึกษาของผู้เรียน
           </p>
         </div>
         <div class="glass-panel p-4 rounded-2xl bg-white bg-opacity-10 border border-white border-opacity-25 text-center min-w-[200px]">
-          <span class="text-xs text-green-200 block">สถานะระบบส่วนกลาง</span>
+          <span class="text-xs text-green-200 block">สถานะความพร้อมระบบ</span>
           <span class="text-lg font-bold text-white flex items-center justify-center gap-1.5 mt-1">
-            <i data-lucide="check-circle-2" class="w-5 h-5 text-green-400"></i> ปกติ (Online)
+            <i data-lucide="check-circle-2" class="w-5 h-5 text-green-400"></i> พร้อมใช้งาน 100%
           </span>
-          <span class="text-[10px] opacity-75 mt-0.5 block">อัปเดตข้อมูลแบบเรียลไทม์</span>
+          <span class="text-[10px] opacity-75 mt-0.5 block">Anywhere Anytime Cloud Ready</span>
         </div>
       </div>
     </div>
@@ -204,7 +204,7 @@
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-xs sm:text-sm font-bold text-gray-800 flex items-center gap-2">
               <i data-lucide="bar-chart-2" class="w-4 h-4 text-ksp-primary"></i>
-              สถิติการยืม-คืน iPad รายวัน (7 วันล่าสุด)
+              สถิติการยืม-คืน iPad รายวัน (Anywhere Anytime)
             </h3>
             <span class="text-xs px-2.5 py-0.5 rounded-full badge-teal font-medium">Circulation</span>
           </div>
@@ -215,7 +215,7 @@
           <div class="flex items-center justify-between mb-4">
             <h3 class="text-xs sm:text-sm font-bold text-gray-800 flex items-center gap-2">
               <i data-lucide="activity" class="w-4 h-4 text-yellow-600"></i>
-              สถิติการรับแจ้งซ่อมและประวัติการบำรุงรักษารายวัน
+              สถิติการรับแจ้งซ่อมและประวัติการบำรุงรักษา
             </h3>
             <span class="text-xs px-2.5 py-0.5 rounded-full badge-amber font-medium">Service Desk</span>
           </div>
@@ -319,7 +319,7 @@
   <div id="admin-view" class="flex-1 flex flex-col md:flex-row hidden min-h-screen bg-gray-50">
     <div class="md:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-20">
       <button onclick="toggleAdminSidebar(true)" class="p-2 text-gray-600 rounded-lg hover:bg-gray-100"><i data-lucide="menu" class="w-5 h-5"></i></button>
-      <span class="font-bold text-sm text-ksp-primary">Admin Back-Office</span>
+      <span class="font-bold text-sm text-ksp-primary">Admin Back-Office (Anywhere Anytime)</span>
       <button onclick="handleLogout()" class="p-2 text-red-500 rounded-lg hover:bg-red-50"><i data-lucide="log-out" class="w-4 h-4"></i></button>
     </div>
 
@@ -330,7 +330,7 @@
             <div class="w-9 h-9 rounded-xl bg-green-100 text-ksp-primary flex items-center justify-center font-bold"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
             <div>
               <h4 class="font-bold text-sm leading-tight text-gray-800">Admin Control</h4>
-              <span class="text-xs text-green-700 font-medium">เข้าสู่ระบบแล้ว</span>
+              <span class="text-xs text-green-700 font-medium">โครงการ Anywhere Anytime</span>
             </div>
           </div>
           <button onclick="toggleAdminSidebar(false)" class="md:hidden p-1 text-gray-400 hover:text-gray-700"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -357,7 +357,7 @@
 
       <div class="p-4 border-t border-gray-100 space-y-2">
         <button onclick="exitAdminToPublic()" class="w-full py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-xl flex items-center justify-center gap-2">
-          <i data-lucide="arrow-left" class="w-4 h-4"></i><span>กลับหน้าสารบรรณรวม</span>
+          <i data-lucide="arrow-left" class="w-4 h-4"></i><span>กลับหน้าภาพรวม</span>
         </button>
         <button onclick="handleLogout()" class="w-full py-2 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold rounded-xl flex items-center justify-center gap-2">
           <i data-lucide="log-out" class="w-4 h-4"></i><span>ออกจากระบบ Admin</span>
@@ -367,12 +367,15 @@
 
     <main class="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto space-y-6">
       <section id="admin-sec-overview" class="space-y-6">
-        <h3 class="text-base sm:text-lg font-bold text-gray-800">ภาพรวมสถานะครุภัณฑ์และงานซ่อมบำรุง</h3>
+        <div class="flex items-center justify-between">
+          <h3 class="text-base sm:text-lg font-bold text-gray-800">รายงานวิเคราะห์สถานะครุภัณฑ์ (Anywhere Anytime)</h3>
+          <span class="text-xs px-3 py-1 rounded-full badge-teal font-medium">Official Executive Report</span>
+        </div>
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200"><span class="text-xs text-gray-500 font-medium">iPad ทั้งหมด</span><div id="adm-count-total" class="text-2xl font-bold font-inter text-gray-800 mt-1">0</div></div>
-          <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200"><span class="text-xs text-gray-500 font-medium">พร้อมใช้งาน</span><div id="adm-count-ready" class="text-2xl font-bold font-inter text-ksp-primary mt-1">0</div></div>
-          <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200"><span class="text-xs text-gray-500 font-medium">กำลังยืมถือครอง</span><div id="adm-count-loan" class="text-2xl font-bold font-inter text-blue-600 mt-1">0</div></div>
-          <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200"><span class="text-xs text-gray-500 font-medium">งานซ่อมคงค้าง</span><div id="adm-count-repair" class="text-2xl font-bold font-inter text-red-600 mt-1">0</div></div>
+          <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200"><span class="text-xs text-gray-500 font-medium">iPad โครงการทั้งหมด</span><div id="adm-count-total" class="text-2xl font-bold font-inter text-gray-800 mt-1">0</div></div>
+          <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200"><span class="text-xs text-gray-500 font-medium">พร้อมใช้งาน (คลัง)</span><div id="adm-count-ready" class="text-2xl font-bold font-inter text-ksp-primary mt-1">0</div></div>
+          <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200"><span class="text-xs text-gray-500 font-medium">กำลังเบิกยืมใช้งาน</span><div id="adm-count-loan" class="text-2xl font-bold font-inter text-blue-600 mt-1">0</div></div>
+          <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200"><span class="text-xs text-gray-500 font-medium">ส่งซ่อมขัดข้อง</span><div id="adm-count-repair" class="text-2xl font-bold font-inter text-red-600 mt-1">0</div></div>
         </div>
       </section>
 
@@ -575,6 +578,7 @@
     }
 
     function initVisualCharts() {
+      const isMobile = window.innerWidth < 640;
       const ctxLoan = document.getElementById('loanBarChart');
       if (ctxLoan) {
         if (APP_STATE.charts.loan) APP_STATE.charts.loan.destroy();
@@ -587,7 +591,7 @@
               { label: 'ส่งคืนเข้าคลัง', data: [2, 3, 5, 2, 4, 3, 2], backgroundColor: '#AED581', borderRadius: 6 }
             ]
           },
-          options: { responsive: true, maintainAspectRatio: false }
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { font: { family: 'Sarabun', size: isMobile ? 10 : 12 } } } } }
         });
       }
 
@@ -603,7 +607,7 @@
               { label: 'ซ่อมสำเร็จ', data: [1, 2, 2, 1, 3, 2, 1], backgroundColor: '#26A69A', borderRadius: 6 }
             ]
           },
-          options: { responsive: true, maintainAspectRatio: false }
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { font: { family: 'Sarabun', size: isMobile ? 10 : 12 } } } } }
         });
       }
     }
@@ -943,7 +947,6 @@
       localStorage.setItem('ksp_logo_url', logo);
       localStorage.setItem('ksp_admin_pin', pin);
       document.getElementById('header-org-name').innerText = org;
-      document.getElementById('footer-org-name').innerText = org;
       document.getElementById('header-brand-logo').src = logo;
       Swal.fire({ icon: 'success', title: 'บันทึกการตั้งค่าแล้ว', timer: 1200, showConfirmButton: false });
     }
