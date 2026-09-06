@@ -828,7 +828,7 @@
       Swal.fire({ icon: 'success', title: 'รีเฟรชข้อมูล Real-time สำเร็จ', timer: 1000, showConfirmButton: false });
     }
 
-    // Chart Integrations (Safe-Guarded)
+    // Fully Robust & Responsive Chart.js Integrations
     function initLiveCharts() {
       if (typeof Chart === 'undefined') return;
 
@@ -844,7 +844,7 @@
       const tColor = APP_STATE.isDarkMode ? '#F8FAFC' : '#1E293B';
       const gColor = APP_STATE.isDarkMode ? '#334155' : '#E2E8F0';
 
-      if (APP_STATE.charts.mainChart) APP_STATE.charts.mainChart.destroy();
+      if (APP_STATE.charts.mainChart) { APP_STATE.charts.mainChart.destroy(); APP_STATE.charts.mainChart = null; }
       APP_STATE.charts.mainChart = new Chart(ctx, {
         type: 'bar',
         data: {
@@ -859,7 +859,7 @@
         const grades = ["ม.1", "ม.2", "ม.3", "ม.4", "ม.5", "ม.6"];
         const gradeCounts = grades.map(g => filtered.filter(d => d.grade === g).length);
 
-        if (APP_STATE.charts.gradeChart) APP_STATE.charts.gradeChart.destroy();
+        if (APP_STATE.charts.gradeChart) { APP_STATE.charts.gradeChart.destroy(); APP_STATE.charts.gradeChart = null; }
         APP_STATE.charts.gradeChart = new Chart(gradeCtx, {
           type: 'doughnut',
           data: {
@@ -872,17 +872,17 @@
 
       const createMini = (id, label, color, val) => {
         const c = document.getElementById(id);
-        if (!c) return;
+        if (!c) return null;
         return new Chart(c, {
           type: 'bar',
           data: { labels: [label], datasets: [{ data: [val], backgroundColor: color, borderRadius: 4 }] },
           options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { display: false } } }
         });
       };
-      if (APP_STATE.charts.adminTotal) APP_STATE.charts.adminTotal.destroy();
-      if (APP_STATE.charts.adminReady) APP_STATE.charts.adminReady.destroy();
-      if (APP_STATE.charts.adminLoan) APP_STATE.charts.adminLoan.destroy();
-      if (APP_STATE.charts.adminRepair) APP_STATE.charts.adminRepair.destroy();
+      if (APP_STATE.charts.adminTotal) { APP_STATE.charts.adminTotal.destroy(); APP_STATE.charts.adminTotal = null; }
+      if (APP_STATE.charts.adminReady) { APP_STATE.charts.adminReady.destroy(); APP_STATE.charts.adminReady = null; }
+      if (APP_STATE.charts.adminLoan) { APP_STATE.charts.adminLoan.destroy(); APP_STATE.charts.adminLoan = null; }
+      if (APP_STATE.charts.adminRepair) { APP_STATE.charts.adminRepair.destroy(); APP_STATE.charts.adminRepair = null; }
 
       APP_STATE.charts.adminTotal = createMini('adminBarTotal', 'ทั้งหมด', '#1E3A8A', total);
       APP_STATE.charts.adminReady = createMini('adminBarReady', 'พร้อมใช้งาน', '#10B981', ready);
@@ -1219,7 +1219,12 @@
         const nav = document.getElementById(`admin-nav-${s.replace('manage-', '').replace('system-', '')}`);
         if (nav) nav.className = s === menu ? "nav-item-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold bg-ksp-primary text-white shadow-md transition" : "nav-item-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-gray-100 dark:hover:bg-slate-700 transition";
       });
-      if (menu === 'overview') renderAdminYearSummary();
+      if (menu === 'overview') {
+        setTimeout(() => {
+          initLiveCharts();
+          renderAdminYearSummary();
+        }, 50);
+      }
       lucide.createIcons();
     }
 
@@ -1316,7 +1321,6 @@
       const borrow = document.getElementById('circ-borrow-date').value;
       const ret = document.getElementById('circ-return-date').value;
 
-      // Strict Validation: Check empty fields
       if (!serial || !code || !name || !grade || !room || !borrow || !ret) {
         Swal.fire({ icon: 'warning', title: 'กรอกข้อมูลไม่ครบ', text: 'กรุณากรอกข้อมูลให้ครบทุกช่องที่จำเป็น', confirmButtonColor: '#1E3A8A' });
         return;
@@ -1325,7 +1329,6 @@
       const snRegex = /^[A-Z0-9]{10}$/;
       if (!snRegex.test(serial)) { Swal.fire({ icon: 'error', title: 'S/N ไม่ถูกต้อง', text: 'ต้องเป็นอักษรพิมพ์ใหญ่และตัวเลข รวม 10 หลัก', confirmButtonColor: '#1E3A8A' }); return; }
 
-      // Strict S/N Duplication Check within the same Academic Year
       const isDuplicate = APP_STATE.devices.some(d => d.academic_year === year && d.serial_number.toUpperCase() === serial && d.id !== editId);
       if (isDuplicate) {
         Swal.fire({ icon: 'error', title: 'Serial Number ซ้ำ', text: 'Serial Number นี้มีบันทึกอยู่แล้วในปีการศึกษาเดียวกัน ไม่สามารถบันทึกซ้ำได้', confirmButtonColor: '#1E3A8A' });
@@ -1595,7 +1598,6 @@
       const phone = document.getElementById('maint-phone').value.trim();
       const tech = document.getElementById('maint-tech').value;
 
-      // Strict Validation: Check empty required fields
       if (!date || !sn || !issue || !phone || !tech) {
         Swal.fire({ icon: 'warning', title: 'กรอกข้อมูลไม่ครบ', text: 'กรุณากรอกข้อมูลให้ครบทุกช่องที่จำเป็น', confirmButtonColor: '#1E3A8A' });
         return;
