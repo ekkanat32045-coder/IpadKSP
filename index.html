@@ -66,16 +66,24 @@
     aside.collapsed .sidebar-text, aside.collapsed .sidebar-header-text { display: none !important; }
     aside.collapsed .nav-item-btn { justify-content: center !important; padding-left: 0 !important; padding-right: 0 !important; }
 
-    /* Print Logic */
+    /* Print Logic (Fixed version to show table properly) */
     @media print {
       body * { visibility: hidden !important; }
       .printable, .printable * { visibility: visible !important; }
-      .printable { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; background: #fff !important; color: #000 !important; }
+      .printable { 
+        position: absolute !important; 
+        left: 0 !important; 
+        top: 0 !important; 
+        width: 100% !important; 
+        background: #fff !important; 
+        color: #000 !important; 
+        display: block !important; 
+      }
       .no-print { display: none !important; }
       
-      /* Reset dark mode overrides for printing */
-      .printable th { background-color: #f3f4f6 !important; -webkit-print-color-adjust: exact; color: black !important; }
-      .printable tr { border-bottom: 1px solid #ccc !important; }
+      .printable th { background-color: #f3f4f6 !important; -webkit-print-color-adjust: exact; color: black !important; border: 1px solid #333 !important; }
+      .printable td { border: 1px solid #333 !important; }
+      .printable tr { border-bottom: 1px solid #333 !important; }
       .printable .text-white { color: black !important; }
     }
   </style>
@@ -148,7 +156,6 @@
       const savedDevs = localStorage.getItem('ksp_devices');
       if (savedDevs) APP_STATE.devices = JSON.parse(savedDevs);
       else {
-        // Initial Mock Data
         APP_STATE.devices = [
           { id: "dev-01", academic_year: APP_STATE.currentYear, asset_id: "OBEC-IPAD-2567-0042", serial_number: "DMPZ1234Q1", model: "iPad (Gen 10) Wi-Fi", status: "ส่งซ่อม", holder_code: "28752", holder_name: "เด็กชายธนากร ใจมั่น", grade: "ม.1", room: "5", holder_type: "นักเรียน", borrow_date: "2026-08-28", return_date: "2026-09-10", repairs: [{ ticket_id: "TK-2569-001", date: "2026-09-03", issue_type: "🖥️ หน้าจอมีปัญหา (แตก/ร้าว/ไม่แสดงผล)", remark: "หล่นกระแทกพื้น", status: "กำลังซ่อม", tech: "ช่างวิชัย การช่าง", phone: "089-111-2233", doc_ref: "", doc_link: "" }] },
           { id: "dev-02", academic_year: APP_STATE.currentYear, asset_id: "OBEC-IPAD-2567-0108", serial_number: "DMPZ5678Q1", model: "iPad (Gen 9) Wi-Fi", status: "พร้อมใช้งาน", holder_code: "-", holder_name: "คลังพัสดุ", grade: "-", room: "-", holder_type: "พัสดุสำรอง", borrow_date: "-", return_date: "-", repairs: [] }
@@ -180,7 +187,7 @@
 
       <div class="flex items-center gap-3">
         <!-- Back to Public View (Visible only when in Admin View) -->
-        <button id="btn-back-public" onclick="toggleAdminView(false)" class="hidden items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-xl transition border border-white border-opacity-20 text-xs font-bold">
+        <button id="btn-back-public" onclick="toggleAdminView(false)" class="hidden items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-xl transition border border-white border-opacity-20 text-xs font-bold shadow-sm">
           <i data-lucide="monitor" class="w-4 h-4"></i> กลับหน้าจอสาธารณะ
         </button>
 
@@ -919,7 +926,7 @@
 
       if (APP_STATE.charts.mainChart) APP_STATE.charts.mainChart.destroy();
       APP_STATE.charts.mainChart = new Chart(ctx, {
-        type: APP_STATE.settings.chartType, // bar or line
+        type: APP_STATE.settings.chartType, 
         data: {
           labels: ['iPad ทั้งหมด', 'พร้อมใช้', 'กำลังถือครอง', 'งานซ่อมค้าง'],
           datasets: [{ 
@@ -1260,7 +1267,7 @@
         document.getElementById('admin-view').classList.remove('hidden');
         document.getElementById('header-year-selector').classList.add('hidden');
         document.getElementById('btn-back-public').classList.remove('hidden');
-        document.getElementById('btn-admin-auth').classList.add('hidden'); // hide standard auth button when admin is active to use sidebar logout
+        document.getElementById('btn-admin-auth').classList.add('hidden');
         switchAdminMenu('overview');
       } else {
         document.getElementById('admin-view').classList.add('hidden');
@@ -1700,7 +1707,7 @@
       });
     }
 
-    // Reports & Exports (Professional XLSX & Official Print)
+    // Reports & Exports
     function generateReportData() {
       const type = document.getElementById('rep-type').value;
       const year = document.getElementById('rep-year').value;
@@ -1744,16 +1751,60 @@
       const tbl = document.getElementById('print-table-content');
       
       if (data.type === 'circ') {
+        // แบบฟอร์ม 1: ทะเบียนครุภัณฑ์ (มีช่องเซ็นชื่อ/หมายเหตุ)
         tbl.innerHTML = `
-          <thead><tr class="bg-gray-100 text-black border-b border-gray-800"><th class="p-2 border-r border-gray-800">ลำดับ</th><th class="p-2 border-r border-gray-800">Asset ID</th><th class="p-2 border-r border-gray-800">S/N</th><th class="p-2 border-r border-gray-800">ชื่อ-นามสกุล</th><th class="p-2 border-r border-gray-800">ชั้น/ห้อง</th><th class="p-2 border-r border-gray-800">สถานะ</th><th class="p-2">หมายเหตุ</th></tr></thead>
-          <tbody>${data.list.map((d, i) => `<tr class="border-b border-gray-800"><td class="p-2 border-r border-gray-800 text-center">${i+1}</td><td class="p-2 border-r border-gray-800">${d.asset_id}</td><td class="p-2 border-r border-gray-800">${d.serial_number}</td><td class="p-2 border-r border-gray-800">${d.holder_name}</td><td class="p-2 border-r border-gray-800">${d.grade}/${d.room}</td><td class="p-2 border-r border-gray-800 text-center">${d.status}</td><td class="p-2"></td></tr>`).join('')}</tbody>
+          <thead>
+            <tr class="bg-gray-100 text-black border border-gray-800">
+              <th class="p-2 border border-gray-800 text-center w-12">ลำดับ</th>
+              <th class="p-2 border border-gray-800">Asset ID</th>
+              <th class="p-2 border border-gray-800">S/N</th>
+              <th class="p-2 border border-gray-800">ชื่อ-นามสกุลผู้ถือครอง</th>
+              <th class="p-2 border border-gray-800 text-center">ชั้น/ห้อง</th>
+              <th class="p-2 border border-gray-800 text-center">สถานะ</th>
+              <th class="p-2 border border-gray-800 text-center w-40">เซ็นชื่อรับเครื่อง / หมายเหตุ</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${data.list.map((d, i) => `
+              <tr class="border border-gray-800">
+                <td class="p-2 border border-gray-800 text-center">${i+1}</td>
+                <td class="p-2 border border-gray-800 font-bold">${d.asset_id}</td>
+                <td class="p-2 border border-gray-800 font-mono text-[10px]">${d.serial_number}</td>
+                <td class="p-2 border border-gray-800">${d.holder_name}</td>
+                <td class="p-2 border border-gray-800 text-center">${d.grade}/${d.room}</td>
+                <td class="p-2 border border-gray-800 text-center">${d.status}</td>
+                <td class="p-2 border border-gray-800"></td>
+              </tr>
+            `).join('')}
+          </tbody>
         `;
       } else {
+        // แบบฟอร์ม 2: ประวัติแจ้งซ่อม (มีช่องเซ็นรับเครื่องคืน)
         let allR = [];
-        data.list.forEach(d => d.repairs.forEach(r => allR.push({ ...r, asset: d.asset_id, holder: d.holder_name })));
+        data.list.forEach(d => d.repairs.forEach(r => allR.push({ ...r, asset: d.asset_id, sn: d.serial_number })));
         tbl.innerHTML = `
-          <thead><tr class="bg-gray-100 text-black border-b border-gray-800"><th class="p-2 border-r border-gray-800">ลำดับ</th><th class="p-2 border-r border-gray-800">Ticket ID</th><th class="p-2 border-r border-gray-800">วันที่แจ้ง</th><th class="p-2 border-r border-gray-800">Asset ID (ผู้ถือครอง)</th><th class="p-2 border-r border-gray-800">อาการชำรุด</th><th class="p-2 border-r border-gray-800">ช่าง/สถานะ</th></tr></thead>
-          <tbody>${allR.map((r, i) => `<tr class="border-b border-gray-800"><td class="p-2 border-r border-gray-800 text-center">${i+1}</td><td class="p-2 border-r border-gray-800">${r.ticket_id}</td><td class="p-2 border-r border-gray-800">${formatDateThai(r.date)}</td><td class="p-2 border-r border-gray-800">${r.asset}<br><span class="text-[9px] opacity-70">${r.holder}</span></td><td class="p-2 border-r border-gray-800">${r.issue_type}</td><td class="p-2 border-r border-gray-800">${r.tech}<br><b>${r.status}</b></td></tr>`).join('')}</tbody>
+          <thead>
+            <tr class="bg-gray-100 text-black border border-gray-800">
+              <th class="p-2 border border-gray-800 text-center w-12">ลำดับ</th>
+              <th class="p-2 border border-gray-800">Ticket ID</th>
+              <th class="p-2 border border-gray-800">Asset ID / S/N</th>
+              <th class="p-2 border border-gray-800">อาการชำรุด</th>
+              <th class="p-2 border border-gray-800 text-center">สถานะ</th>
+              <th class="p-2 border border-gray-800 text-center w-40">เซ็นรับเครื่องคืน (นักเรียน)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${allR.map((r, i) => `
+              <tr class="border border-gray-800">
+                <td class="p-2 border border-gray-800 text-center">${i+1}</td>
+                <td class="p-2 border border-gray-800 font-bold text-blue-700">${r.ticket_id}</td>
+                <td class="p-2 border border-gray-800">${r.asset}<br><span class="text-[10px] font-mono opacity-80">S/N: ${r.sn}</span></td>
+                <td class="p-2 border border-gray-800">${r.issue_type}</td>
+                <td class="p-2 border border-gray-800 text-center font-bold">${r.status}</td>
+                <td class="p-2 border border-gray-800"></td>
+              </tr>
+            `).join('')}
+          </tbody>
         `;
       }
       
@@ -1809,8 +1860,6 @@
       }
 
       const ws = XLSX.utils.json_to_sheet(excelData);
-      
-      // Auto column width (basic calculation)
       const wscols = Object.keys(excelData[0]).map(key => ({ wch: Math.max(key.length, 15) }));
       ws['!cols'] = wscols;
 
@@ -1948,7 +1997,7 @@
       document.getElementById('print-logo').src = logo;
       document.getElementById('print-school-name').innerText = org;
       
-      initLiveCharts(); // Refresh charts immediately
+      initLiveCharts();
       
       Swal.fire({ icon: 'success', title: 'บันทึกการตั้งค่าระบบสำเร็จ', timer: 1200, showConfirmButton: false });
     }
