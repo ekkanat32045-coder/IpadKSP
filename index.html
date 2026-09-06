@@ -5,20 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title id="html-head-title">Smart iPad Hub KSP - Anywhere Anytime • โรงเรียนกระสังพิทยาคม</title>
 
-  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Tailwind CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" />
 
-  <!-- Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/Chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <!-- jsQR Library for Real-time Camera QR Scanning -->
   <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
 
   <style>
@@ -134,7 +130,6 @@
 </head>
 <body class="min-h-screen flex flex-col antialiased">
 
-  <!-- ================= 1. HEADER ================= -->
   <header class="w-full bg-ksp-primary text-white shadow-md sticky top-0 z-30 transition-colors">
     <div class="w-full px-4 sm:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-3.5">
@@ -161,9 +156,7 @@
     </div>
   </header>
 
-  <!-- ================= 2. PUBLIC VIEW ================= -->
   <div id="public-view" class="flex-1 flex flex-col">
-    <!-- Hero with Prominent QR Scan Button -->
     <div class="bg-ksp-primary text-white py-10 px-4 sm:px-8 shadow-inner bg-opacity-90">
       <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-6">
         <div class="space-y-2 text-center lg:text-left">
@@ -229,7 +222,6 @@
     </main>
   </div>
 
-  <!-- ================= 3. ADMIN BACK-OFFICE VIEW ================= -->
   <div id="admin-view" class="flex-1 flex flex-col md:flex-row hidden min-h-screen">
     <aside id="admin-sidebar" class="w-64 glass-panel z-40 flex flex-col justify-between shadow-sm transition-all duration-300">
       <div>
@@ -256,7 +248,6 @@
 
     <main class="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto space-y-6 overflow-y-auto">
       
-      <!-- ADMIN SEC 1: OVERVIEW -->
       <section id="admin-sec-overview" class="space-y-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div><h3 class="text-base sm:text-lg font-bold">ภาพรวมสถานะครุภัณฑ์ <span class="text-accent" id="lbl-admin-year"></span></h3></div>
@@ -303,7 +294,6 @@
         </div>
       </section>
 
-      <!-- ADMIN SEC 2: CIRCULATION -->
       <section id="admin-sec-manage-circulation" class="space-y-4 hidden">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <h3 class="text-base font-bold">จัดการข้อมูลทะเบียนการเบิกยืม</h3>
@@ -325,7 +315,6 @@
         </div>
       </section>
 
-      <!-- ADMIN SEC 3: MAINTENANCE -->
       <section id="admin-sec-manage-maintenance" class="space-y-4 hidden">
         <div class="flex items-center justify-between">
           <h3 class="text-base font-bold">จัดการงานซ่อมและการบำรุงรักษา</h3>
@@ -341,7 +330,6 @@
         </div>
       </section>
 
-      <!-- ADMIN SEC 4: ADVANCED REPORTS -->
       <section id="admin-sec-manage-reports" class="space-y-6 hidden">
         <div class="glass-panel p-6 rounded-2xl shadow-sm space-y-4">
           <h3 class="text-base font-bold flex items-center gap-2"><i data-lucide="file-spreadsheet" class="w-5 h-5 text-ksp-primary"></i> ศูนย์รายงานสารบรรณและสถิติอัจฉริยะ</h3>
@@ -383,7 +371,6 @@
         </div>
       </section>
 
-      <!-- ADMIN SEC 5: AUDIT LOGS -->
       <section id="admin-sec-system-logs" class="space-y-4 hidden">
         <div class="flex items-center justify-between">
           <h3 class="text-base font-bold flex items-center gap-2"><i data-lucide="history" class="w-5 h-5 text-ksp-primary"></i> ประวัติการเข้าใช้งานและกิจกรรม (Audit Logs)</h3>
@@ -399,7 +386,6 @@
         </div>
       </section>
 
-      <!-- ADMIN SEC 6: SETTINGS -->
       <section id="admin-sec-system-settings" class="space-y-6 hidden">
         <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
           <div class="glass-panel p-6 rounded-2xl shadow-sm space-y-4">
@@ -414,7 +400,6 @@
               <div class="flex justify-end pt-2"><button type="submit" class="px-6 py-2.5 bg-ksp-primary text-white text-xs font-bold rounded-xl shadow hover:opacity-90">บันทึกการตั้งค่า</button></div>
             </form>
           </div>
-          <!-- Tech Management -->
           <div class="glass-panel p-6 rounded-2xl shadow-sm space-y-4">
             <h3 class="text-base font-bold">รายชื่อช่างเทคนิค ICT</h3>
             <div class="flex gap-2">
@@ -425,7 +410,6 @@
               <ul id="settings-tech-list" class="space-y-2"></ul>
             </div>
           </div>
-          <!-- Issue Types Management -->
           <div class="glass-panel p-6 rounded-2xl shadow-sm space-y-4 xl:col-span-1 lg:col-span-2">
             <h3 class="text-base font-bold">ประเภทอาการชำรุด (Dropdown)</h3>
             <div class="flex gap-2">
@@ -441,9 +425,6 @@
     </main>
   </div>
 
-  <!-- ================= 4. ALL MODALS ================= -->
-
-  <!-- PIN Modal -->
   <div id="pin-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
     <div class="glass-panel w-full max-w-xs rounded-3xl p-6 shadow-2xl text-center relative bg-white dark:bg-slate-800">
       <button onclick="closeModal('pin-modal')" class="absolute top-4 right-4 opacity-50 hover:opacity-100"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -464,7 +445,6 @@
     </div>
   </div>
 
-  <!-- QR Passport View Modal (Public Instant Access) -->
   <div id="qr-passport-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
     <div class="glass-panel w-full max-w-md rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
       <button onclick="closeModal('qr-passport-modal')" class="absolute top-5 right-5 opacity-50 hover:opacity-100"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -491,7 +471,6 @@
     </div>
   </div>
 
-  <!-- Public Camera QR Scanner Modal -->
   <div id="public-scanner-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
     <div class="glass-panel w-full max-w-md rounded-3xl p-6 shadow-2xl text-center relative bg-white dark:bg-slate-800">
       <button onclick="stopPublicCameraScanner()" class="absolute top-4 right-4 opacity-50 hover:opacity-100"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -513,7 +492,6 @@
     </div>
   </div>
 
-  <!-- Camera QR / Barcode Scanner Modal for Maintenance -->
   <div id="camera-scanner-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
     <div class="glass-panel w-full max-w-md rounded-3xl p-6 shadow-2xl text-center relative bg-white dark:bg-slate-800">
       <button onclick="stopCameraScanner()" class="absolute top-4 right-4 opacity-50 hover:opacity-100"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -530,7 +508,6 @@
     </div>
   </div>
 
-  <!-- Admin Circulation Edit Modal -->
   <div id="circ-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
     <div class="glass-panel w-full max-w-xl rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
       <button onclick="closeModal('circ-modal')" class="absolute top-5 right-5 opacity-50 hover:opacity-100"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -571,7 +548,6 @@
     </div>
   </div>
 
-  <!-- Admin Maintenance Form with Smart Scan -->
   <div id="maint-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
     <div class="glass-panel w-full max-w-xl rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar bg-white dark:bg-slate-800">
       <button onclick="closeModal('maint-modal')" class="absolute top-5 right-5 opacity-50 hover:opacity-100"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -613,7 +589,6 @@
     </div>
   </div>
 
-  <!-- Sticker Batch Print Modal -->
   <div id="sticker-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
     <div class="glass-panel w-full max-w-4xl rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar bg-white dark:bg-slate-800">
       <button onclick="closeModal('sticker-modal')" class="absolute top-5 right-5 opacity-50 hover:opacity-100 no-print"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -625,7 +600,6 @@
     </div>
   </div>
 
-  <!-- ================= 5. CORE APPLICATION LOGIC ================= -->
   <script>
     let cameraStream = null;
     let scannerAnimationFrame = null;
@@ -1079,7 +1053,7 @@
       lucide.createIcons();
     }
 
-    // Circulation & Batch Sticker
+    // Circulation & Batch Sticker (Updated with Holder Name, Grade, Room, Year)
     function renderAdminCirculationTable() {
       const tbody = document.getElementById('adm-circ-table-body');
       if (!tbody) return;
@@ -1174,21 +1148,30 @@
       });
     }
 
+    // Sticker Batch Print Modal (Updated with Name, Grade, Room, Year)
     function openStickerBatchPrintModal() {
       const container = document.getElementById('sticker-print-area');
       const list = APP_STATE.devices.filter(d => d.academic_year === APP_STATE.currentYear);
       container.innerHTML = '';
+      
       list.forEach((d, idx) => {
         const item = document.createElement('div');
-        item.className = "border border-dashed border-gray-400 p-3 rounded-xl text-center flex flex-col items-center justify-between text-[10px]";
-        item.innerHTML = `<div class="font-bold">โรงเรียนกระสังพิทยาคม</div><div id="sticker-qr-${idx}" class="my-1"></div><div class="font-mono font-bold">${d.asset_id}</div><div class="font-mono">S/N: ${d.serial_number}</div><div class="text-[9px] opacity-70">Anywhere Anytime สพฐ.</div>`;
+        item.className = "border border-dashed border-gray-400 p-2.5 rounded-xl text-center flex flex-col items-center justify-between text-[10px]";
+        item.innerHTML = `
+          <div class="font-bold text-[11px]">โรงเรียนกระสังพิทยาคม</div>
+          <div id="sticker-qr-${idx}" class="my-1"></div>
+          <div class="font-mono font-bold">${d.asset_id}</div>
+          <div class="font-mono">S/N: ${d.serial_number}</div>
+          <div class="font-semibold text-blue-700">${d.holder_name || 'คลังพัสดุ'} (${d.grade}/${d.room})</div>
+          <div class="text-[9px] opacity-80">ปีการศึกษา ${d.academic_year} • Anywhere Anytime สพฐ.</div>
+        `;
         container.appendChild(item);
-        new QRCode(document.getElementById(`sticker-qr-${idx}`), { text: `KSP-PASS:${d.asset_id}:${d.serial_number}`, width: 75, height: 75 });
+        new QRCode(document.getElementById(`sticker-qr-${idx}`), { text: `KSP-PASS:${d.asset_id}:${d.serial_number}`, width: 68, height: 68 });
       });
       showModal('sticker-modal');
     }
 
-    // Admin Maintenance with Smart QR / Barcode Scanner Support
+    // Admin Maintenance
     function renderAdminMaintenanceTable() {
       const tbody = document.getElementById('adm-maint-table-body');
       if (!tbody) return;
@@ -1242,7 +1225,6 @@
       });
     }
 
-    // Real-time Camera QR Scanner Implementation for Maintenance
     function startCameraScanner() {
       showModal('camera-scanner-modal');
       const video = document.getElementById('scanner-video');
