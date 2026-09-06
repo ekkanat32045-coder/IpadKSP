@@ -163,17 +163,17 @@
 
   <!-- ================= 2. PUBLIC VIEW ================= -->
   <div id="public-view" class="flex-1 flex flex-col">
-    <!-- Hero -->
-    <div class="bg-ksp-primary text-white py-8 px-4 sm:px-8 shadow-inner bg-opacity-90">
+    <!-- Hero with Prominent QR Scan Button -->
+    <div class="bg-ksp-primary text-white py-10 px-4 sm:px-8 shadow-inner bg-opacity-90">
       <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-6">
         <div class="space-y-2 text-center lg:text-left">
           <span class="px-3 py-1 rounded-full bg-white bg-opacity-15 border border-white border-opacity-20 text-xs font-medium">นโยบายการเรียนรู้ Anywhere Anytime สพฐ.</span>
-          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">ศูนย์สืบค้นครุภัณฑ์ iPad แบบเบ็ดเสร็จ</h2>
+          <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">ศูนย์สืบค้นครุภัณฑ์ iPad แบบเบ็ดเสร็จ</h2>
           <p class="text-xs sm:text-sm text-blue-100 opacity-90 max-w-2xl font-light">สืบค้นข้อมูลอุปกรณ์ ตรวจสอบประวัติการถือครอง และสแกน QR Passport ได้อย่างสะดวกรวดเร็ว</p>
         </div>
         <div class="flex items-center gap-3 w-full sm:w-auto">
-          <button onclick="openSmartScannerModal()" class="flex-1 sm:flex-initial px-6 py-3 bg-white text-ksp-primary hover:bg-blue-50 rounded-xl text-sm font-bold shadow-md flex items-center justify-center gap-2 transition">
-            <i data-lucide="scan" class="w-5 h-5"></i><span>สแกน QR ประจำเครื่อง</span>
+          <button onclick="openPublicCameraScanner()" class="w-full sm:w-auto px-8 py-4 bg-accent hover:opacity-90 text-white rounded-2xl text-base font-extrabold shadow-2xl flex items-center justify-center gap-3 transition transform hover:scale-105 animate-bounce">
+            <i data-lucide="scan" class="w-6 h-6"></i><span>สแกน QR Code ตรวจสอบเครื่อง</span>
           </button>
         </div>
       </div>
@@ -464,19 +464,7 @@
     </div>
   </div>
 
-  <!-- QR Passport Strict Modal -->
-  <div id="qr-strict-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
-    <div class="glass-panel w-full max-w-xs rounded-3xl p-6 shadow-2xl text-center relative">
-      <button onclick="closeModal('qr-strict-modal')" class="absolute top-4 right-4 opacity-50 hover:opacity-100"><i data-lucide="x" class="w-5 h-5"></i></button>
-      <div class="w-12 h-12 rounded-full bg-accent bg-opacity-20 text-accent mx-auto flex items-center justify-center mb-3"><i data-lucide="shield" class="w-6 h-6"></i></div>
-      <h3 class="font-bold text-base mb-1">ยืนยันการครอบครอง</h3>
-      <p class="text-[11px] opacity-70 mb-4">กรุณากรอกรหัสประจำตัวผู้ถือครองเพื่อดูข้อมูลเครื่อง</p>
-      <input type="text" id="strict-holder-code" placeholder="เช่น 28752" class="w-full px-3 py-2.5 text-center font-mono font-bold rounded-xl input-box mb-4 focus:ring-2 focus:ring-ksp-primary focus:outline-none" />
-      <button onclick="verifyStrictCode()" class="w-full py-2.5 bg-ksp-primary text-white rounded-xl text-xs font-bold shadow hover:opacity-90">ยืนยัน</button>
-    </div>
-  </div>
-
-  <!-- QR Passport View Modal -->
+  <!-- QR Passport View Modal (Public Instant Access) -->
   <div id="qr-passport-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
     <div class="glass-panel w-full max-w-md rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
       <button onclick="closeModal('qr-passport-modal')" class="absolute top-5 right-5 opacity-50 hover:opacity-100"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -503,14 +491,25 @@
     </div>
   </div>
 
-  <!-- Smart Scanner Modal -->
-  <div id="smart-scanner-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
-    <div class="glass-panel w-full max-w-sm rounded-3xl p-6 shadow-2xl text-center relative">
-      <button onclick="closeModal('smart-scanner-modal')" class="absolute top-4 right-4 opacity-50 hover:opacity-100"><i data-lucide="x" class="w-5 h-5"></i></button>
-      <div class="w-16 h-16 rounded-full bg-blue-100 text-blue-700 mx-auto flex items-center justify-center mb-3"><i data-lucide="scan" class="w-8 h-8 animate-pulse"></i></div>
-      <h3 class="font-bold text-sm mb-1">กล้องสแกนคิวร์โค้ดอุปกรณ์</h3>
-      <div class="w-44 h-44 mx-auto border-2 border-dashed border-ksp-primary rounded-2xl flex items-center justify-center bg-gray-50 dark:bg-slate-900 my-4"><span class="text-xs opacity-50">ระบบกล้องพร้อม...</span></div>
-      <button onclick="triggerSimulatedScanSuccess()" class="w-full py-2.5 bg-ksp-primary text-white rounded-xl text-xs font-semibold shadow hover:opacity-90">จำลองสแกนสำเร็จ</button>
+  <!-- Public Camera QR Scanner Modal -->
+  <div id="public-scanner-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
+    <div class="glass-panel w-full max-w-md rounded-3xl p-6 shadow-2xl text-center relative bg-white dark:bg-slate-800">
+      <button onclick="stopPublicCameraScanner()" class="absolute top-4 right-4 opacity-50 hover:opacity-100"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <h3 class="font-bold text-sm mb-2">สแกน QR Code ตรวจสอบเครื่อง</h3>
+      <p class="text-[11px] opacity-70 mb-3">ส่องกล้องไปที่ QR Code หรือพิมพ์ S/N / Asset ID เพื่อดู Digital Passport</p>
+      
+      <div class="relative w-full h-56 bg-black rounded-2xl overflow-hidden flex items-center justify-center mb-3">
+        <video id="public-scanner-video" class="w-full h-full object-cover" autoplay playsinline muted></video>
+        <canvas id="public-scanner-canvas" class="hidden"></canvas>
+        <div class="absolute inset-0 border-2 border-dashed border-accent opacity-70 pointer-events-none m-6 rounded-xl"></div>
+      </div>
+
+      <div class="flex gap-2 mb-3">
+        <input type="text" id="public-manual-input" placeholder="หรือพิมพ์ S/N / Asset ID..." class="flex-1 px-3 py-2 text-xs rounded-xl input-box font-mono" />
+        <button onclick="handlePublicManualSearch()" class="px-4 py-2 bg-ksp-primary text-white text-xs font-bold rounded-xl shadow">ค้นหา</button>
+      </div>
+      
+      <button onclick="stopPublicCameraScanner()" class="px-6 py-2 bg-gray-200 dark:bg-slate-700 text-xs font-bold rounded-xl">ปิดกล้อง</button>
     </div>
   </div>
 
@@ -572,7 +571,7 @@
     </div>
   </div>
 
-  <!-- Admin Maintenance Form with Smart Scan & Strict Validation -->
+  <!-- Admin Maintenance Form with Smart Scan -->
   <div id="maint-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
     <div class="glass-panel w-full max-w-xl rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar bg-white dark:bg-slate-800">
       <button onclick="closeModal('maint-modal')" class="absolute top-5 right-5 opacity-50 hover:opacity-100"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -628,9 +627,10 @@
 
   <!-- ================= 5. CORE APPLICATION LOGIC ================= -->
   <script>
-    let tempStrictDeviceId = null; 
     let cameraStream = null;
     let scannerAnimationFrame = null;
+    let publicCameraStream = null;
+    let publicScannerAnimFrame = null;
 
     window.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
@@ -829,7 +829,7 @@
           <td class="p-3.5">${d.holder_name} <span class="text-[10px] opacity-50 font-mono">(${d.holder_code})</span></td>
           <td class="p-3.5"><span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold ${statusBadges[d.status] || 'badge-ready'}">${d.status}</span></td>
           <td class="p-3.5 text-center">
-            <button onclick="requestStrictValidation('${d.id}')" class="px-2 py-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-xs font-bold hover:shadow-md transition">
+            <button onclick="openQrPassportModal('${d.id}')" class="px-2 py-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-xs font-bold hover:shadow-md transition">
               <i data-lucide="qr-code" class="w-3.5 h-3.5 inline text-blue-600"></i> QR 
             </button>
           </td>
@@ -859,22 +859,78 @@
       Swal.fire({ title: `ประวัติซ่อม: ${d.asset_id}`, html: `<div class="max-h-60 overflow-y-auto custom-scrollbar">${html}</div>`, confirmButtonColor: '#1E3A8A' });
     }
 
-    function requestStrictValidation(deviceId) {
-      if(APP_STATE.isAdmin) { openQrPassportModal(deviceId); return; }
-      tempStrictDeviceId = deviceId;
-      document.getElementById('strict-holder-code').value = '';
-      showModal('qr-strict-modal');
+    // Public Instant Camera Scanner (Real-time Auto-detect)
+    function openPublicCameraScanner() {
+      showModal('public-scanner-modal');
+      const video = document.getElementById('public-scanner-video');
+      const canvasElement = document.getElementById('public-scanner-canvas');
+      const canvas = canvasElement.getContext('2d');
+      document.getElementById('public-manual-input').value = '';
+
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(stream => {
+        publicCameraStream = stream;
+        video.srcObject = stream;
+        video.setAttribute("playsinline", true);
+        video.play();
+        requestAnimationFrame(tickPublic);
+      }).catch(err => {
+        Swal.fire({ icon: 'error', title: 'ไม่สามารถเปิดกล้องได้', text: 'กรุณาตรวจสอบการอนุญาตใช้งานกล้อง', confirmButtonColor: '#1E3A8A' });
+        closeModal('public-scanner-modal');
+      });
+
+      function tickPublic() {
+        if (video.readyState === video.HAVE_ENOUGH_DATA) {
+          canvasElement.height = video.videoHeight;
+          canvasElement.width = video.videoWidth;
+          canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+          var imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+          var code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "dontInvert" });
+          
+          if (code) {
+            stopPublicCameraScanner();
+            processPublicScannedCode(code.data);
+            return;
+          }
+        }
+        if (publicCameraStream) publicScannerAnimFrame = requestAnimationFrame(tickPublic);
+      }
     }
 
-    function verifyStrictCode() {
-      const code = document.getElementById('strict-holder-code').value.trim();
-      const d = APP_STATE.devices.find(item => item.id === tempStrictDeviceId);
-      if(d && (d.holder_code === code || code === "ADMIN" || d.holder_code === "-")) {
-        closeModal('qr-strict-modal');
-        openQrPassportModal(d.id);
-      } else {
-        Swal.fire({ icon: 'error', title: 'รหัสไม่ถูกต้อง', text: 'คุณไม่ใช่ผู้ครอบครองอุปกรณ์นี้', confirmButtonColor: '#1E3A8A' });
+    function stopPublicCameraScanner() {
+      if (publicCameraStream) {
+        publicCameraStream.getTracks().forEach(track => track.stop());
+        publicCameraStream = null;
       }
+      if (publicScannerAnimFrame) cancelAnimationFrame(publicScannerAnimFrame);
+      closeModal('public-scanner-modal');
+    }
+
+    function processPublicScannedCode(rawText) {
+      let query = rawText.trim().toUpperCase();
+      if (rawText.startsWith('KSP-PASS:')) {
+        const parts = rawText.split(':');
+        if (parts.length >= 3) query = parts[2].trim().toUpperCase();
+      }
+
+      const device = APP_STATE.devices.find(d => d.serial_number.toUpperCase() === query || d.asset_id.toUpperCase() === query);
+      if (!device) {
+        Swal.fire({
+          icon: 'warning',
+          title: 'ไม่พบครุภัณฑ์นี้ในระบบ',
+          text: 'ครุภัณฑ์นี้ยังไม่ได้ลงทะเบียนในระบบ กรุณาติดต่อห้อง 521',
+          confirmButtonColor: '#1E3A8A'
+        });
+        return;
+      }
+
+      openQrPassportModal(device.id);
+    }
+
+    function handlePublicManualSearch() {
+      const val = document.getElementById('public-manual-input').value.trim();
+      if(!val) return;
+      stopPublicCameraScanner();
+      processPublicScannedCode(val);
     }
 
     function openQrPassportModal(deviceId) {
@@ -905,16 +961,6 @@
         `).join('');
       }
       showModal('qr-passport-modal');
-    }
-
-    function openSmartScannerModal() { showModal('smart-scanner-modal'); }
-    function triggerSimulatedScanSuccess() {
-      closeModal('smart-scanner-modal');
-      const filtered = APP_STATE.devices.filter(d => d.academic_year === APP_STATE.currentYear);
-      if(filtered.length > 0) {
-        requestStrictValidation(filtered[0].id); 
-        Swal.fire({ icon: 'success', title: 'สแกนสำเร็จ', text: `อ่านข้อมูล ${filtered[0].asset_id} เรียบร้อย กรุณายืนยันรหัสประจำตัว`, timer: 1500, showConfirmButton: false });
-      }
     }
 
     // Admin Auth & Session
@@ -1142,7 +1188,7 @@
       showModal('sticker-modal');
     }
 
-    // Admin Maintenance with Smart QR / Barcode Scanner Support (Strict Validation)
+    // Admin Maintenance with Smart QR / Barcode Scanner Support
     function renderAdminMaintenanceTable() {
       const tbody = document.getElementById('adm-maint-table-body');
       if (!tbody) return;
@@ -1196,7 +1242,7 @@
       });
     }
 
-    // Real-time Camera QR Scanner Implementation
+    // Real-time Camera QR Scanner Implementation for Maintenance
     function startCameraScanner() {
       showModal('camera-scanner-modal');
       const video = document.getElementById('scanner-video');
@@ -1243,13 +1289,11 @@
 
     function handleScannedCode(rawText) {
       let sn = rawText.trim().toUpperCase();
-      // Parse if format is KSP-PASS:AssetID:Serial
       if (rawText.startsWith('KSP-PASS:')) {
         const parts = rawText.split(':');
         if (parts.length >= 3) sn = parts[2].trim().toUpperCase();
       }
 
-      // Strict Validation Check
       const device = APP_STATE.devices.find(d => d.serial_number.toUpperCase() === sn);
       if (!device) {
         Swal.fire({ icon: 'error', title: 'ไม่พบครุภัณฑ์นี้ในระบบ', text: 'กรุณาบันทึกการเบิกยืมก่อนออกใบแจ้งซ่อม', confirmButtonColor: '#1E3A8A' });
@@ -1320,7 +1364,6 @@
       const phone = document.getElementById('maint-phone').value.trim();
       const tech = document.getElementById('maint-tech').value;
 
-      // Strict Validation Check
       const device = APP_STATE.devices.find(d => d.serial_number.toUpperCase() === sn.toUpperCase());
       if (!device) {
         Swal.fire({ icon: 'error', title: 'ไม่พบครุภัณฑ์นี้ในระบบ', text: 'กรุณาบันทึกการเบิกยืมก่อนออกใบแจ้งซ่อม', confirmButtonColor: '#1E3A8A' });
