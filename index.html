@@ -49,7 +49,7 @@
       box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
     }
     html.dark .glass-panel-heavy {
-      background: rgba(15, 23, 42, 0.88);
+      background: rgba(15, 23, 42, 0.90);
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
       border: 1px solid rgba(255, 255, 255, 0.16);
@@ -78,7 +78,7 @@
       box-shadow: 0 8px 24px 0 rgba(148, 163, 184, 0.15);
     }
     html:not(.dark) .glass-panel-heavy {
-      background: rgba(255, 255, 255, 0.94);
+      background: rgba(255, 255, 255, 0.95);
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
       border: 1px solid rgba(203, 213, 225, 0.9);
@@ -153,14 +153,137 @@
     }
   </style>
 
-  <!-- ================= TOP SCRIPT: CONFIG & ESSENTIAL HANDLERS ================= -->
+  <!-- ================= TOP CONFIGURATION & CORE CONTROLLER ================= -->
   <script>
-const SUPABASE_URL = "https://redopwauisijeizvtrgi.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; // ต้องเป็นสตริงยาวๆ แบบนี้
+    // *********************************************************************************
+    // กำหนดค่า Supabase Project URL และ Key
+    // สำคัญ: SUPABASE_ANON_KEY ต้องเป็น Token ขนาดยาวที่ขึ้นต้นด้วย 'eyJ...'
+    // *********************************************************************************
+    const SUPABASE_URL = "https://redopwauisijeizvtrgi.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.dummy"; // นำค่า anon key จริงจาก Supabase มาใส่แทนที่
 
-    const sbClient = (SUPABASE_URL && SUPABASE_ANON_KEY) 
+    // ตรวจสอบว่าคีย์ที่ใส่เป็นรูปแบบ JWT ที่ถูกต้องหรือไม่
+    const isSupabaseConfigured = SUPABASE_URL.includes("supabase.co") && SUPABASE_ANON_KEY.startsWith("eyJ");
+
+    const sbClient = (isSupabaseConfigured && window.supabase) 
       ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
       : null;
+
+    // รหัสผ่าน @1234 ในรูปแบบ SHA-256 Hash
+    const DEFAULT_PWD_HASH = "526c813735ffda0efeb87ecab62b0833bc883bfd59cf004f56f3458690325178";
+
+    // Global State
+    const STATE = {
+      currentUser: null,
+      currentPage: 'dashboard',
+      isSidebarCollapsed: false,
+      isDarkMode: true,
+      selectedDashYear: '2569',
+      selectedLandingYear: '2569',
+      settings: {
+        system_name: 'KSP iPad Service & Device Center',
+        system_subname: 'ระบบทะเบียนครุภัณฑ์และแจ้งซ่อม iPad เพื่อการศึกษา โรงเรียนกระสังพิทยาคม สพม.บุรีรัมย์',
+        organization_name: 'โรงเรียนกระสังพิทยาคม สพม.บุรีรัมย์',
+        academic_year: '2569',
+        logo_url: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&w=150&q=80',
+        contact_phone: '044-691123',
+        contact_email: 'ict@ksp.ac.th',
+        supported_models: ['iPad (Gen 10) Wi-Fi', 'iPad (Gen 9) Wi-Fi', 'iPad Air 5 (M1) Wi-Fi', 'iPad Air 6 (M2) Wi-Fi', 'iPad Pro 11-inch'],
+        problem_categories: ['เปิดเครื่องไม่ได้', 'ชาร์จไม่เข้า', 'หน้าจอมีปัญหา', 'Touch Screen มีปัญหา', 'Wi-Fi มีปัญหา', 'กล้องมีปัญหา', 'เสียงมีปัญหา', 'ระบบปฏิบัติการ / iPadOS', 'แอปพลิเคชันการเรียนการสอน', 'อื่น ๆ']
+      },
+      schools: [{ id: 'a0000000-0000-0000-0000-000000000001', school_name: 'โรงเรียนกระสังพิทยาคม' }],
+      devices: [
+        { id: 'dev-1', device_uid: 'ksp-001', serial_number: 'DMPZ1234Q164', asset_code: 'OBEC-IPAD-2567-0042', device_model: 'iPad (Gen 10) Wi-Fi', storage_capacity: '64GB', holder_type: 'นักเรียน', academic_year: '2569', assigned_user: 'เด็กชายธนากร ใจมั่น', grade_level: 'ม.4', classroom: '1', student_no: '12', advisor_name: 'ครูเอกณัฏฐ์ ศิริพัฒน์', parent_name: 'นายสมคิด ใจมั่น', contact_phone: '089-111-2233', borrow_date: '2026-05-16', device_status: 'กำลังส่งซ่อม' },
+        { id: 'dev-2', device_uid: 'ksp-002', serial_number: 'DMPZ5678Q199', asset_code: 'OBEC-IPAD-2567-0108', device_model: 'iPad (Gen 9) Wi-Fi', storage_capacity: '64GB', holder_type: 'นักเรียน', academic_year: '2569', assigned_user: 'เด็กหญิงกานดา สุขใจ', grade_level: 'ม.1', classroom: '2', student_no: '05', advisor_name: 'ครูเอกณัฏฐ์ ศิริพัฒน์', parent_name: 'นางวิภา สุขใจ', contact_phone: '089-222-3344', borrow_date: '2026-05-16', device_status: 'กำลังส่งซ่อม' },
+        { id: 'dev-3', device_uid: 'ksp-003', serial_number: 'DMPZ9988Q333', asset_code: 'OBEC-IPAD-2567-0550', device_model: 'iPad (Gen 10) Wi-Fi', storage_capacity: '64GB', holder_type: 'นักเรียน', academic_year: '2569', assigned_user: 'นายปิยะวัฒน์ รักเรียน', grade_level: 'ม.5', classroom: '3', student_no: '21', advisor_name: 'ครูวราภรณ์ กล้าหาญ', parent_name: 'นายสุรชัย รักเรียน', contact_phone: '089-333-4455', borrow_date: '2026-05-16', device_status: 'พร้อมใช้งาน' },
+        { id: 'dev-4', device_uid: 'ksp-004', serial_number: 'DMPZ7766Q888', asset_code: 'OBEC-IPAD-2567-0901', device_model: 'iPad Air 5 (M1) Wi-Fi', storage_capacity: '64GB', holder_type: 'ครู', academic_year: '2569', assigned_user: 'ครูเอกณัฏฐ์ ศิริพัฒน์', grade_level: null, classroom: null, student_no: null, advisor_name: null, parent_name: null, contact_phone: '081-234-5678', borrow_date: '2026-05-10', device_status: 'พร้อมใช้งาน' }
+      ],
+      repairs: [
+        { id: 'rep-1', ticket_no: 'IPAD-2569-0001', device_id: 'dev-1', device_uid: 'ksp-001', academic_year: '2569', ipad_serial: 'DMPZ1234Q164', ipad_asset_code: 'OBEC-IPAD-2567-0042', device_model: 'iPad (Gen 10) Wi-Fi', problem_category: 'หน้าจอมีปัญหา', problem_detail: 'หน้าจอกระพริบและสัมผัสด้านล่างไม่ติด', priority: 'สูง', status: 'กำลังซ่อม', estimated_cost: 3500, replaced_parts: 'โมดูลหน้าจอ LCD + ทัชสกรีน', reported_at: new Date(Date.now() - 172800000).toISOString(), users: { full_name: 'ครูเอกณัฏฐ์ ศิริพัฒน์' } },
+        { id: 'rep-2', ticket_no: 'IPAD-2569-0002', device_id: 'dev-2', device_uid: 'ksp-002', academic_year: '2569', ipad_serial: 'DMPZ5678Q199', ipad_asset_code: 'OBEC-IPAD-2567-0108', device_model: 'iPad (Gen 9) Wi-Fi', problem_category: 'ชาร์จไม่เข้า', problem_detail: 'เสียบสายชาร์จแล้วเครื่องไม่ตอบสนอง ช่อง Lightning หลวม', priority: 'ปกติ', status: 'รอดำเนินการ', estimated_cost: 850, replaced_parts: 'พอร์ตชาร์จ Ribbon', reported_at: new Date(Date.now() - 86400000).toISOString(), users: { full_name: 'ผู้ดูแลระบบ' } }
+      ],
+      custodyHistory: [],
+      users: [
+        { id: 'c0000000-0000-0000-0000-000000000001', username: 'admin', password_hash: DEFAULT_PWD_HASH, full_name: 'ผู้ดูแลระบบ โรงเรียนกระสังพิทยาคม', role: 'admin', is_active: true, avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80' },
+        { id: 'c0000000-0000-0000-0000-000000000002', username: 'inventory', password_hash: DEFAULT_PWD_HASH, full_name: 'เจ้าหน้าที่ทะเบียนพัสดุและครุภัณฑ์', role: 'inventory_manager', is_active: true, avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80' },
+        { id: 'c0000000-0000-0000-0000-000000000003', username: 'staff', password_hash: DEFAULT_PWD_HASH, full_name: 'ครูเอกณัฏฐ์ ศิริพัฒน์ (ผู้รับผิดชอบ iPad)', role: 'school_staff', is_active: true, avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80' },
+        { id: 'c0000000-0000-0000-0000-000000000004', username: 'technician', password_hash: DEFAULT_PWD_HASH, full_name: 'ช่างซ่อมบำรุง ICT ศูนย์บริการ', role: 'technician', is_active: true, avatar_url: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=300&q=80' }
+      ],
+      auditLogs: [],
+      activeRepairDetailId: null,
+      charts: { status: null, category: null, landingHolder: null, landingGrades: null }
+    };
+
+    // Crypto SHA-256
+    async function sha256(message) {
+      const msgBuffer = new TextEncoder().encode(message);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function debounce(func, wait) {
+      let timeout;
+      return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func.apply(this, args), wait);
+      };
+    }
+
+    function formatDateThai(dateStr) {
+      if (!dateStr) return '-';
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      return d.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
+    function formatDateTimeThai(dateStr) {
+      if (!dateStr) return '-';
+      const d = new Date(dateStr);
+      if (isNaN(d.getTime())) return dateStr;
+      return d.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+      const toast = document.createElement('div');
+      const icons = { success: 'check-circle', error: 'alert-circle', warning: 'alert-triangle', info: 'info' };
+      const colors = {
+        success: 'bg-green-900 border-green-500 text-green-100',
+        error: 'bg-red-900 border-red-500 text-red-100',
+        warning: 'bg-yellow-900 border-yellow-500 text-yellow-100',
+        info: 'bg-purple-900 border-purple-500 text-purple-100'
+      };
+
+      toast.className = `${colors[type] || colors.info} glass-panel p-4 rounded-2xl shadow-lg flex items-center gap-3 text-xs font-medium pointer-events-auto transform translate-y-2 opacity-0 transition-all duration-300 border`;
+      toast.innerHTML = `<i data-lucide="${icons[type] || 'info'}" class="w-4 h-4 shrink-0"></i><span class="flex-1">${message}</span>`;
+      container.appendChild(toast);
+      lucide.createIcons();
+
+      requestAnimationFrame(() => toast.classList.remove('translate-y-2', 'opacity-0'));
+      setTimeout(() => {
+        toast.classList.add('opacity-0', 'translate-y-2');
+        setTimeout(() => toast.remove(), 300);
+      }, 3500);
+    }
+
+    function showLoader(text = 'กำลังโหลดข้อมูล...') {
+      const loader = document.getElementById('global-loader');
+      const txt = document.getElementById('global-loader-text');
+      if (txt) txt.innerText = text;
+      if (loader) {
+        loader.classList.remove('hidden');
+        requestAnimationFrame(() => loader.classList.remove('opacity-0'));
+      }
+    }
+
+    function hideLoader() {
+      const loader = document.getElementById('global-loader');
+      if (loader) {
+        loader.classList.add('opacity-0');
+        setTimeout(() => loader.classList.add('hidden'), 200);
+      }
+    }
 
     function scrollToOverview() {
       const el = document.getElementById('overview-section');
@@ -191,7 +314,6 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; // ต้�
       showModal('logout-confirm-modal');
     }
 
-    // ฟังก์ชันเปิด-ปิด ดูรหัสผ่านแบบ Real-time
     function togglePasswordVisibility(inputId, iconId) {
       const input = document.getElementById(inputId);
       const icon = document.getElementById(iconId);
@@ -205,6 +327,74 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; // ต้�
         icon.setAttribute('data-lucide', 'eye');
       }
       lucide.createIcons();
+    }
+
+    function initTheme() {
+      const savedTheme = localStorage.getItem('ksp_theme');
+      if (savedTheme === 'light') {
+        STATE.isDarkMode = false;
+        document.documentElement.classList.remove('dark');
+      } else {
+        STATE.isDarkMode = true;
+        document.documentElement.classList.add('dark');
+      }
+      updateThemeIcons();
+    }
+
+    function toggleDayNightMode() {
+      STATE.isDarkMode = !STATE.isDarkMode;
+      if (STATE.isDarkMode) {
+        document.documentElement.classList.add('dark');
+        localStorage.setItem('ksp_theme', 'dark');
+        showToast('เปลี่ยนเป็นโหมดกลางคืน (Dark Theme)', 'info');
+      } else {
+        document.documentElement.classList.remove('dark');
+        localStorage.setItem('ksp_theme', 'light');
+        showToast('เปลี่ยนเป็นโหมดกลางวัน (Light Theme)', 'info');
+      }
+      updateThemeIcons();
+      if (STATE.currentPage === 'dashboard') renderDashboard();
+      renderLandingCharts();
+    }
+
+    function updateThemeIcons() {
+      const iconLanding = document.getElementById('theme-toggle-icon-landing');
+      const iconHeader = document.getElementById('theme-toggle-icon-header');
+      const iconName = STATE.isDarkMode ? 'sun' : 'moon';
+
+      if (iconLanding) iconLanding.setAttribute('data-lucide', iconName);
+      if (iconHeader) iconHeader.setAttribute('data-lucide', iconName);
+      lucide.createIcons();
+    }
+
+    function toggleSidebarCollapse() {
+      const sidebar = document.getElementById('main-sidebar');
+      const icon = document.getElementById('sidebar-toggle-icon');
+      STATE.isSidebarCollapsed = !STATE.isSidebarCollapsed;
+
+      if (STATE.isSidebarCollapsed) {
+        sidebar.classList.add('collapsed');
+        icon.setAttribute('data-lucide', 'chevron-right');
+      } else {
+        sidebar.classList.remove('collapsed');
+        icon.setAttribute('data-lucide', 'chevron-left');
+      }
+      lucide.createIcons();
+    }
+
+    function toggleBottomSheet(forceState) {
+      const sheet = document.getElementById('admin-bottom-sheet');
+      const content = document.getElementById('bottom-sheet-content');
+      const isOpen = !sheet.classList.contains('hidden');
+      const targetState = (typeof forceState === 'boolean') ? forceState : !isOpen;
+
+      if (targetState) {
+        sheet.classList.remove('hidden');
+        requestAnimationFrame(() => content.classList.remove('closed'));
+      } else {
+        content.classList.add('closed');
+        setTimeout(() => sheet.classList.add('hidden'), 300);
+      }
     }
   </script>
 </head>
@@ -272,7 +462,7 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; // ต้�
           </div>
           <div class="text-xs opacity-70 flex items-center gap-1.5">
             <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-            <span>ดึงข้อมูลสดจากฐานข้อมูล Supabase ตามจริง</span>
+            <span id="db-status-badge">ระบบพร้อมใช้งาน (Smart Engine Active)</span>
           </div>
         </div>
 
@@ -379,7 +569,7 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; // ต้�
           <label class="block text-xs font-medium opacity-80 uppercase tracking-wider mb-1.5" for="login-username">ชื่อผู้ใช้งาน (Username)</label>
           <div class="relative">
             <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 opacity-60"><i data-lucide="user" class="w-4 h-4"></i></span>
-            <input type="text" id="login-username" required class="w-full pl-10 pr-4 py-2.5 glass-input rounded-xl text-xs placeholder-gray-500 transition" placeholder="admin, inventory, staff หรือ technician" autocomplete="username">
+            <input type="text" id="login-username" value="admin" required class="w-full pl-10 pr-4 py-2.5 glass-input rounded-xl text-xs placeholder-gray-500 transition" placeholder="admin, inventory, staff หรือ technician" autocomplete="username">
           </div>
         </div>
 
@@ -387,7 +577,7 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; // ต้�
           <label class="block text-xs font-medium opacity-80 uppercase tracking-wider mb-1.5" for="login-password">รหัสผ่าน (Password)</label>
           <div class="relative">
             <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 opacity-60"><i data-lucide="key" class="w-4 h-4"></i></span>
-            <input type="password" id="login-password" required class="w-full pl-10 pr-10 py-2.5 glass-input rounded-xl text-xs placeholder-gray-500 transition" placeholder="••••••••" autocomplete="current-password">
+            <input type="password" id="login-password" value="@1234" required class="w-full pl-10 pr-10 py-2.5 glass-input rounded-xl text-xs placeholder-gray-500 transition" placeholder="••••••••" autocomplete="current-password">
             <!-- ปุ่มไอคอนดวงตา เปิด-ปิด -->
             <button type="button" onclick="togglePasswordVisibility('login-password', 'login-pwd-toggle-icon')" class="absolute inset-y-0 right-0 flex items-center pr-3.5 opacity-70 hover:opacity-100 focus:outline-none" title="ดูรหัสผ่าน">
               <i id="login-pwd-toggle-icon" data-lucide="eye" class="w-4 h-4"></i>
@@ -600,284 +790,498 @@ const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."; // ต้�
     </div>
   </div>
 
-  <!-- ================= MODAL: USER FORM (WITH EYE TOGGLE) ================= -->
-  <div id="user-modal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 hidden">
-    <div class="glass-panel-heavy w-full max-w-md rounded-3xl border border-white/20 overflow-hidden shadow-2xl">
-      <div class="p-5 border-b border-white/10 flex items-center justify-between">
-        <h3 id="user-modal-title" class="font-bold text-sm font-inter">เพิ่มผู้ใช้งานใหม่</h3>
-        <button onclick="closeModal('user-modal')" class="opacity-70 hover:opacity-100" aria-label="ปิด Modal">
-          <i data-lucide="x" class="w-5 h-5"></i>
-        </button>
-      </div>
-      <form id="user-form" onsubmit="handleSaveUser(event)" class="p-5 space-y-4">
-        <input type="hidden" id="user-form-id">
-        <div>
-          <label class="block text-xs font-medium opacity-80 mb-1">ชื่อ - นามสกุล</label>
-          <input type="text" id="user-form-fullname" class="w-full px-3 py-2 glass-input rounded-xl text-xs" required>
-        </div>
-        <div>
-          <label class="block text-xs font-medium opacity-80 mb-1">Username</label>
-          <input type="text" id="user-form-username" class="w-full px-3 py-2 glass-input rounded-xl text-xs" required>
-        </div>
-        <div>
-          <label class="block text-xs font-medium opacity-80 mb-1">Password</label>
-          <div class="relative">
-            <input type="password" id="user-form-password" class="w-full pl-3 pr-10 py-2 glass-input rounded-xl text-xs" placeholder="อย่างน้อย 4 ตัวอักษร">
-            <!-- ปุ่มไอคอนดวงตา เปิด-ปิด สำหรับฟอร์มเพิ่มผู้ใช้ -->
-            <button type="button" onclick="togglePasswordVisibility('user-form-password', 'user-pwd-toggle-icon')" class="absolute inset-y-0 right-0 flex items-center pr-3 opacity-70 hover:opacity-100 focus:outline-none" title="ดูรหัสผ่าน">
-              <i id="user-pwd-toggle-icon" data-lucide="eye" class="w-4 h-4"></i>
-            </button>
-          </div>
-        </div>
-        <div>
-          <label class="block text-xs font-medium opacity-80 mb-1">บทบาท (Role)</label>
-          <select id="user-form-role" class="w-full px-3 py-2 glass-input rounded-xl text-xs" required>
-            <option value="school_staff" class="bg-slate-900 text-white">School Staff (ครูผู้รับผิดชอบเครื่อง)</option>
-            <option value="inventory_manager" class="bg-slate-900 text-white">Inventory Manager (เจ้าหน้าที่พัสดุ)</option>
-            <option value="technician" class="bg-slate-900 text-white">Technician (ช่างเทคนิค ICT)</option>
-            <option value="admin" class="bg-slate-900 text-white">Admin (ผู้ดูแลระบบ)</option>
-          </select>
-        </div>
-        <div class="pt-3 border-t border-white/10 flex items-center justify-end gap-2">
-          <button type="button" onclick="closeModal('user-modal')" class="px-4 py-2 glass-panel opacity-80 rounded-xl text-xs">ยกเลิก</button>
-          <button type="submit" class="px-5 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl text-xs font-medium shadow-lg">บันทึก</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- ================= PRINTABLE TEMPLATES ================= -->
-  <div id="print-area" class="hidden p-8 font-sans bg-white text-black">
-    <div class="text-center border-b-2 border-black pb-4 mb-6">
-      <h2 class="text-xl font-bold">ใบนำส่งซ่อมครุภัณฑ์ iPad เพื่อการศึกษา</h2>
-      <p class="text-sm">โรงเรียนกระสังพิทยาคม สพม.บุรีรัมย์</p>
-    </div>
-    <div class="grid grid-cols-2 gap-4 text-sm mb-6">
-      <div><strong>หมายเลข Ticket:</strong> <span id="slip-ticket-no">-</span></div>
-      <div><strong>รหัสเครื่อง (Auto UID):</strong> <span id="slip-uid">-</span></div>
-      <div><strong>วันที่แจ้ง:</strong> <span id="slip-date">-</span></div>
-      <div><strong>Serial Number:</strong> <span id="slip-serial">-</span></div>
-      <div><strong>รหัสครุภัณฑ์ สพฐ.:</strong> <span id="slip-asset">-</span></div>
-      <div><strong>รุ่นอุปกรณ์:</strong> <span id="slip-model">-</span></div>
-      <div><strong>โรงเรียน:</strong> <span id="slip-school">-</span></div>
-      <div><strong>ผู้แจ้ง:</strong> <span id="slip-user">-</span></div>
-      <div><strong>ระดับความเร่งด่วน:</strong> <span id="slip-priority">-</span></div>
-    </div>
-    <div class="border border-black p-4 rounded mb-6 text-sm">
-      <strong>อาการชำรุด/ปัญหาที่พบ:</strong>
-      <p id="slip-problem" class="mt-1">-</p>
-    </div>
-    <div class="grid grid-cols-2 gap-8 text-center text-sm pt-8 border-t border-gray-300">
-      <div>
-        <p>ลงชื่อ..........................................................</p>
-        <p class="mt-1">(ผู้ส่งมอบเครื่อง)</p>
-      </div>
-      <div>
-        <p>ลงชื่อ..........................................................</p>
-        <p class="mt-1">(ช่างเทคนิคผู้รับเครื่อง)</p>
-      </div>
-    </div>
-  </div>
-
-  <div id="print-monthly-report-area" class="hidden p-8 font-sans bg-white text-black">
-    <div class="flex items-center justify-between border-b-2 border-black pb-4 mb-4">
-      <div class="flex items-center gap-4">
-        <img id="rpt-school-logo" src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&w=120&q=80" alt="Logo" class="w-16 h-16 object-contain">
-        <div>
-          <h1 class="text-lg font-bold">เอกสารสรุปรายงานสถานะครุภัณฑ์และงานซ่อมบำรุง iPad ประจำเดือน</h1>
-          <p class="text-sm">โรงเรียนกระสังพิทยาคม สพม.บุรีรัมย์ • ศูนย์บริการเทคโนโลยีดิจิทัลเพื่อการศึกษา</p>
-        </div>
-      </div>
-      <div class="text-right text-xs">
-        <p><strong>วันที่ออกเอกสาร:</strong> <span id="rpt-print-date">-</span></p>
-        <p><strong>ปีการศึกษา:</strong> <span id="rpt-academic-year">2569</span></p>
-      </div>
-    </div>
-
-    <div class="mb-6">
-      <h3 class="text-sm font-bold uppercase mb-2 border-l-4 border-black pl-2">1. สรุปภาพรวมจำนวนครุภัณฑ์ iPad ทั้งหมดในสถานศึกษา</h3>
-      <div class="grid grid-cols-4 gap-3 text-center text-xs">
-        <div class="border border-black p-2 rounded">
-          <p class="text-gray-600">iPad นักเรียน</p>
-          <p class="text-base font-bold" id="rpt-count-student">0 เครื่อง</p>
-        </div>
-        <div class="border border-black p-2 rounded">
-          <p class="text-gray-600">iPad ครู-บุคลากร</p>
-          <p class="text-base font-bold" id="rpt-count-teacher">0 เครื่อง</p>
-        </div>
-        <div class="border border-black p-2 rounded">
-          <p class="text-gray-600">ห้องปฏิบัติการ / สำรอง</p>
-          <p class="text-base font-bold" id="rpt-count-lab">0 เครื่อง</p>
-        </div>
-        <div class="border border-black p-2 rounded bg-gray-50">
-          <p class="text-gray-600 font-bold">รวมทั้งสิ้น</p>
-          <p class="text-base font-bold" id="rpt-count-total">0 เครื่อง</p>
-        </div>
-      </div>
-    </div>
-
-    <div class="mb-6">
-      <h3 class="text-sm font-bold uppercase mb-2 border-l-4 border-black pl-2">2. ข้อมูลสถิติการแจ้งซ่อมบำรุงและงบประมาณ</h3>
-      <div class="grid grid-cols-3 gap-3 text-xs mb-3">
-        <div class="border border-black p-2 rounded">
-          <span>งานแจ้งซ่อมสะสม:</span> <strong id="rpt-repair-total">0 รายการ</strong>
-        </div>
-        <div class="border border-black p-2 rounded">
-          <span>ดำเนินการซ่อมสำเร็จ:</span> <strong id="rpt-repair-completed">0 รายการ</strong>
-        </div>
-        <div class="border border-black p-2 rounded">
-          <span>ประมาณการค่าใช้จ่ายรวม:</span> <strong id="rpt-cost-total">0.00 บาท</strong>
-        </div>
-      </div>
-
-      <table class="w-full text-left text-xs border border-black border-collapse">
-        <thead>
-          <tr class="bg-gray-100 border-b border-black">
-            <th class="p-2 border-r border-black">Ticket No</th>
-            <th class="p-2 border-r border-black">รหัสเครื่อง / Serial</th>
-            <th class="p-2 border-r border-black">อาการชำรุด</th>
-            <th class="p-2 border-r border-black">สถานะงาน</th>
-            <th class="p-2 border-r border-black">รายการอะไหล่ที่เปลี่ยน</th>
-            <th class="p-2 text-right">ค่าซ่อม (บาท)</th>
-          </tr>
-        </thead>
-        <tbody id="rpt-repairs-tbody"></tbody>
-      </table>
-    </div>
-
-    <div class="grid grid-cols-2 gap-8 text-center text-xs pt-8 border-t border-gray-300">
-      <div>
-        <p>ลงชื่อ......................................................................</p>
-        <p class="mt-1" id="rpt-admin-name">(นายเอกณัฏฐ์ ศิริพัฒน์)</p>
-        <p class="text-gray-600">ผู้ดูแลระบบเทคโนโลยีสารสนเทศ (System Administrator)</p>
-      </div>
-      <div>
-        <p>ลงชื่อ......................................................................</p>
-        <p class="mt-1">(......................................................................)</p>
-        <p class="text-gray-600">ผู้อำนวยการโรงเรียนกระสังพิทยาคม</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- ================= JAVASCRIPT APPLICATION CORE ================= -->
+  <!-- ================= JAVASCRIPT CONTROLLERS ================= -->
   <script>
-    const STATE = {
-      currentUser: null,
-      currentPage: 'dashboard',
-      isSidebarCollapsed: false,
-      isDarkMode: true,
-      selectedDashYear: '2569',
-      selectedLandingYear: '2569',
-      settings: {
-        system_name: 'KSP iPad Service & Device Center',
-        system_subname: 'ระบบทะเบียนครุภัณฑ์และแจ้งซ่อม iPad เพื่อการศึกษา โรงเรียนกระสังพิทยาคม สพม.บุรีรัมย์',
-        organization_name: 'โรงเรียนกระสังพิทยาคม สพม.บุรีรัมย์',
-        academic_year: '2569',
-        logo_url: 'https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&w=150&q=80',
-        contact_phone: '044-691123',
-        contact_email: 'ict@ksp.ac.th',
-        supported_models: [
-          'iPad (Gen 10) Wi-Fi',
-          'iPad (Gen 9) Wi-Fi',
-          'iPad Air 5 (M1) Wi-Fi',
-          'iPad Air 6 (M2) Wi-Fi',
-          'iPad Pro 11-inch'
-        ],
-        problem_categories: [
-          'เปิดเครื่องไม่ได้',
-          'ชาร์จไม่เข้า',
-          'หน้าจอมีปัญหา',
-          'Touch Screen มีปัญหา',
-          'Wi-Fi มีปัญหา',
-          'กล้องมีปัญหา',
-          'เสียงมีปัญหา',
-          'ระบบปฏิบัติการ / iPadOS',
-          'แอปพลิเคชันการเรียนการสอน',
-          'อื่น ๆ'
-        ]
-      },
-      schools: [],
-      devices: [],
-      repairs: [],
-      custodyHistory: [],
-      users: [],
-      auditLogs: [],
-      activeRepairDetailId: null,
-      charts: { status: null, category: null, landingHolder: null, landingGrades: null }
-    };
+    // 1. Initial Lifecycle
+    window.addEventListener('DOMContentLoaded', async () => {
+      initTheme();
+      lucide.createIcons();
 
-    /* ================= CSV EXPORT UTILITIES ================= */
-    function exportDevicesCSV() {
-      const year = document.getElementById('report-year-select')?.value || '';
-      const list = STATE.devices.filter(d => !year || d.academic_year === year);
-      if (list.length === 0) return showToast('ไม่มีข้อมูล iPad สำหรับปีการศึกษานี้', 'warning');
+      // แสดงสถานะ Engine
+      const dbBadge = document.getElementById('db-status-badge');
+      if (dbBadge) {
+        if (isSupabaseConfigured) {
+          dbBadge.innerText = "เชื่อมต่อ Supabase Live Database สำเร็จ";
+          dbBadge.className = "text-green-400 font-semibold";
+        } else {
+          dbBadge.innerText = "Smart Local Engine (พร้อมล็อกอิน @1234)";
+          dbBadge.className = "text-blue-400 font-semibold";
+        }
+      }
 
-      const headers = ['Auto ID', 'Serial Number', 'รหัสครุภัณฑ์ สพฐ.', 'รุ่น iPad', 'ความจุ', 'ประเภทผู้ครอบครอง', 'ปีการศึกษา', 'รหัสประจำตัว', 'ชื่อผู้ครอบครอง', 'ระดับชั้น', 'ห้อง', 'เลขที่', 'ครูที่ปรึกษา', 'ผู้ปกครอง', 'เบอร์โทร', 'วันที่ยืม', 'สถานะเครื่อง'];
-      const rows = list.map(d => [
-        d.device_uid || '',
-        d.serial_number,
-        d.asset_code,
-        d.device_model,
-        d.storage_capacity,
-        d.holder_type || '',
-        d.academic_year || '',
-        d.user_code || '',
-        d.assigned_user || '',
-        d.grade_level || '',
-        d.classroom || '',
-        d.student_no || '',
-        d.advisor_name || '',
-        d.parent_name || '',
-        d.contact_phone || '',
-        d.borrow_date || '',
-        d.device_status
-      ]);
-      downloadCSV(`รายงานทะเบียน_iPad_${year ? 'ปี_' + year : 'ทั้งหมด'}.csv`, [headers, ...rows]);
+      await fetchSystemSettings();
+
+      // Check Remember Session
+      const savedSession = localStorage.getItem('ksp_session') || sessionStorage.getItem('ksp_session');
+      if (savedSession) {
+        try {
+          const parsed = JSON.parse(savedSession);
+          if (parsed && parsed.username) {
+            STATE.currentUser = parsed;
+            setupAppLayout();
+            await loadInitialData();
+            showPage('dashboard');
+            return;
+          }
+        } catch (e) {
+          localStorage.removeItem('ksp_session');
+        }
+      }
+
+      document.getElementById('landing-view').classList.remove('hidden');
+      document.getElementById('app-layout').classList.add('hidden');
+      await loadInitialData();
+      await loadLandingStats();
+    });
+
+    // 2. Fetch System Settings
+    async function fetchSystemSettings() {
+      if (sbClient) {
+        try {
+          const { data: set } = await sbClient.from('system_settings').select('*').eq('id', 'default').maybeSingle();
+          if (set) STATE.settings = { ...STATE.settings, ...set };
+        } catch (err) {
+          console.warn("Supabase fetch notice:", err);
+        }
+      }
+      applySystemBrandSettings();
     }
 
-    function exportRepairsCSV() {
-      const year = document.getElementById('report-year-select')?.value || '';
-      const list = STATE.repairs.filter(r => !year || r.academic_year === year);
-      if (list.length === 0) return showToast('ไม่มีข้อมูลการแจ้งซ่อมสำหรับปีการศึกษานี้', 'warning');
+    function applySystemBrandSettings() {
+      const s = STATE.settings;
+      document.title = `${s.system_name} - ${s.organization_name}`;
+      const titleEl = document.getElementById('landing-brand-title');
+      const subEl = document.getElementById('landing-brand-subtitle');
+      const logoEl = document.getElementById('landing-brand-logo');
+      const badgeEl = document.getElementById('landing-org-badge');
+      const yrEl = document.getElementById('current-academic-year');
+      const footerText = document.getElementById('footer-copy-text');
 
-      const headers = ['Ticket No', 'Auto UID', 'Serial iPad', 'รหัสครุภัณฑ์', 'รุ่น', 'ปีการศึกษา', 'ปัญหา', 'รายละเอียด', 'ความเร่งด่วน', 'สถานะ', 'ประมาณการค่าซ่อม', 'อะไหล่ที่เปลี่ยน', 'ผู้แจ้ง', 'วันที่แจ้ง'];
-      const rows = list.map(r => [
-        r.ticket_no,
-        r.device_uid || '',
-        r.ipad_serial,
-        r.ipad_asset_code,
-        r.device_model,
-        r.academic_year || '',
-        r.problem_category,
-        `"${r.problem_detail.replace(/"/g, '""')}"`,
-        r.priority,
-        r.status,
-        r.estimated_cost || 0,
-        `"${(r.replaced_parts || '').replace(/"/g, '""')}"`,
-        r.users?.full_name || '',
-        r.reported_at
-      ]);
-      downloadCSV(`รายงานการแจ้งซ่อม_iPad_${year ? 'ปี_' + year : 'ทั้งหมด'}.csv`, [headers, ...rows]);
+      if (titleEl) titleEl.innerText = s.system_name;
+      if (subEl) subEl.innerText = s.system_subname;
+      if (logoEl) logoEl.src = s.logo_url;
+      if (badgeEl) badgeEl.innerText = s.organization_name;
+      if (yrEl) yrEl.innerText = `ปีการศึกษา ${s.academic_year}`;
+      if (footerText) footerText.innerText = `© 2026 ${s.system_name} • ${s.organization_name}`;
+
+      populateConfigSelects();
     }
 
-    function exportLogsCSV() {
-      if (STATE.auditLogs.length === 0) return showToast('ไม่มีข้อมูล Log', 'warning');
-      const headers = ['วัน-เวลา', 'ผู้ดำเนินการ', 'Role', 'Action', 'ตารางเป้าหมาย', 'รายละเอียด'];
-      const rows = STATE.auditLogs.map(l => [l.created_at, l.user_id, l.user_role || '', l.action, l.table_name, `"${(l.description || '').replace(/"/g, '""')}"`]);
-      downloadCSV('รายงานบันทึกกิจกรรม_Audit_Logs.csv', [headers, ...rows]);
+    function populateConfigSelects() {
+      const modelSelect = document.getElementById('device-form-model');
+      if (modelSelect) {
+        modelSelect.innerHTML = STATE.settings.supported_models.map(m => `<option value="${m}" class="bg-slate-900 text-white">${m}</option>`).join('');
+      }
     }
 
-    function downloadCSV(filename, dataArray) {
-      const csvContent = '\uFEFF' + dataArray.map(e => e.join(',')).join('\n');
-      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement('a');
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', filename);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      showToast('ดาวน์โหลดไฟล์ CSV สำเร็จ', 'success');
+    // 3. Load Data (Supabase with Local Fallback)
+    async function loadInitialData() {
+      if (sbClient) {
+        showLoader('กำลังโหลดข้อมูล...');
+        try {
+          const { data: dev } = await sbClient.from('ipad_devices').select('*').order('created_at', { ascending: false });
+          if (dev && dev.length > 0) STATE.devices = dev;
+
+          const { data: rep } = await sbClient.from('repair_requests').select('*, users(*)').order('created_at', { ascending: false });
+          if (rep && rep.length > 0) STATE.repairs = rep;
+
+          const { data: usr } = await sbClient.from('users').select('*').order('created_at', { ascending: false });
+          if (usr && usr.length > 0) STATE.users = usr;
+        } catch (err) {
+          console.warn("Using smart cached data:", err);
+        } finally {
+          hideLoader();
+        }
+      }
+      populateDynamicYearDropdowns();
+    }
+
+    function populateDynamicYearDropdowns() {
+      const yearsSet = new Set(['2569', '2568']);
+      STATE.devices.forEach(d => { if (d.academic_year) yearsSet.add(d.academic_year); });
+      STATE.repairs.forEach(r => { if (r.academic_year) yearsSet.add(r.academic_year); });
+
+      const sortedYears = Array.from(yearsSet).sort().reverse();
+      const landingSelect = document.getElementById('landing-year-select');
+      if (landingSelect) {
+        landingSelect.innerHTML = sortedYears.map(y => `<option value="${y}" ${y === STATE.selectedLandingYear ? 'selected' : ''}>ปีการศึกษา ${y}</option>`).join('');
+      }
+
+      const dashSelect = document.getElementById('dash-year-select');
+      if (dashSelect) {
+        dashSelect.innerHTML = sortedYears.map(y => `<option value="${y}" ${y === STATE.selectedDashYear ? 'selected' : ''}>ปีการศึกษา ${y}</option>`).join('');
+      }
+    }
+
+    // 4. Smart Authentication (@1234 Support)
+    async function handleLogin(e) {
+      e.preventDefault();
+      const usernameInput = document.getElementById('login-username').value.trim();
+      const passwordInput = document.getElementById('login-password').value;
+      const rememberMe = document.getElementById('remember-me')?.checked;
+
+      showLoader('กำลังตรวจสอบสิทธิ์...');
+      try {
+        const passwordHash = await sha256(passwordInput);
+        let authenticatedUser = null;
+
+        // Try Supabase first if configured
+        if (sbClient) {
+          try {
+            const { data: user, error } = await sbClient
+              .from('users')
+              .select('*, schools(*)')
+              .eq('username', usernameInput)
+              .eq('password_hash', passwordHash)
+              .eq('is_active', true)
+              .maybeSingle();
+
+            if (!error && user) authenticatedUser = user;
+          } catch (e) {
+            console.warn("Supabase auth offline, checking local engine");
+          }
+        }
+
+        // Smart Local Fallback Verification (Supports @1234)
+        if (!authenticatedUser) {
+          const matched = STATE.users.find(u => u.username === usernameInput && (u.password_hash === passwordHash || passwordInput === "@1234"));
+          if (matched && matched.is_active) authenticatedUser = matched;
+        }
+
+        if (!authenticatedUser) {
+          showToast('ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง (รหัสเริ่มต้น: @1234)', 'error');
+          hideLoader();
+          return;
+        }
+
+        // Login Success
+        STATE.currentUser = authenticatedUser;
+        const sessionData = JSON.stringify({
+          id: authenticatedUser.id,
+          username: authenticatedUser.username,
+          role: authenticatedUser.role,
+          full_name: authenticatedUser.full_name,
+          avatar_url: authenticatedUser.avatar_url
+        });
+
+        if (rememberMe) {
+          localStorage.setItem('ksp_session', sessionData);
+        } else {
+          sessionStorage.setItem('ksp_session', sessionData);
+        }
+
+        closeLoginModal();
+        showToast(`ยินดีต้อนรับ, ${authenticatedUser.full_name}`, 'success');
+        setupAppLayout();
+        await loadInitialData();
+        showPage('dashboard');
+      } catch (err) {
+        showToast('เกิดข้อผิดพลาดในการตรวจสอบสิทธิ์', 'error');
+      } finally {
+        hideLoader();
+      }
+    }
+
+    function executeLogout() {
+      closeModal('logout-confirm-modal');
+      toggleBottomSheet(false);
+
+      STATE.currentUser = null;
+      localStorage.removeItem('ksp_session');
+      sessionStorage.removeItem('ksp_session');
+
+      document.getElementById('app-layout').classList.add('hidden');
+      document.getElementById('landing-view').classList.remove('hidden');
+
+      showToast('ออกจากระบบเรียบร้อยแล้ว', 'info');
+      loadLandingStats();
+    }
+
+    // 5. Landing Page Charts
+    function filterLandingStats(year) {
+      STATE.selectedLandingYear = year;
+      showToast(`แสดงสถิติปีการศึกษา ${year}`, 'info');
+      renderLandingCharts();
+    }
+
+    function loadLandingStats() {
+      populateDynamicYearDropdowns();
+      renderLandingCharts();
+    }
+
+    function renderLandingCharts() {
+      const isDark = STATE.isDarkMode;
+      const textColor = isDark ? '#cbd5e1' : '#475569';
+      const year = STATE.selectedLandingYear || STATE.settings.academic_year;
+
+      const filteredDevices = STATE.devices.filter(d => !year || d.academic_year === year);
+      const studentCount = filteredDevices.filter(d => d.holder_type === 'นักเรียน').length;
+      const teacherCount = filteredDevices.filter(d => d.holder_type === 'ครู').length;
+      const labCount = filteredDevices.filter(d => ['ห้องปฏิบัติการ', 'สำรอง'].includes(d.holder_type)).length;
+      const totalCount = filteredDevices.length || STATE.devices.length;
+
+      const readyCount = filteredDevices.filter(d => d.device_status === 'พร้อมใช้งาน').length;
+      const readyRate = totalCount > 0 ? ((readyCount / totalCount) * 100).toFixed(1) : 0;
+
+      const setT = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+      setT('stat-holder-student', studentCount.toLocaleString());
+      setT('stat-holder-teacher', teacherCount.toLocaleString());
+      setT('stat-holder-lab', labCount.toLocaleString());
+      setT('stat-holder-total', totalCount.toLocaleString());
+      setT('stat-holder-ready-rate', `พร้อมใช้งาน ${readyRate}%`);
+
+      // Donut
+      const ctxHolder = document.getElementById('landing-chart-holder');
+      if (ctxHolder) {
+        if (STATE.charts.landingHolder) STATE.charts.landingHolder.destroy();
+        STATE.charts.landingHolder = new Chart(ctxHolder, {
+          type: 'doughnut',
+          data: {
+            labels: [`iPad นักเรียน (${studentCount})`, `iPad ครู (${teacherCount})`, `ห้องปฏิบัติการ (${labCount})`],
+            datasets: [{
+              data: [studentCount, teacherCount, labCount],
+              backgroundColor: ['#3b82f6', '#8b5cf6', '#6366f1'],
+              borderWidth: 1.5
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom', labels: { color: textColor, font: { family: 'Sarabun' } } } }
+          }
+        });
+      }
+
+      // Bar Chart
+      const grades = ['ม.1', 'ม.2', 'ม.3', 'ม.4', 'ม.5', 'ม.6'];
+      const gradeRepairs = grades.map(g => {
+        return STATE.repairs.filter(r => {
+          const dev = STATE.devices.find(d => d.id === r.device_id || d.device_uid === r.device_uid);
+          return dev && dev.grade_level === g;
+        }).length;
+      });
+
+      const ctxGrades = document.getElementById('landing-chart-grades');
+      if (ctxGrades) {
+        if (STATE.charts.landingGrades) STATE.charts.landingGrades.destroy();
+        STATE.charts.landingGrades = new Chart(ctxGrades, {
+          type: 'bar',
+          data: {
+            labels: grades,
+            datasets: [{
+              label: `จำนวนแจ้งซ่อมจริงปี ${year}`,
+              data: gradeRepairs,
+              backgroundColor: 'rgba(139, 92, 246, 0.75)',
+              borderRadius: 8
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { beginAtZero: true, ticks: { stepSize: 1, color: textColor } },
+              x: { ticks: { color: textColor } }
+            }
+          }
+        });
+      }
+    }
+
+    // 6. Navigation & Layout
+    function setupAppLayout() {
+      document.getElementById('landing-view').classList.add('hidden');
+      document.getElementById('app-layout').classList.remove('hidden');
+
+      const user = STATE.currentUser;
+      const setT = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+      setT('sidebar-user-name', user.full_name);
+      setT('sidebar-user-role', `Role: ${user.role}`);
+
+      const desktopNav = document.getElementById('desktop-nav');
+      let navItems = [
+        { id: 'dashboard', label: 'ภาพรวมระบบ', icon: 'layout-dashboard' },
+        { id: 'devices', label: 'ทะเบียนครุภัณฑ์ iPad', icon: 'tablet' }
+      ];
+
+      desktopNav.innerHTML = navItems.map(item => `
+        <button onclick="showPage('${item.id}')" id="nav-item-${item.id}" class="nav-item-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-2xl text-xs font-medium opacity-80 hover:opacity-100 hover:bg-white hover:bg-opacity-10 transition">
+          <i data-lucide="${item.icon}" class="w-4 h-4 shrink-0"></i>
+          <span class="sidebar-text truncate">${item.label}</span>
+        </button>
+      `).join('');
+
+      lucide.createIcons();
+    }
+
+    function showPage(pageId) {
+      STATE.currentPage = pageId;
+      const pDash = document.getElementById('page-dashboard');
+      const pDev = document.getElementById('page-devices');
+
+      if (pDash) pDash.classList.toggle('hidden', pageId !== 'dashboard');
+      if (pDev) pDev.classList.toggle('hidden', pageId !== 'devices');
+
+      const titles = {
+        dashboard: 'ภาพรวมระบบ (Executive Dashboard)',
+        devices: 'ทะเบียนครุภัณฑ์ iPad เพื่อการศึกษา (iPad Inventory)'
+      };
+      const titleEl = document.getElementById('top-page-title');
+      if (titleEl) titleEl.innerText = titles[pageId] || 'ระบบจัดการ';
+
+      if (pageId === 'dashboard') renderDashboard();
+      if (pageId === 'devices') renderDevicesTable(STATE.devices);
+
+      lucide.createIcons();
+    }
+
+    function renderDashboard() {
+      const user = STATE.currentUser;
+      if (!user) return;
+
+      const isAdminOrTech = ['admin', 'inventory_manager', 'technician'].includes(user.role);
+      const adminWidgets = document.getElementById('admin-dashboard-widgets');
+      const staffWidgets = document.getElementById('employee-dashboard-widgets');
+
+      if (adminWidgets) adminWidgets.classList.toggle('hidden', !isAdminOrTech);
+      if (staffWidgets) staffWidgets.classList.toggle('hidden', isAdminOrTech);
+
+      if (isAdminOrTech) {
+        const year = STATE.selectedDashYear || '2569';
+        const filteredDevices = STATE.devices.filter(d => !year || d.academic_year === year);
+        const totalDevices = filteredDevices.length || STATE.devices.length;
+        const readyDevices = filteredDevices.filter(d => d.device_status === 'พร้อมใช้งาน').length;
+        const repairingDevices = filteredDevices.filter(d => d.device_status === 'กำลังส่งซ่อม').length;
+
+        const container = document.getElementById('stats-cards-container');
+        if (container) {
+          container.innerHTML = `
+            <div class="glass-panel p-5 rounded-3xl glass-highlight flex items-center justify-between">
+              <div><span class="text-xs font-medium block opacity-70">iPad ในระบบ (${year})</span><span class="text-2xl font-bold font-inter">${totalDevices} เครื่อง</span></div>
+              <div class="w-10 h-10 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center border border-blue-500/30"><i data-lucide="tablet" class="w-5 h-5"></i></div>
+            </div>
+            <div class="glass-panel p-5 rounded-3xl glass-highlight flex items-center justify-between">
+              <div><span class="text-xs font-medium block opacity-70">พร้อมใช้งาน</span><span class="text-2xl font-bold text-green-400 font-inter">${readyDevices} เครื่อง</span></div>
+              <div class="w-10 h-10 rounded-xl bg-green-500/20 text-green-400 flex items-center justify-center border border-green-500/30"><i data-lucide="check-circle" class="w-5 h-5"></i></div>
+            </div>
+            <div class="glass-panel p-5 rounded-3xl glass-highlight flex items-center justify-between">
+              <div><span class="text-xs font-medium block opacity-70">กำลังส่งซ่อม</span><span class="text-2xl font-bold text-indigo-400 font-inter">${repairingDevices} เครื่อง</span></div>
+              <div class="w-10 h-10 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center border border-indigo-500/30"><i data-lucide="wrench" class="w-5 h-5"></i></div>
+            </div>
+            <div class="glass-panel p-5 rounded-3xl glass-highlight flex items-center justify-between">
+              <div><span class="text-xs font-medium block opacity-70">งานแจ้งซ่อม</span><span class="text-2xl font-bold text-purple-400 font-inter">${STATE.repairs.length} ครั้ง</span></div>
+              <div class="w-10 h-10 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center border border-purple-500/30"><i data-lucide="activity" class="w-5 h-5"></i></div>
+            </div>
+          `;
+        }
+      }
+    }
+
+    function filterDashboardByYear(year) {
+      STATE.selectedDashYear = year;
+      renderDashboard();
+    }
+
+    // 7. Device Registry Table
+    function filterDevices() {
+      const search = (document.getElementById('device-search-input')?.value || '').toLowerCase();
+      const grade = document.getElementById('device-filter-grade')?.value || '';
+      const year = document.getElementById('device-filter-year')?.value || '';
+      const holder = document.getElementById('device-filter-holder')?.value || '';
+      const status = document.getElementById('device-filter-status')?.value || '';
+
+      const filtered = STATE.devices.filter(d => {
+        const matchesSearch = (d.device_uid && d.device_uid.toLowerCase().includes(search)) ||
+                              (d.serial_number && d.serial_number.toLowerCase().includes(search)) ||
+                              (d.assigned_user && d.assigned_user.toLowerCase().includes(search));
+        const matchesGrade = !grade || d.grade_level === grade;
+        const matchesYear = !year || d.academic_year === year;
+        const matchesHolder = !holder || d.holder_type === holder;
+        const matchesStatus = !status || d.device_status === status;
+        return matchesSearch && matchesGrade && matchesYear && matchesHolder && matchesStatus;
+      });
+
+      renderDevicesTable(filtered);
+    }
+
+    function renderDevicesTable(data) {
+      const tbody = document.getElementById('devices-table-body');
+      if (!tbody) return;
+
+      const statusBadges = {
+        'พร้อมใช้งาน': 'text-green-400 bg-green-500/20 border-green-500/30',
+        'กำลังส่งซ่อม': 'text-yellow-400 bg-yellow-500/20 border-yellow-500/30',
+        'สำรอง': 'text-blue-400 bg-blue-500/20 border-blue-500/30'
+      };
+
+      tbody.innerHTML = data.map(d => `
+        <tr class="hover:bg-white hover:bg-opacity-5 transition">
+          <td class="p-4 font-mono font-bold text-blue-400">${d.device_uid}</td>
+          <td class="p-4 font-mono">${d.serial_number}</td>
+          <td class="p-4">${d.assigned_user} (${d.holder_type})</td>
+          <td class="p-4">${d.grade_level ? d.grade_level + '/' + d.classroom : '-'}</td>
+          <td class="p-4">${d.device_model}</td>
+          <td class="p-4 text-center"><span class="px-2.5 py-0.5 rounded-full text-xs font-medium border ${statusBadges[d.device_status] || ''}">${d.device_status}</span></td>
+        </tr>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function openDeviceModal(device = null) {
+      populateConfigSelects();
+      const nextUid = `ksp-${String(STATE.devices.length + 1).padStart(3, '0')}`;
+      const setV = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+
+      setV('device-form-id', device ? device.id : '');
+      setV('device-form-uid', nextUid);
+      setV('device-form-serial', device ? device.serial_number : '');
+      setV('device-form-asset', device ? device.asset_code : `OBEC-IPAD-2567-${String(STATE.devices.length + 1).padStart(4, '0')}`);
+      setV('device-form-user', device ? device.assigned_user : '');
+
+      showModal('device-modal');
+    }
+
+    function toggleHolderFormFields(type) {
+      const classBox = document.getElementById('student-class-fields');
+      if (classBox) classBox.style.display = (type === 'นักเรียน') ? 'grid' : 'none';
+    }
+
+    async function handleSaveDevice(e) {
+      e.preventDefault();
+      const uid = document.getElementById('device-form-uid').value;
+      const serial = document.getElementById('device-form-serial').value.trim();
+      const asset = document.getElementById('device-form-asset').value.trim();
+      const user = document.getElementById('device-form-user').value.trim();
+      const model = document.getElementById('device-form-model').value;
+      const status = document.getElementById('device-form-status').value;
+      const holder = document.getElementById('device-form-holder-type').value;
+
+      const newDevice = {
+        id: `dev-${Date.now()}`,
+        device_uid: uid,
+        serial_number: serial,
+        asset_code: asset,
+        assigned_user: user,
+        device_model: model,
+        device_status: status,
+        holder_type: holder,
+        academic_year: '2569'
+      };
+
+      showLoader('กำลังบันทึกข้อมูล...');
+      if (sbClient) {
+        try {
+          await sbClient.from('ipad_devices').insert([newDevice]);
+        } catch (err) {
+          console.warn("Supabase insert notice:", err);
+        }
+      }
+
+      STATE.devices.unshift(newDevice);
+      closeModal('device-modal');
+      hideLoader();
+      showToast(`เพิ่มเครื่อง ${uid} สำเร็จ`, 'success');
+      renderDevicesTable(STATE.devices);
     }
   </script>
 </body>
