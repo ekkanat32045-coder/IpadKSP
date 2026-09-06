@@ -218,11 +218,15 @@
         </div>
       </section>
 
-      <section class="glass-panel p-4 rounded-2xl shadow-sm">
-        <div class="relative">
+      <!-- Public Search with Real-time Reload Button -->
+      <section class="glass-panel p-4 rounded-2xl shadow-sm flex flex-col sm:flex-row items-center gap-3">
+        <div class="relative flex-1 w-full">
           <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3.5 opacity-50"></i>
           <input type="text" id="public-search-input" oninput="debounce(renderPublicDirectory, 300)()" placeholder="ค้นหาอัจฉริยะ: พิมพ์เลขครุภัณฑ์, Serial S/N, รหัส หรือชื่อผู้ถือครอง..." class="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl input-box focus:ring-2 focus:ring-ksp-primary focus:outline-none transition" />
         </div>
+        <button onclick="triggerPublicReload(this)" class="w-full sm:w-auto px-4 py-2.5 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition shrink-0">
+          <i data-lucide="refresh-cw" class="w-4 h-4" id="public-reload-icon"></i> รีเฟรช Real-time
+        </button>
       </section>
 
       <section class="glass-panel rounded-2xl shadow-sm overflow-hidden">
@@ -713,7 +717,6 @@
       const circYearSelect = document.getElementById('circ-academic-year');
       if(circYearSelect) circYearSelect.innerHTML = html;
 
-      // Filter Bar Years
       const fYearCirc = document.getElementById('circ-filter-year');
       const fYearMaint = document.getElementById('maint-filter-year');
       const yearOptHTML = `<option value="ALL">ทุกปีการศึกษา</option>` + html;
@@ -746,6 +749,31 @@
 
       const savedIssues = localStorage.getItem('ksp_issue_types');
       if (savedIssues) APP_STATE.issueTypes = JSON.parse(savedIssues);
+    }
+
+    // Public Real-time Reload Button with Spin & Toast
+    function triggerPublicReload(btn) {
+      const icon = document.getElementById('public-reload-icon');
+      if(icon) icon.classList.add('animate-spin');
+
+      loadAppData();
+      renderPublicDirectory();
+      updateMetrics();
+      initLiveCharts();
+      renderAdminYearSummary();
+
+      setTimeout(() => {
+        if(icon) icon.classList.remove('animate-spin');
+        Swal.fire({
+          toast: true,
+          position: 'top-end',
+          icon: 'success',
+          title: 'อัปเดตข้อมูลล่าสุดเรียบร้อย',
+          showConfirmButton: false,
+          timer: 1500,
+          timerProgressBar: true
+        });
+      }, 800);
     }
 
     function reloadRealtimeData() {
