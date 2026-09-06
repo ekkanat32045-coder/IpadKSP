@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Production Ready: Precompiled Standalone Tailwind CSS (No CDN Warning) -->
+  <!-- Production Ready: Precompiled Standalone Tailwind CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" />
 
   <!-- Supabase JS Client SDK -->
@@ -28,11 +28,8 @@
     }
     .font-inter { font-family: 'Inter', sans-serif; }
 
-    /* Custom Color Utilities for Standalone CSS */
     .bg-slate-900 { background-color: #0f172a; }
     .bg-slate-950 { background-color: #020617; }
-    .border-white-10 { border-color: rgba(255, 255, 255, 0.1); }
-    .border-white-20 { border-color: rgba(255, 255, 255, 0.2); }
 
     /* Dark Mode Theme */
     html.dark body { background-color: #090d16; color: #f1f5f9; }
@@ -52,7 +49,7 @@
       box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
     }
     html.dark .glass-panel-heavy {
-      background: rgba(15, 23, 42, 0.82);
+      background: rgba(15, 23, 42, 0.88);
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
       border: 1px solid rgba(255, 255, 255, 0.16);
@@ -110,28 +107,53 @@
     .bottom-sheet { transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
     .bottom-sheet.closed { transform: translateY(100%); }
 
-    /* Collapsible Sidebar */
     aside.collapsed { width: 5rem !important; }
     aside.collapsed .sidebar-text,
     aside.collapsed .sidebar-header-text,
     aside.collapsed .sidebar-footer-text { display: none !important; }
     aside.collapsed .nav-item-btn { justify-content: center !important; padding-left: 0 !important; padding-right: 0 !important; }
 
+    @page {
+      size: A4 portrait;
+      margin: 12mm 15mm 12mm 15mm;
+    }
+
     @media print {
-      body * { visibility: hidden; }
-      #print-area, #print-area *, #print-monthly-report-area, #print-monthly-report-area * { visibility: visible; }
+      html, body {
+        width: 210mm !important;
+        height: auto !important;
+        background: #ffffff !important;
+        color: #000000 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        font-size: 12px !important;
+        line-height: 1.4 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+      body * { visibility: hidden !important; }
+      #print-area, #print-area *, #print-monthly-report-area, #print-monthly-report-area * {
+        visibility: visible !important;
+      }
       #print-area, #print-monthly-report-area {
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        color: #000 !important;
-        background: #fff !important;
+        position: absolute !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        max-width: 180mm !important;
+        margin: 0 auto !important;
+        padding: 0 !important;
+        background: transparent !important;
+        color: #000000 !important;
+      }
+      table, tr, td, th {
+        page-break-inside: avoid !important;
+        break-inside: avoid !important;
       }
     }
   </style>
 
-  <!-- ================= TOP CONFIG & BASIC UI HANDLERS ================= -->
+  <!-- TOP-LEVEL SCRIPT & CORE FUNCTIONS -->
   <script>
     const SUPABASE_URL = "https://redopwauisijeizvtrgi.supabase.co";
     const SUPABASE_ANON_KEY = "sb_publishable_5rbLPuTZVuerxBB_MURoRw_q7Y2WinB";
@@ -164,14 +186,16 @@
       const modal = document.getElementById(id); 
       if (modal) modal.classList.add('hidden'); 
     }
+
+    function confirmLogout() {
+      showModal('logout-confirm-modal');
+    }
   </script>
 </head>
 <body class="theme-mesh-bg min-h-screen flex flex-col selection:bg-purple-500 selection:text-white antialiased">
 
-  <!-- TOAST CONTAINER -->
   <div id="toast-container" class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4"></div>
 
-  <!-- GLOBAL LOADER -->
   <div id="global-loader" class="fixed inset-0 bg-slate-950/60 backdrop-blur-md z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-200">
     <div class="glass-panel-heavy px-8 py-6 rounded-3xl flex items-center gap-4 border border-white/20 shadow-2xl">
       <div class="w-7 h-7 border-4 border-purple-400 border-t-transparent rounded-full animate-spin"></div>
@@ -220,7 +244,6 @@
         </p>
       </div>
 
-      <!-- สถิติประเภท iPad พร้อมตัวกรองปีการศึกษา -->
       <div id="overview-section" class="space-y-6">
         <div class="flex flex-wrap items-center justify-between gap-3 p-4 rounded-3xl glass-panel border border-blue-500/30">
           <div class="flex items-center gap-2">
@@ -368,222 +391,399 @@
     </div>
   </div>
 
-  <!-- ================= VIEW 2: APP LAYOUT ================= -->
-  <div id="app-layout" class="hidden flex-1 flex flex-col md:flex-row min-h-screen">
-    <aside id="main-sidebar" class="hidden md:flex flex-col w-64 glass-panel-heavy shrink-0 border-r border-white/10 select-none z-30 transition-all duration-300">
-      <div class="p-4 border-b border-white/10 flex items-center justify-between">
-        <div class="flex items-center gap-3 overflow-hidden">
-          <img id="sidebar-brand-logo" src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&w=100&q=80" alt="Logo" class="w-9 h-9 rounded-xl object-cover border border-white/20 shadow-lg shrink-0">
-          <div class="sidebar-header-text min-w-0">
-            <div id="sidebar-brand-title" class="font-bold text-sm tracking-wide font-inter truncate">KSP iPad Center</div>
-            <div id="sidebar-brand-sub" class="text-xs opacity-70 truncate">รร.กระสังพิทยาคม</div>
+  <!-- ================= MODAL: LOGOUT CONFIRMATION ================= -->
+  <div id="logout-confirm-modal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-panel-heavy w-full max-w-sm rounded-3xl border border-white/20 p-6 text-center shadow-2xl">
+      <div class="w-12 h-12 rounded-2xl bg-purple-500/20 text-purple-400 flex items-center justify-center mx-auto mb-4 border border-purple-500/30">
+        <i data-lucide="log-out" class="w-6 h-6"></i>
+      </div>
+      <h3 class="text-base font-bold font-inter">ต้องการออกจากระบบหรือไม่?</h3>
+      <p class="text-xs opacity-70 mt-1 mb-6 font-light">คุณจะต้องลงชื่อเข้าสู่ระบบใหม่อีกครั้งเพื่อเข้าใช้งาน</p>
+      <div class="flex items-center gap-3">
+        <button onclick="closeModal('logout-confirm-modal')" class="flex-1 py-2.5 glass-panel opacity-80 rounded-xl text-xs font-medium">ยกเลิก</button>
+        <button onclick="executeLogout()" class="flex-1 py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-medium shadow-lg transition">ออกจากระบบ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: IPAD DEVICE FORM ================= -->
+  <div id="device-modal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-panel-heavy w-full max-w-2xl rounded-3xl border border-white/20 overflow-hidden shadow-2xl">
+      <div class="p-5 border-b border-white/10 flex items-center justify-between">
+        <div>
+          <span id="device-form-uid-badge" class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">Auto ID: ksp-xxx</span>
+          <h3 id="device-modal-title" class="font-bold text-sm font-inter mt-1">เพิ่มทะเบียน iPad ใหม่ (Auto-ID)</h3>
+        </div>
+        <button onclick="closeModal('device-modal')" class="opacity-70 hover:opacity-100" aria-label="ปิด Modal">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form id="device-form" onsubmit="handleSaveDevice(event)" class="p-5 space-y-4 max-h-[80vh] overflow-y-auto custom-scrollbar">
+        <input type="hidden" id="device-form-id">
+        <input type="hidden" id="device-form-uid">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3 rounded-2xl glass-panel border border-blue-500/30 bg-blue-950/10">
+          <div>
+            <label class="block text-xs font-semibold text-blue-400 mb-1">ประเภทผู้ครอบครอง</label>
+            <select id="device-form-holder-type" onchange="toggleHolderFormFields(this.value)" class="w-full px-3 py-2 glass-input rounded-xl text-xs font-medium">
+              <option value="นักเรียน" class="bg-slate-900 text-white">นักเรียน</option>
+              <option value="ครู" class="bg-slate-900 text-white">ครู-บุคลากร</option>
+              <option value="ห้องปฏิบัติการ" class="bg-slate-900 text-white">ห้องปฏิบัติการ</option>
+              <option value="สำรอง" class="bg-slate-900 text-white">เครื่องสำรอง</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-blue-400 mb-1">ปีการศึกษา</label>
+            <input type="text" id="device-form-academic-year" value="2569" class="w-full px-3 py-2 glass-input rounded-xl text-xs font-medium" required>
           </div>
         </div>
-        <button onclick="toggleSidebarCollapse()" class="opacity-70 hover:opacity-100 p-1.5 rounded-lg glass-panel transition" title="ย่อ/ขยายเมนู">
-          <i id="sidebar-toggle-icon" data-lucide="chevron-left" class="w-4 h-4"></i>
+
+        <div class="space-y-3">
+          <h4 class="text-xs font-bold text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="tablet" class="w-4 h-4"></i> 1. ข้อมูลฮาร์ดแวร์และรหัสประจำเครื่อง
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium opacity-80 mb-1">Serial Number</label>
+              <input type="text" id="device-form-serial" placeholder="เช่น DMPZ1234Q164" class="w-full px-3 py-2 glass-input rounded-xl text-xs font-mono" required>
+            </div>
+            <div>
+              <label class="block text-xs font-medium opacity-80 mb-1">รหัสครุภัณฑ์ สพฐ.</label>
+              <input type="text" id="device-form-asset" placeholder="เช่น OBEC-IPAD-2567-0042" class="w-full px-3 py-2 glass-input rounded-xl text-xs" required>
+            </div>
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-medium opacity-80 mb-1">รุ่น iPad</label>
+              <select id="device-form-model" class="w-full px-3 py-2 glass-input rounded-xl text-xs" required></select>
+            </div>
+            <div>
+              <label class="block text-xs font-medium opacity-80 mb-1">ความจุ</label>
+              <select id="device-form-storage" class="w-full px-3 py-2 glass-input rounded-xl text-xs">
+                <option value="64GB" class="bg-slate-900 text-white">64GB</option>
+                <option value="128GB" class="bg-slate-900 text-white">128GB</option>
+                <option value="256GB" class="bg-slate-900 text-white">256GB</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-medium opacity-80 mb-1">สีตัวเครื่อง</label>
+              <input type="text" id="device-form-color" placeholder="Silver" class="w-full px-3 py-2 glass-input rounded-xl text-xs">
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-3 pt-3 border-t border-white/10">
+          <h4 class="text-xs font-bold text-green-400 uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="user-check" class="w-4 h-4"></i> 2. ข้อมูลผู้ครอบครอง
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-medium opacity-80 mb-1" id="lbl-user-code">รหัสนักเรียน / ครู</label>
+              <input type="text" id="device-form-user-code" placeholder="เช่น STD-5501" class="w-full px-3 py-2 glass-input rounded-xl text-xs font-mono">
+            </div>
+            <div class="sm:col-span-2">
+              <label class="block text-xs font-medium opacity-80 mb-1">ชื่อ - สกุล ผู้ครอบครอง</label>
+              <input type="text" id="device-form-user" placeholder="เช่น เด็กชายธนากร ใจมั่น" class="w-full px-3 py-2 glass-input rounded-xl text-xs" required>
+            </div>
+          </div>
+
+          <div id="student-class-fields" class="grid grid-cols-3 gap-3">
+            <div>
+              <label class="block text-xs font-medium opacity-80 mb-1">ระดับชั้น</label>
+              <select id="device-form-grade" class="w-full px-3 py-2 glass-input rounded-xl text-xs">
+                <option value="ม.1" class="bg-slate-900 text-white">ม.1</option>
+                <option value="ม.2" class="bg-slate-900 text-white">ม.2</option>
+                <option value="ม.3" class="bg-slate-900 text-white">ม.3</option>
+                <option value="ม.4" class="bg-slate-900 text-white">ม.4</option>
+                <option value="ม.5" class="bg-slate-900 text-white">ม.5</option>
+                <option value="ม.6" class="bg-slate-900 text-white">ม.6</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-medium opacity-80 mb-1">ห้อง</label>
+              <input type="text" id="device-form-classroom" placeholder="เช่น 1 หรือ 4/1" class="w-full px-3 py-2 glass-input rounded-xl text-xs">
+            </div>
+            <div>
+              <label class="block text-xs font-medium opacity-80 mb-1">เลขที่</label>
+              <input type="text" id="device-form-student-no" placeholder="เช่น 12" class="w-full px-3 py-2 glass-input rounded-xl text-xs">
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-3 pt-3 border-t border-white/10">
+          <h4 class="text-xs font-bold text-purple-400 uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="shield-check" class="w-4 h-4"></i> 3. ชื่อครูที่ปรึกษา / ผู้รับรอง
+          </h4>
+          <div>
+            <input type="text" id="device-form-advisor" placeholder="เช่น ครูเอกณัฏฐ์ ศิริพัฒน์" class="w-full px-3 py-2 glass-input rounded-xl text-xs">
+          </div>
+        </div>
+
+        <div class="space-y-3 pt-3 border-t border-white/10">
+          <h4 class="text-xs font-bold text-yellow-400 uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="phone-call" class="w-4 h-4"></i> 4. ข้อมูลผู้ปกครอง & 5. เบอร์โทรติดต่อ
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium opacity-80 mb-1">ชื่อ - สกุล ผู้ปกครอง</label>
+              <input type="text" id="device-form-parent" placeholder="เช่น นายสมคิด ใจมั่น" class="w-full px-3 py-2 glass-input rounded-xl text-xs">
+            </div>
+            <div>
+              <label class="block text-xs font-medium opacity-80 mb-1">เบอร์โทรติดต่อ</label>
+              <input type="tel" id="device-form-phone" placeholder="089-111-2233" class="w-full px-3 py-2 glass-input rounded-xl text-xs">
+            </div>
+          </div>
+        </div>
+
+        <div class="space-y-3 pt-3 border-t border-white/10">
+          <h4 class="text-xs font-bold text-blue-400 uppercase tracking-wider flex items-center gap-1.5">
+            <i data-lucide="calendar" class="w-4 h-4"></i> 6. วันที่ยืมอุปกรณ์ & สถานะเครื่อง
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium opacity-80 mb-1">วันที่ยืมอุปกรณ์</label>
+              <input type="date" id="device-form-borrow-date" class="w-full px-3 py-2 glass-input rounded-xl text-xs" required>
+            </div>
+            <div>
+              <label class="block text-xs font-medium opacity-80 mb-1">สถานะเครื่อง</label>
+              <select id="device-form-status" class="w-full px-3 py-2 glass-input rounded-xl text-xs">
+                <option value="พร้อมใช้งาน" class="bg-slate-900 text-white">พร้อมใช้งาน</option>
+                <option value="กำลังส่งซ่อม" class="bg-slate-900 text-white">กำลังส่งซ่อม</option>
+                <option value="สำรอง" class="bg-slate-900 text-white">สำรอง</option>
+                <option value="ชำรุดรอจำหน่าย" class="bg-slate-900 text-white">ชำรุดรอจำหน่าย</option>
+                <option value="สูญหาย" class="bg-slate-900 text-white">สูญหาย</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-2 p-3 rounded-2xl glass-panel border border-white/10">
+            <label class="flex items-center gap-2 cursor-pointer text-xs">
+              <input type="checkbox" id="device-form-stylus" checked class="rounded bg-slate-900 text-purple-600 focus:ring-purple-500">
+              <span>Apple Pencil/Stylus</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer text-xs">
+              <input type="checkbox" id="device-form-keyboard" checked class="rounded bg-slate-900 text-purple-600 focus:ring-purple-500">
+              <span>เคสคีย์บอร์ด</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer text-xs">
+              <input type="checkbox" id="device-form-adapter" checked class="rounded bg-slate-900 text-purple-600 focus:ring-purple-500">
+              <span>สายชาร์จ/หัวชาร์จ</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="pt-3 border-t border-white/10 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeModal('device-modal')" class="px-4 py-2 glass-panel opacity-80 rounded-xl text-xs">ยกเลิก</button>
+          <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl text-xs font-medium shadow-lg">บันทึกข้อมูลครุภัณฑ์</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: DEVICE CUSTODY & REPAIR LIFECYCLE ================= -->
+  <div id="device-history-modal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-panel-heavy w-full max-w-3xl rounded-3xl border border-white/20 overflow-hidden flex flex-col max-h-[85vh] shadow-2xl">
+      <div class="p-5 border-b border-white/10 flex items-center justify-between">
+        <div>
+          <span id="hist-dev-uid" class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">ksp-xxx</span>
+          <h3 id="hist-dev-title" class="font-bold text-sm font-inter mt-1">ประวัติการครอบครอง & งานซ่อมบำรุงรายปีการศึกษา</h3>
+        </div>
+        <button onclick="closeModal('device-history-modal')" class="opacity-70 hover:opacity-100" aria-label="ปิด Modal">
+          <i data-lucide="x" class="w-5 h-5"></i>
         </button>
       </div>
 
-      <nav class="flex-1 p-3 space-y-1.5 overflow-y-auto custom-scrollbar" id="desktop-nav"></nav>
-
-      <div class="p-3 border-t border-white/10">
-        <div class="flex items-center gap-3 p-2.5 rounded-2xl glass-panel border border-white/10">
-          <img id="sidebar-user-avatar" src="" alt="Avatar" class="w-8 h-8 rounded-xl object-cover border border-white/20 shrink-0" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'">
-          <div class="sidebar-footer-text flex-1 min-w-0">
-            <div id="sidebar-user-name" class="text-xs font-semibold truncate">User Name</div>
-            <div id="sidebar-user-role" class="text-xs text-blue-400 capitalize truncate">Role</div>
+      <div class="p-5 space-y-6 overflow-y-auto custom-scrollbar flex-1">
+        <div class="glass-panel p-4 rounded-2xl grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+          <div>
+            <span class="opacity-60 text-xs block">Serial Number</span>
+            <span id="hist-dev-serial" class="font-mono font-bold text-blue-400">-</span>
           </div>
-          <button onclick="confirmLogout()" class="opacity-70 hover:text-red-400 p-1.5 rounded-xl transition shrink-0" title="ออกจากระบบ">
-            <i data-lucide="log-out" class="w-4 h-4"></i>
-          </button>
+          <div>
+            <span class="opacity-60 text-xs block">รหัสครุภัณฑ์ สพฐ.</span>
+            <span id="hist-dev-asset" class="font-mono font-semibold">-</span>
+          </div>
+          <div>
+            <span class="opacity-60 text-xs block">รุ่นอุปกรณ์</span>
+            <span id="hist-dev-model" class="font-medium">-</span>
+          </div>
+          <div>
+            <span class="opacity-60 text-xs block">สถานะปัจจุบัน</span>
+            <span id="hist-dev-status" class="inline-block px-2 py-0.5 rounded text-xs font-medium">-</span>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold text-green-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <i data-lucide="users" class="w-4 h-4"></i> ประวัติการครอบครองอุปกรณ์ (Custody History)
+          </h4>
+          <div id="hist-custody-list" class="space-y-3"></div>
+        </div>
+
+        <div>
+          <h4 class="text-xs font-bold text-purple-400 uppercase tracking-wider mb-3 flex items-center gap-1.5">
+            <i data-lucide="wrench" class="w-4 h-4"></i> ประวัติการส่งซ่อม / เคลมประกัน
+          </h4>
+          <div id="hist-repair-list" class="space-y-3"></div>
         </div>
       </div>
-    </aside>
+    </div>
+  </div>
 
-    <div class="flex-1 flex flex-col min-w-0 pb-20 md:pb-6">
-      <header class="h-16 glass-panel border-b border-white/10 px-4 sm:px-6 flex items-center justify-between sticky top-0 z-20">
-        <div class="flex items-center gap-3">
-          <h2 id="top-page-title" class="text-base md:text-lg font-bold font-inter">ภาพรวมระบบ (Executive Dashboard)</h2>
+  <!-- ================= MODAL: REPAIR REQUEST FORM ================= -->
+  <div id="repair-modal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-panel-heavy w-full max-w-xl rounded-3xl border border-white/20 overflow-hidden shadow-2xl">
+      <div class="p-5 border-b border-white/10 flex items-center justify-between">
+        <h3 class="font-bold text-sm flex items-center gap-2 font-inter">
+          <i data-lucide="tablet" class="w-4 h-4 text-blue-400"></i>
+          แบบฟอร์มแจ้งซ่อม iPad (ระบบค้นหาอัจฉริยะ)
+        </h3>
+        <button onclick="closeModal('repair-modal')" class="opacity-70 hover:opacity-100" aria-label="ปิด Modal">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form id="repair-form" onsubmit="handleSaveRepair(event)" class="p-5 space-y-4 max-h-[75vh] overflow-y-auto custom-scrollbar">
+        <div class="relative">
+          <label class="block text-xs font-semibold text-blue-400 mb-1 flex items-center gap-1.5">
+            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> ค้นหาเครื่อง iPad อัจฉริยะ (พิมพ์ รหัส ksp-xxx, Serial, ชื่อนักเรียน/ครู)
+          </label>
+          <div class="relative">
+            <input type="text" id="smart-device-search" oninput="handleSmartSearch(this.value)" placeholder="พิมพ์ค้นหา เช่น ksp-001, ธนากร, DMPZ..." class="w-full pl-9 pr-8 py-2.5 glass-input rounded-xl text-xs placeholder-gray-500 border border-blue-500/40 focus:border-blue-400">
+            <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-blue-400"></i>
+            <button type="button" onclick="clearSmartSearch()" class="absolute right-3 top-3 opacity-60 hover:opacity-100">
+              <i data-lucide="x" class="w-4 h-4"></i>
+            </button>
+          </div>
+          <div id="smart-search-results" class="absolute left-0 right-0 top-full mt-1.5 max-h-56 overflow-y-auto custom-scrollbar glass-panel-heavy rounded-2xl border border-white/20 p-2 shadow-2xl z-30 hidden space-y-1"></div>
         </div>
 
-        <div class="flex items-center gap-3">
-          <button onclick="toggleDayNightMode()" class="p-2 rounded-xl glass-panel opacity-80 hover:opacity-100 transition" title="สลับโหมดกลางวัน/กลางคืน">
-            <i id="theme-toggle-icon-header" data-lucide="moon" class="w-4 h-4"></i>
-          </button>
-
-          <div class="flex items-center gap-2 glass-panel px-3 py-1.5 rounded-full text-xs font-medium border border-white/10">
-            <span class="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></span>
-            <span id="current-academic-year">ปีการศึกษา 2569</span>
+        <div id="selected-device-card" class="hidden p-3.5 rounded-2xl glass-panel border border-blue-500/30">
+          <div class="flex items-center justify-between">
+            <span id="card-dev-uid" class="text-xs font-mono font-bold text-blue-400">ksp-001</span>
+            <span id="card-dev-status" class="text-xs px-2 py-0.5 rounded-full bg-green-500/20 text-green-400">พร้อมใช้งาน</span>
           </div>
-          <button onclick="showPage('profile')" class="flex items-center gap-2 glass-panel hover:border-white/30 p-1.5 rounded-xl transition" aria-label="ดูโปรไฟล์">
-            <img id="header-user-avatar" src="" alt="Avatar" class="w-7 h-7 rounded-lg object-cover border border-white/20" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=150&q=80'">
+          <div id="card-dev-user" class="text-xs font-semibold mt-1">เด็กชายธนากร ใจมั่น (ม.4/1)</div>
+          <div id="card-dev-model" class="text-xs opacity-80">iPad (Gen 10) Wi-Fi • SN: DMPZ1234Q164</div>
+        </div>
+
+        <input type="hidden" id="repair-selected-device-id">
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium opacity-80 mb-1">Serial Number</label>
+            <input type="text" id="repair-serial" class="w-full px-3 py-2 glass-input rounded-xl text-xs font-mono" required>
+          </div>
+          <div>
+            <label class="block text-xs font-medium opacity-80 mb-1">รหัสครุภัณฑ์ (Asset Code)</label>
+            <input type="text" id="repair-asset-code" class="w-full px-3 py-2 glass-input rounded-xl text-xs" required>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium opacity-80 mb-1">รุ่น iPad</label>
+            <input type="text" id="repair-model" class="w-full px-3 py-2 glass-input rounded-xl text-xs" required>
+          </div>
+          <div>
+            <label class="block text-xs font-medium opacity-80 mb-1">ประเภทปัญหา</label>
+            <select id="repair-category" class="w-full px-3 py-2 glass-input rounded-xl text-xs" required></select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium opacity-80 mb-1">ระดับความเร่งด่วน</label>
+          <div class="grid grid-cols-4 gap-2">
+            <label class="flex items-center justify-center p-2 rounded-xl glass-panel text-xs cursor-pointer has-[:checked]:bg-blue-500/20 has-[:checked]:border-blue-400 has-[:checked]:text-blue-400">
+              <input type="radio" name="priority" value="ต่ำ" class="hidden"> ต่ำ
+            </label>
+            <label class="flex items-center justify-center p-2 rounded-xl glass-panel text-xs cursor-pointer has-[:checked]:bg-blue-500/20 has-[:checked]:border-blue-400 has-[:checked]:text-blue-400">
+              <input type="radio" name="priority" value="ปกติ" class="hidden" checked> ปกติ
+            </label>
+            <label class="flex items-center justify-center p-2 rounded-xl glass-panel text-xs cursor-pointer has-[:checked]:bg-yellow-500/20 has-[:checked]:border-yellow-400 has-[:checked]:text-yellow-400">
+              <input type="radio" name="priority" value="สูง" class="hidden"> สูง
+            </label>
+            <label class="flex items-center justify-center p-2 rounded-xl glass-panel text-xs cursor-pointer has-[:checked]:bg-red-500/20 has-[:checked]:border-red-400 has-[:checked]:text-red-400">
+              <input type="radio" name="priority" value="เร่งด่วน" class="hidden"> เร่งด่วน
+            </label>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium opacity-80 mb-1">รายละเอียดปัญหาและอาการเสีย</label>
+          <textarea id="repair-detail" rows="3" class="w-full px-3 py-2 glass-input rounded-xl text-xs" placeholder="โปรดระบุรายละเอียด..." required></textarea>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium opacity-80 mb-1">แนบรูปถ่าย</label>
+          <input type="file" id="repair-image-file" accept="image/*" class="w-full text-xs opacity-70 file:mr-3 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-purple-500/20 file:text-purple-400">
+        </div>
+
+        <div class="pt-3 border-t border-white/10 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeModal('repair-modal')" class="px-4 py-2 glass-panel opacity-80 rounded-xl text-xs">ยกเลิก</button>
+          <button type="submit" id="btn-submit-repair" class="px-5 py-2 bg-gradient-to-r from-green-500 to-teal-600 text-white rounded-xl text-xs font-medium shadow-lg">ส่งแจ้งซ่อม</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: REPAIR DETAILS ================= -->
+  <div id="repair-detail-modal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-panel-heavy w-full max-w-2xl rounded-3xl border border-white/20 overflow-hidden flex flex-col max-h-[85vh] shadow-2xl">
+      <div class="p-5 border-b border-white/10 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <span id="detail-ticket-no" class="text-xs font-mono font-bold px-2.5 py-0.5 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">IPAD-XXXX</span>
+          <button onclick="printRepairSlip()" class="px-2.5 py-1 glass-panel text-xs rounded-lg opacity-80 hover:opacity-100 flex items-center gap-1" title="พิมพ์ใบนำส่งซ่อม">
+            <i data-lucide="printer" class="w-3.5 h-3.5"></i>
+            <span>พิมพ์ใบส่งซ่อม</span>
           </button>
         </div>
-      </header>
+        <button onclick="closeModal('repair-detail-modal')" class="opacity-70 hover:opacity-100" aria-label="ปิด Modal">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
 
-      <main class="flex-1 p-4 sm:p-6 max-w-7xl w-full mx-auto" id="main-content">
-        <!-- PAGE 1: DASHBOARD -->
-        <section id="page-dashboard" class="space-y-6">
-          <div class="flex flex-wrap items-center justify-between gap-3 p-4 rounded-3xl glass-panel border border-blue-500/30">
-            <div class="flex items-center gap-2">
-              <i data-lucide="filter" class="w-4 h-4 text-blue-400"></i>
-              <span class="text-xs font-semibold">เลือกปีการศึกษาสำหรับแสดงผล Dashboard:</span>
-              <select id="dash-year-select" onchange="filterDashboardByYear(this.value)" class="glass-input text-xs rounded-xl px-3 py-1.5 font-medium"></select>
-            </div>
-            <div class="text-xs opacity-70">
-              * กราฟและตัวเลขทั้งหมดจะปรับปรุงตามปีการศึกษาที่เลือกทันที
-            </div>
+      <div class="p-5 space-y-5 overflow-y-auto custom-scrollbar flex-1">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 glass-panel p-4 rounded-2xl text-xs">
+          <div>
+            <span class="opacity-60 text-xs block">ผู้แจ้ง</span>
+            <span id="detail-reporter" class="font-semibold">-</span>
           </div>
-
-          <div id="admin-dashboard-widgets" class="space-y-6 hidden">
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4" id="stats-cards-container"></div>
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div class="glass-panel p-5 rounded-3xl glass-highlight">
-                <h3 class="text-sm font-semibold mb-4 flex items-center gap-2">
-                  <i data-lucide="pie-chart" class="w-4 h-4 text-blue-400"></i>
-                  สถานะครุภัณฑ์ iPad ประจำปีการศึกษา
-                </h3>
-                <div class="h-64 relative"><canvas id="chart-device-status"></canvas></div>
-              </div>
-
-              <div class="glass-panel p-5 rounded-3xl glass-highlight">
-                <h3 class="text-sm font-semibold mb-4 flex items-center gap-2">
-                  <i data-lucide="bar-chart-3" class="w-4 h-4 text-purple-400"></i>
-                  ประเภทอาการเสียที่พบมากที่สุด
-                </h3>
-                <div class="h-64 relative"><canvas id="chart-repair-category"></canvas></div>
-              </div>
-            </div>
+          <div>
+            <span class="opacity-60 text-xs block">ปีการศึกษา</span>
+            <span id="detail-year" class="font-semibold">-</span>
           </div>
-
-          <div id="employee-dashboard-widgets" class="space-y-6 hidden">
-            <div class="glass-panel-heavy rounded-3xl p-6 shadow-2xl relative overflow-hidden glass-highlight">
-              <div class="relative z-10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div class="flex items-center gap-4">
-                  <img id="staff-dash-avatar" src="" alt="Avatar" class="w-16 h-16 rounded-2xl object-cover border-2 border-white/30 shadow-lg">
-                  <div>
-                    <h3 id="staff-dash-name" class="text-xl font-bold">ครูผู้ดูแล iPad</h3>
-                    <p id="staff-dash-school" class="text-xs opacity-80 mt-0.5">โรงเรียนกระสังพิทยาคม สพม.บุรีรัมย์</p>
-                    <span class="inline-block glass-panel text-xs px-2.5 py-0.5 rounded-full mt-2 text-blue-400 border border-blue-500/30">ผู้รับผิดชอบเครื่อง iPad</span>
-                  </div>
-                </div>
-                <button onclick="openRepairModal()" class="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-400 hover:to-teal-500 text-white rounded-2xl font-medium shadow-lg transition transform active:scale-95 text-xs">
-                  <i data-lucide="plus-circle" class="w-4 h-4"></i>
-                  <span>+ แจ้งซ่อม iPad</span>
-                </button>
-              </div>
-            </div>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4" id="staff-stat-cards"></div>
-            <div class="glass-panel rounded-3xl p-5 glass-highlight">
-              <div class="flex items-center justify-between mb-4">
-                <h3 class="text-sm font-semibold">รายการแจ้งซ่อมล่าสุด</h3>
-                <button onclick="showPage('repairs')" class="text-xs text-blue-400 hover:underline font-medium">ดูทั้งหมด</button>
-              </div>
-              <div id="staff-recent-repairs-list" class="space-y-3"></div>
-            </div>
+          <div>
+            <span class="opacity-60 text-xs block">Serial No</span>
+            <span id="detail-serial" class="font-semibold font-mono">-</span>
           </div>
-        </section>
-
-        <!-- PAGE 2: IPAD DEVICES -->
-        <section id="page-devices" class="space-y-4 hidden">
-          <div class="glass-panel p-4 rounded-3xl space-y-3 glass-highlight">
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
-              <div class="md:col-span-2 relative">
-                <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3 opacity-60"></i>
-                <input type="text" id="device-search-input" oninput="debounce(filterDevices, 300)()" placeholder="ค้นหา รหัส ksp-xxx, Serial, รหัสประจำตัว, ชื่อ-สกุล..." class="w-full pl-10 pr-4 py-2 glass-input rounded-xl text-xs placeholder-gray-500">
-              </div>
-
-              <div>
-                <select id="device-filter-grade" onchange="filterDevices()" class="w-full text-xs glass-input rounded-xl px-3 py-2">
-                  <option value="" class="bg-slate-900 text-white">ทุกระดับชั้น (ม.1 - ม.6)</option>
-                  <option value="ม.1" class="bg-slate-900 text-white">มัธยมศึกษาปีที่ 1</option>
-                  <option value="ม.2" class="bg-slate-900 text-white">มัธยมศึกษาปีที่ 2</option>
-                  <option value="ม.3" class="bg-slate-900 text-white">มัธยมศึกษาปีที่ 3</option>
-                  <option value="ม.4" class="bg-slate-900 text-white">มัธยมศึกษาปีที่ 4</option>
-                  <option value="ม.5" class="bg-slate-900 text-white">มัธยมศึกษาปีที่ 5</option>
-                  <option value="ม.6" class="bg-slate-900 text-white">มัธยมศึกษาปีที่ 6</option>
-                </select>
-              </div>
-
-              <div>
-                <select id="device-filter-year" onchange="filterDevices()" class="w-full text-xs glass-input rounded-xl px-3 py-2"></select>
-              </div>
-            </div>
-
-            <div class="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-white/10">
-              <div class="flex flex-wrap items-center gap-2">
-                <select id="device-filter-holder" onchange="filterDevices()" class="text-xs glass-input rounded-xl px-3 py-1.5">
-                  <option value="" class="bg-slate-900 text-white">ทุกประเภทผู้ครอบครอง</option>
-                  <option value="นักเรียน" class="bg-slate-900 text-white">นักเรียน</option>
-                  <option value="ครู" class="bg-slate-900 text-white">ครู-บุคลากร</option>
-                  <option value="ห้องปฏิบัติการ" class="bg-slate-900 text-white">ห้องปฏิบัติการ</option>
-                  <option value="สำรอง" class="bg-slate-900 text-white">เครื่องสำรอง</option>
-                </select>
-
-                <select id="device-filter-status" onchange="filterDevices()" class="text-xs glass-input rounded-xl px-3 py-1.5">
-                  <option value="" class="bg-slate-900 text-white">ทุกสถานะเครื่อง</option>
-                  <option value="พร้อมใช้งาน" class="bg-slate-900 text-white">พร้อมใช้งาน</option>
-                  <option value="กำลังส่งซ่อม" class="bg-slate-900 text-white">กำลังส่งซ่อม</option>
-                  <option value="สำรอง" class="bg-slate-900 text-white">สำรอง</option>
-                  <option value="ชำรุดรอจำหน่าย" class="bg-slate-900 text-white">ชำรุดรอจำหน่าย</option>
-                </select>
-              </div>
-
-              <div class="flex items-center gap-2">
-                <button onclick="exportDevicesCSV()" class="p-2 glass-panel rounded-xl flex items-center gap-1.5 text-xs font-medium border border-white/10" title="Export CSV">
-                  <i data-lucide="download" class="w-4 h-4"></i>
-                  <span class="hidden sm:inline">Export CSV</span>
-                </button>
-
-                <button id="btn-add-device" onclick="openDeviceModal()" class="px-4 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-white rounded-xl text-xs font-medium flex items-center gap-1.5 shadow-lg transition">
-                  <i data-lucide="plus" class="w-4 h-4"></i>
-                  <span>+ เพิ่มทะเบียน iPad</span>
-                </button>
-              </div>
-            </div>
+          <div>
+            <span class="opacity-60 text-xs block">สถานะปัจจุบัน</span>
+            <span id="detail-status-pill" class="inline-block px-2 py-0.5 rounded text-xs font-medium bg-blue-500/20 text-blue-400 border border-blue-500/30">-</span>
           </div>
+        </div>
 
-          <div class="glass-panel rounded-3xl overflow-hidden glass-highlight">
-            <div class="hidden md:block overflow-x-auto">
-              <table class="w-full text-left text-xs">
-                <thead class="bg-white bg-opacity-5 opacity-80 font-semibold uppercase tracking-wider border-b border-white/10">
-                  <tr>
-                    <th class="p-4">รหัส Auto / Serial No</th>
-                    <th class="p-4">ประเภท / ปีการศึกษา</th>
-                    <th class="p-4">ผู้ครอบครอง (รหัส / ชื่อ-สกุล)</th>
-                    <th class="p-4">ชั้น / ห้อง</th>
-                    <th class="p-4">ครูที่ปรึกษา / ผู้ปกครอง</th>
-                    <th class="p-4">วันที่ยืม</th>
-                    <th class="p-4 text-center">สถานะ</th>
-                    <th class="p-4 text-right">ดำเนินการ</th>
-                  </tr>
-                </thead>
-                <tbody id="devices-table-body" class="divide-y divide-white/5"></tbody>
-              </table>
-            </div>
+        <div>
+          <h4 class="text-xs font-semibold opacity-80 mb-1">อาการที่พบ</h4>
+          <p id="detail-problem-desc" class="text-xs glass-panel p-3 rounded-xl border border-white/10">-</p>
+        </div>
 
-            <div id="devices-mobile-list" class="md:hidden divide-y divide-white/5 p-2 space-y-2"></div>
-            <div id="devices-empty" class="p-8 text-center opacity-60 hidden">
-              <i data-lucide="tablet" class="w-10 h-10 mx-auto mb-2 opacity-40"></i>
-              <p>ไม่พบข้อมูล iPad ตามเงื่อนไขที่ระบุ</p>
-            </div>
-          </div>
-        </section>
+        <div>
+          <h4 class="text-xs font-semibold opacity-80 mb-3 flex items-center gap-1.5">
+            <i data-lucide="history" class="w-4 h-4 text-blue-400"></i>
+            ประวัติการดำเนินการ (Timeline)
+          </h4>
+          <div id="repair-timeline-container" class="relative pl-6 space-y-4 before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-white/10"></div>
+        </div>
 
-        <!-- PAGE 3: REPAIRS -->
-        <section id="page-repairs" class="space-y-4 hidden">
-          <div class="glass-panel p-4 rounded-3xl flex flex-col md:flex-row gap-3 items-center justify-between glass-highlight">
-            <div class="flex-1 w-full md:w-auto relative">
-              <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3 opacity-60"></i>
-              <input type="text" id="repair-search-input" oninput="debounce(filterRepairs, 300)()" placeholder="ค้นหา Ticket No, Auto UID, Serial No..." class="w-full pl-10 pr-4 py-2 glass-input rounded-xl text-xs placeholder-gray-500">
-            </div>
-
-            <div class="flex flex-wrap items-center gap-2 w-full md:w-auto justify-end">
-              <select id="repair-filter-year" onchange="filterRepairs()" class="text-xs glass-input rounded-xl px-3 py-2"></select>
-
-              <select id="repair-filter-status" onchange="filterRepairs()" class="text-xs glass-input rounded-xl px-3 py-2">
-                <option value="" class="bg-slate-900 text-white">ทุกสถานะงาน</option>
-                <option value="รอดำเนินการ" class="bg-slate-900 text-white">รอดำเนินการ</option>
+        <div id="technician-action-panel" class="pt-4 border-t border-white/10 space-y-3 hidden">
+          <h4 class="text-xs font-semibold flex items-center gap-1.5">
+            <i data-lucide="sliders" class="w-4 h-4 text-purple-400"></i>
+            ส่วนสำหรับช่างเทคนิค ICT
+          </h4>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs font-medium opacity-80 mb-1">เปลี่ยนสถานะงาน</label>
+              <select id="tech-update-status" class="w-full px-3 py-2 glass-input rounded-xl text-xs">
                 <option value="รับเรื่องแล้ว" class="bg-slate-900 text-white">รับเรื่องแล้ว</option>
                 <option value="กำลังตรวจสอบ" class="bg-slate-900 text-white">กำลังตรวจสอบ</option>
                 <option value="กำลังซ่อม" class="bg-slate-900 text-white">กำลังซ่อม</option>
@@ -592,355 +792,75 @@
                 <option value="ส่งคืนแล้ว" class="bg-slate-900 text-white">ส่งคืนแล้ว</option>
                 <option value="ยกเลิก" class="bg-slate-900 text-white">ยกเลิก</option>
               </select>
-
-              <button onclick="openRepairModal()" class="px-4 py-2 bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-400 hover:to-teal-500 text-white rounded-xl text-xs font-medium flex items-center gap-1.5 shadow-lg transition">
-                <i data-lucide="plus" class="w-4 h-4"></i>
-                <span>+ แจ้งซ่อมใหม่</span>
-              </button>
+            </div>
+            <div>
+              <label class="block text-xs font-medium opacity-80 mb-1">ประมาณการค่าใช้จ่าย (บาท)</label>
+              <input type="number" id="tech-update-cost" placeholder="0.00" class="w-full px-3 py-2 glass-input rounded-xl text-xs">
             </div>
           </div>
-
-          <div class="glass-panel rounded-3xl overflow-hidden glass-highlight">
-            <div class="hidden md:block overflow-x-auto">
-              <table class="w-full text-left text-xs">
-                <thead class="bg-white bg-opacity-5 opacity-80 font-semibold uppercase tracking-wider border-b border-white/10">
-                  <tr>
-                    <th class="p-4">Ticket / รหัสเครื่อง</th>
-                    <th class="p-4">ปีการศึกษา / ผู้แจ้ง</th>
-                    <th class="p-4">อาการเสีย</th>
-                    <th class="p-4">ความเร่งด่วน</th>
-                    <th class="p-4">สถานะ</th>
-                    <th class="p-4">วันที่แจ้ง</th>
-                    <th class="p-4 text-right">ดำเนินการ</th>
-                  </tr>
-                </thead>
-                <tbody id="repairs-table-body" class="divide-y divide-white/5"></tbody>
-              </table>
-            </div>
-            <div id="repairs-mobile-list" class="md:hidden divide-y divide-white/5 p-2 space-y-2"></div>
-            <div id="repairs-empty" class="p-8 text-center opacity-60 hidden">
-              <i data-lucide="wrench" class="w-10 h-10 mx-auto mb-2 opacity-40"></i>
-              <p>ไม่พบรายการแจ้งซ่อม</p>
-            </div>
+          <div>
+            <label class="block text-xs font-medium opacity-80 mb-1">รายการอะไหล่ที่เปลี่ยน / บันทึกผลซ่อม</label>
+            <input type="text" id="tech-update-note" placeholder="เช่น เปลี่ยนจอ LCD แท้" class="w-full px-3 py-2 glass-input rounded-xl text-xs">
           </div>
-        </section>
-
-        <!-- PAGE 4: USERS -->
-        <section id="page-users" class="space-y-4 hidden">
-          <div class="glass-panel p-4 rounded-3xl flex items-center justify-between glass-highlight">
-            <h3 class="text-sm font-semibold">จัดการผู้ใช้งานในระบบ</h3>
-            <button onclick="openUserModal()" class="px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white rounded-xl text-xs font-medium flex items-center gap-1.5 shadow-lg transition">
-              <i data-lucide="user-plus" class="w-4 h-4"></i>
-              <span>เพิ่มผู้ใช้งาน</span>
-            </button>
-          </div>
-
-          <div class="glass-panel rounded-3xl overflow-hidden glass-highlight">
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs">
-                <thead class="bg-white bg-opacity-5 opacity-80 font-semibold uppercase tracking-wider border-b border-white/10">
-                  <tr>
-                    <th class="p-4">ผู้ใช้งาน</th>
-                    <th class="p-4">Username</th>
-                    <th class="p-4">Role</th>
-                    <th class="p-4">สถานะ</th>
-                    <th class="p-4">เข้าสู่ระบบล่าสุด</th>
-                    <th class="p-4 text-right">Action</th>
-                  </tr>
-                </thead>
-                <tbody id="users-table-body" class="divide-y divide-white/5"></tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        <!-- PAGE 5: AUDIT LOGS -->
-        <section id="page-audit-logs" class="space-y-4 hidden">
-          <div class="glass-panel p-4 rounded-3xl flex flex-col md:flex-row gap-3 items-center justify-between glass-highlight">
-            <div class="flex-1 w-full md:w-auto relative">
-              <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3 opacity-60"></i>
-              <input type="text" id="log-search-input" oninput="debounce(filterAuditLogs, 300)()" placeholder="ค้นหากิจกรรม, ผู้ใช้งาน..." class="w-full pl-10 pr-4 py-2 glass-input rounded-xl text-xs placeholder-gray-500">
-            </div>
-
-            <div class="flex items-center gap-2 w-full md:w-auto justify-end">
-              <select id="log-filter-action" onchange="filterAuditLogs()" class="text-xs glass-input rounded-xl px-3 py-2">
-                <option value="" class="bg-slate-900 text-white">ทุกประเภทกิจกรรม</option>
-                <option value="LOGIN" class="bg-slate-900 text-white">LOGIN</option>
-                <option value="LOGOUT" class="bg-slate-900 text-white">LOGOUT</option>
-                <option value="CREATE" class="bg-slate-900 text-white">CREATE</option>
-                <option value="UPDATE" class="bg-slate-900 text-white">UPDATE</option>
-                <option value="DELETE" class="bg-slate-900 text-white">DELETE</option>
-                <option value="UPDATE_REPAIR_STATUS" class="bg-slate-900 text-white">UPDATE_REPAIR_STATUS</option>
-              </select>
-
-              <button onclick="exportLogsCSV()" class="p-2 glass-panel rounded-xl flex items-center gap-1.5 text-xs font-medium border border-white/10" title="Export CSV">
-                <i data-lucide="download" class="w-4 h-4"></i>
-                <span class="hidden sm:inline">Export Log</span>
-              </button>
-            </div>
-          </div>
-
-          <div class="glass-panel rounded-3xl overflow-hidden glass-highlight">
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs">
-                <thead class="bg-white bg-opacity-5 opacity-80 font-semibold uppercase tracking-wider border-b border-white/10">
-                  <tr>
-                    <th class="p-4">วัน-เวลา</th>
-                    <th class="p-4">ผู้ดำเนินการ</th>
-                    <th class="p-4">Action</th>
-                    <th class="p-4">ตารางเป้าหมาย</th>
-                    <th class="p-4">รายละเอียดกิจกรรม</th>
-                  </tr>
-                </thead>
-                <tbody id="logs-table-body" class="divide-y divide-white/5"></tbody>
-              </table>
-            </div>
-          </div>
-        </section>
-
-        <!-- PAGE 6: SETTINGS -->
-        <section id="page-settings" class="space-y-6 hidden">
-          <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div class="lg:col-span-2 glass-panel p-6 rounded-3xl glass-highlight">
-              <h3 class="text-base font-semibold mb-6 font-inter flex items-center gap-2">
-                <i data-lucide="settings" class="w-5 h-5 text-blue-400"></i>
-                ข้อมูลระบบและอัตลักษณ์สถานศึกษา
-              </h3>
-              
-              <form id="system-settings-form" onsubmit="handleSaveSettings(event)" class="space-y-4">
-                <div class="flex items-center gap-5 pb-4 border-b border-white/10">
-                  <div class="relative">
-                    <img id="settings-preview-logo" src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&w=150&q=80" alt="Logo" class="w-20 h-20 rounded-2xl object-cover border border-white/20 shadow-lg">
-                    <label class="absolute -bottom-1 -right-1 bg-blue-600 text-white p-1.5 rounded-lg cursor-pointer shadow hover:bg-blue-500 transition" title="เปลี่ยนโลโก้">
-                      <i data-lucide="camera" class="w-3.5 h-3.5"></i>
-                      <input type="file" id="settings-logo-input" accept="image/*" class="hidden" onchange="handleLogoSelected(event)">
-                    </label>
-                  </div>
-                  <div>
-                    <h4 class="font-bold text-sm">โลโก้โรงเรียนกระสังพิทยาคม</h4>
-                    <p class="text-xs opacity-60 mt-0.5">ไฟล์ PNG/JPG ระบบบีบอัดอัตโนมัติ</p>
-                  </div>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-xs font-semibold mb-1 opacity-80">ชื่อระบบ (Header Title)</label>
-                    <input type="text" id="set-system-name" class="w-full px-3.5 py-2 glass-input rounded-xl text-xs" required>
-                  </div>
-                  <div>
-                    <label class="block text-xs font-semibold mb-1 opacity-80">ปีการศึกษาปัจจุบัน</label>
-                    <input type="text" id="set-academic-year" class="w-full px-3.5 py-2 glass-input rounded-xl text-xs" required>
-                  </div>
-                </div>
-
-                <div>
-                  <label class="block text-xs font-semibold mb-1 opacity-80">คำอธิบายระบบ (Sub-title)</label>
-                  <input type="text" id="set-system-subname" class="w-full px-3.5 py-2 glass-input rounded-xl text-xs" required>
-                </div>
-
-                <div>
-                  <label class="block text-xs font-semibold mb-1 opacity-80">ชื่อหน่วยงาน / สถานศึกษา</label>
-                  <input type="text" id="set-org-name" class="w-full px-3.5 py-2 glass-input rounded-xl text-xs" required>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label class="block text-xs font-semibold mb-1 opacity-80">เบอร์โทรติดต่อศูนย์ ICT</label>
-                    <input type="text" id="set-contact-phone" class="w-full px-3.5 py-2 glass-input rounded-xl text-xs">
-                  </div>
-                  <div>
-                    <label class="block text-xs font-semibold mb-1 opacity-80">อีเมลติดต่อศูนย์ ICT</label>
-                    <input type="email" id="set-contact-email" class="w-full px-3.5 py-2 glass-input rounded-xl text-xs">
-                  </div>
-                </div>
-
-                <div class="pt-4 border-t border-white/10 space-y-4">
-                  <div>
-                    <label class="block text-xs font-semibold text-blue-400 mb-1">รายการรุ่น iPad ที่รองรับ (คั่นด้วยเครื่องหมายจุลภาค ,)</label>
-                    <textarea id="set-supported-models" rows="2" class="w-full px-3.5 py-2 glass-input rounded-xl text-xs" placeholder="iPad (Gen 10) Wi-Fi, iPad (Gen 9) Wi-Fi..."></textarea>
-                  </div>
-                  <div>
-                    <label class="block text-xs font-semibold text-purple-400 mb-1">หมวดหมู่ปัญหาการแจ้งซ่อม (คั่นด้วยเครื่องหมายจุลภาค ,)</label>
-                    <textarea id="set-problem-categories" rows="2" class="w-full px-3.5 py-2 glass-input rounded-xl text-xs" placeholder="เปิดเครื่องไม่ได้, ชาร์จไม่เข้า..."></textarea>
-                  </div>
-                </div>
-
-                <div class="pt-4 border-t border-white/10 flex justify-end">
-                  <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-blue-500 to-indigo-600 text-white rounded-xl text-xs font-medium shadow-lg transition flex items-center gap-1.5">
-                    <i data-lucide="save" class="w-4 h-4"></i>
-                    <span>บันทึกการตั้งค่า</span>
-                  </button>
-                </div>
-              </form>
-            </div>
-
-            <div class="glass-panel p-6 rounded-3xl glass-highlight">
-              <h3 class="text-base font-semibold mb-4 font-inter flex items-center gap-2">
-                <i data-lucide="shield-check" class="w-5 h-5 text-purple-400"></i>
-                ตารางสิทธิ์บทบาท (RBAC)
-              </h3>
-              <div class="space-y-3 text-xs">
-                <div class="p-3 rounded-2xl glass-panel border border-white/10">
-                  <div class="font-bold text-blue-400">Admin (ผู้ดูแลระบบ)</div>
-                  <p class="text-xs opacity-80 mt-1">สิทธิ์สูงสุด: จัดการผู้ใช้, ทะเบียน iPad, งานซ่อม, ตั้งค่าระบบ, Audit Logs</p>
-                </div>
-                <div class="p-3 rounded-2xl glass-panel border border-white/10">
-                  <div class="font-bold text-indigo-400">Inventory Manager (เจ้าหน้าที่พัสดุ)</div>
-                  <p class="text-xs opacity-80 mt-1">สิทธิ์พัสดุ: จัดการทะเบียน iPad, ดูประวัติการครอบครอง, Export รายงาน</p>
-                </div>
-                <div class="p-3 rounded-2xl glass-panel border border-white/10">
-                  <div class="font-bold text-green-400">School Staff (ครูผู้รับผิดชอบ)</div>
-                  <p class="text-xs opacity-80 mt-1">สิทธิ์สถานศึกษา: ดูเครื่องในโรงเรียน, ส่งเรื่องแจ้งซ่อม, พิมพ์ใบส่งซ่อม</p>
-                </div>
-                <div class="p-3 rounded-2xl glass-panel border border-white/10">
-                  <div class="font-bold text-purple-400">Technician (ช่างเทคนิค ICT)</div>
-                  <p class="text-xs opacity-80 mt-1">สิทธิ์งานซ่อม: รับงานซ่อม, อัปเดตสถานะ, บันทึกอะไหล่และค่าใช้จ่าย</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- PAGE 7: REPORTS -->
-        <section id="page-reports" class="space-y-6 hidden">
-          <div class="glass-panel p-6 rounded-3xl glass-highlight">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-white/10">
-              <div>
-                <h3 class="text-base font-bold font-inter flex items-center gap-2">
-                  <i data-lucide="file-spreadsheet" class="w-5 h-5 text-blue-400"></i>
-                  ศูนย์ส่งออกรายงานอัจฉริยะ (Executive Reporting & Export Center)
-                </h3>
-                <p class="text-xs opacity-70 mt-1">ดาวน์โหลดชุดข้อมูลสรุปในรูปแบบ CSV หรือสั่งพิมพ์เอกสารรายงานราชการ PDF พร้อมลงนาม</p>
-              </div>
-
-              <div class="flex items-center gap-2">
-                <span class="text-xs font-medium opacity-80">ปีการศึกษาสำหรับออกรายงาน:</span>
-                <select id="report-year-select" class="glass-input text-xs rounded-xl px-3 py-1.5 font-semibold text-blue-400"></select>
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pt-6">
-              <div class="p-5 rounded-3xl glass-panel border border-blue-500/30 hover:border-blue-400 transition flex flex-col justify-between">
-                <div>
-                  <div class="w-10 h-10 rounded-2xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-3">
-                    <i data-lucide="tablet" class="w-5 h-5"></i>
-                  </div>
-                  <h4 class="text-sm font-bold">1. รายงานทะเบียน iPad รายบุคคล</h4>
-                  <p class="text-xs opacity-70 mt-1 mb-4 font-light leading-relaxed">ข้อมูล Auto ID, Serial Number, รหัสครุภัณฑ์ สพฐ., ผู้ครอบครอง, ชั้น, ห้อง, เลขที่</p>
-                </div>
-                <div class="flex items-center gap-2 pt-3 border-t border-white/10">
-                  <button onclick="exportDevicesCSV()" class="flex-1 py-2 glass-panel text-xs rounded-xl hover:bg-white hover:bg-opacity-10 flex items-center justify-center gap-1.5">
-                    <i data-lucide="file-text" class="w-3.5 h-3.5"></i> CSV
-                  </button>
-                  <button onclick="printDeviceRegistryPDF()" class="flex-1 py-2 bg-gradient-to-r from-blue-500 to-indigo-600 text-white text-xs rounded-xl shadow-lg flex items-center justify-center gap-1.5 font-medium">
-                    <i data-lucide="printer" class="w-3.5 h-3.5"></i> พิมพ์ PDF
-                  </button>
-                </div>
-              </div>
-
-              <div class="p-5 rounded-3xl glass-panel border border-purple-500/30 hover:border-purple-400 transition flex flex-col justify-between">
-                <div>
-                  <div class="w-10 h-10 rounded-2xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-3">
-                    <i data-lucide="wrench" class="w-5 h-5"></i>
-                  </div>
-                  <h4 class="text-sm font-bold">2. รายงานสรุปการแจ้งซ่อม & ค่าใช้จ่าย</h4>
-                  <p class="text-xs opacity-70 mt-1 mb-4 font-light leading-relaxed">ประวัติการแจ้งซ่อมบำรุง, อาการเสีย, อะไหล่ที่เปลี่ยน, ค่าใช้จ่ายจริง</p>
-                </div>
-                <div class="flex items-center gap-2 pt-3 border-t border-white/10">
-                  <button onclick="exportRepairsCSV()" class="flex-1 py-2 glass-panel text-xs rounded-xl hover:bg-white hover:bg-opacity-10 flex items-center justify-center gap-1.5">
-                    <i data-lucide="file-text" class="w-3.5 h-3.5"></i> CSV
-                  </button>
-                  <button onclick="printRepairsListPDF()" class="flex-1 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white text-xs rounded-xl shadow-lg flex items-center justify-center gap-1.5 font-medium">
-                    <i data-lucide="printer" class="w-3.5 h-3.5"></i> พิมพ์ PDF
-                  </button>
-                </div>
-              </div>
-
-              <div class="p-5 rounded-3xl glass-panel border border-green-500/30 hover:border-green-400 transition flex flex-col justify-between">
-                <div>
-                  <div class="w-10 h-10 rounded-2xl bg-green-500/20 text-green-400 flex items-center justify-center mb-3">
-                    <i data-lucide="file-check-2" class="w-5 h-5"></i>
-                  </div>
-                  <h4 class="text-sm font-bold">3. รายงานสรุปผู้บริหารประจำเดือน (Official PDF)</h4>
-                  <p class="text-xs opacity-70 mt-1 mb-4 font-light leading-relaxed">เอกสารราชการสมบูรณ์แบบพร้อมตราโรงเรียน, สถิติครุภัณฑ์ และช่องลงนามรับรอง</p>
-                </div>
-                <div class="pt-3 border-t border-white/10">
-                  <button onclick="printMonthlyExecutiveReport()" class="w-full py-2 bg-gradient-to-r from-green-500 to-teal-600 text-white text-xs rounded-xl shadow-lg flex items-center justify-center gap-1.5 font-semibold">
-                    <i data-lucide="printer" class="w-3.5 h-3.5"></i> พิมพ์เอกสารราชการ (PDF)
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- PAGE 8: PROFILE -->
-        <section id="page-profile" class="space-y-4 hidden">
-          <div class="glass-panel p-6 rounded-3xl max-w-2xl mx-auto glass-highlight">
-            <h3 class="text-base font-semibold mb-6 font-inter">ข้อมูลโปรไฟล์ส่วนตัว</h3>
-            <form id="profile-form" onsubmit="handleUpdateProfile(event)" class="space-y-4">
-              <div class="flex items-center gap-5 pb-4 border-b border-white/10">
-                <div class="relative">
-                  <img id="profile-preview-avatar" src="" alt="Avatar" class="w-20 h-20 rounded-2xl object-cover border border-white/20 shadow-lg" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80'">
-                  <label class="absolute -bottom-1 -right-1 bg-purple-600 text-white p-1.5 rounded-lg cursor-pointer shadow hover:bg-purple-500 transition" title="เปลี่ยนรูปโปรไฟล์">
-                    <i data-lucide="camera" class="w-3.5 h-3.5"></i>
-                    <input type="file" id="profile-avatar-input" accept="image/*" class="hidden" onchange="handleAvatarSelected(event)">
-                  </label>
-                </div>
-                <div>
-                  <h4 id="profile-display-name" class="font-bold text-sm">ชื่อผู้ใช้งาน</h4>
-                  <p id="profile-display-role" class="text-xs text-purple-400 uppercase font-medium">Role: -</p>
-                </div>
-              </div>
-
-              <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-xs font-semibold mb-1 opacity-80">ชื่อ - สกุล</label>
-                  <input type="text" id="profile-fullname" class="w-full px-3.5 py-2 glass-input rounded-xl text-xs" required>
-                </div>
-                <div>
-                  <label class="block text-xs font-semibold mb-1 opacity-80">Username</label>
-                  <input type="text" id="profile-username" readonly class="w-full px-3.5 py-2 bg-slate-900 bg-opacity-50 border border-white/10 rounded-xl text-xs opacity-60">
-                </div>
-                <div>
-                  <label class="block text-xs font-semibold mb-1 opacity-80">เบอร์โทรศัพท์</label>
-                  <input type="text" id="profile-phone" class="w-full px-3.5 py-2 glass-input rounded-xl text-xs">
-                </div>
-                <div>
-                  <label class="block text-xs font-semibold mb-1 opacity-80">อีเมล</label>
-                  <input type="email" id="profile-email" class="w-full px-3.5 py-2 glass-input rounded-xl text-xs">
-                </div>
-              </div>
-
-              <div class="pt-4 border-t border-white/10 flex justify-end">
-                <button type="submit" class="px-5 py-2.5 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white rounded-xl text-xs font-medium shadow-lg transition flex items-center gap-1.5">
-                  <i data-lucide="save" class="w-4 h-4"></i>
-                  <span>บันทึกข้อมูล</span>
-                </button>
-              </div>
-            </form>
-          </div>
-        </section>
-
-      </main>
-    </div>
-
-    <!-- MOBILE BOTTOM NAV -->
-    <nav class="md:hidden fixed bottom-0 left-0 right-0 h-16 glass-panel-heavy border-t border-white/15 flex items-center justify-around z-30 px-2 shadow-2xl" id="mobile-bottom-nav"></nav>
-
-    <!-- MOBILE ADMIN BOTTOM SHEET -->
-    <div id="admin-bottom-sheet" class="md:hidden fixed inset-0 z-40 bg-slate-950/70 backdrop-blur-md hidden">
-      <div class="bottom-sheet closed absolute bottom-0 left-0 right-0 glass-panel-heavy rounded-t-3xl p-5 shadow-2xl border-t border-white/20 max-h-[80vh] overflow-y-auto" id="bottom-sheet-content">
-        <div class="flex items-center justify-between pb-3 border-b border-white/10 mb-4">
-          <h4 class="font-bold text-sm flex items-center gap-2">
-            <i data-lucide="layout-grid" class="w-4 h-4 text-blue-400"></i>
-            เมนูการจัดการระบบ
-          </h4>
-          <button onclick="toggleBottomSheet(false)" class="p-1 rounded-lg opacity-70 hover:opacity-100" aria-label="ปิดเมนู">
-            <i data-lucide="x" class="w-5 h-5"></i>
+          <button onclick="handleUpdateRepairStatus()" class="w-full py-2.5 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-400 hover:to-indigo-500 text-white rounded-xl text-xs font-medium transition shadow-lg">
+            บันทึกการอัปเดตสถานะงาน
           </button>
         </div>
-        <div class="grid grid-cols-3 gap-3" id="mobile-sheet-grid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: USER FORM ================= -->
+  <div id="user-modal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-panel-heavy w-full max-w-md rounded-3xl border border-white/20 overflow-hidden shadow-2xl">
+      <div class="p-5 border-b border-white/10 flex items-center justify-between">
+        <h3 id="user-modal-title" class="font-bold text-sm font-inter">เพิ่มผู้ใช้งานใหม่</h3>
+        <button onclick="closeModal('user-modal')" class="opacity-70 hover:opacity-100" aria-label="ปิด Modal">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+      <form id="user-form" onsubmit="handleSaveUser(event)" class="p-5 space-y-4">
+        <input type="hidden" id="user-form-id">
+        <div>
+          <label class="block text-xs font-medium opacity-80 mb-1">ชื่อ - นามสกุล</label>
+          <input type="text" id="user-form-fullname" class="w-full px-3 py-2 glass-input rounded-xl text-xs" required>
+        </div>
+        <div>
+          <label class="block text-xs font-medium opacity-80 mb-1">Username</label>
+          <input type="text" id="user-form-username" class="w-full px-3 py-2 glass-input rounded-xl text-xs" required>
+        </div>
+        <div>
+          <label class="block text-xs font-medium opacity-80 mb-1">Password</label>
+          <input type="password" id="user-form-password" class="w-full px-3 py-2 glass-input rounded-xl text-xs" placeholder="อย่างน้อย 6 ตัวอักษร">
+        </div>
+        <div>
+          <label class="block text-xs font-medium opacity-80 mb-1">บทบาท (Role)</label>
+          <select id="user-form-role" class="w-full px-3 py-2 glass-input rounded-xl text-xs" required>
+            <option value="school_staff" class="bg-slate-900 text-white">School Staff (ครูผู้รับผิดชอบเครื่อง)</option>
+            <option value="inventory_manager" class="bg-slate-900 text-white">Inventory Manager (เจ้าหน้าที่พัสดุ)</option>
+            <option value="technician" class="bg-slate-900 text-white">Technician (ช่างเทคนิค ICT)</option>
+            <option value="admin" class="bg-slate-900 text-white">Admin (ผู้ดูแลระบบ)</option>
+          </select>
+        </div>
+        <div class="pt-3 border-t border-white/10 flex items-center justify-end gap-2">
+          <button type="button" onclick="closeModal('user-modal')" class="px-4 py-2 glass-panel opacity-80 rounded-xl text-xs">ยกเลิก</button>
+          <button type="submit" class="px-5 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 text-white rounded-xl text-xs font-medium shadow-lg">บันทึก</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ================= MODAL: CONFIRM DELETE ================= -->
+  <div id="delete-confirm-modal" class="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-panel-heavy w-full max-w-sm rounded-3xl border border-white/20 p-6 text-center shadow-2xl">
+      <div class="w-12 h-12 rounded-2xl bg-red-500/20 text-red-400 flex items-center justify-center mx-auto mb-4 border border-red-500/30">
+        <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+      </div>
+      <h3 class="text-base font-bold font-inter">ยืนยันการลบข้อมูล?</h3>
+      <p class="text-xs opacity-70 mt-1 mb-6 font-light">การดำเนินการนี้ไม่สามารถเรียกคืนข้อมูลได้</p>
+      <div class="flex items-center gap-3">
+        <button onclick="closeModal('delete-confirm-modal')" class="flex-1 py-2.5 glass-panel opacity-80 rounded-xl text-xs font-medium">ยกเลิก</button>
+        <button id="btn-confirm-delete-action" class="flex-1 py-2.5 bg-red-600 hover:bg-red-500 text-white rounded-xl text-xs font-medium shadow-lg transition">ยืนยันการลบ</button>
       </div>
     </div>
   </div>
@@ -1044,7 +964,7 @@
       </table>
     </div>
 
-    <div class="grid grid-cols-2 gap-8 text-center text-xs pt-10 mt-6 border-t border-gray-300">
+    <div class="grid grid-cols-2 gap-8 text-center text-xs pt-8 border-t border-gray-300">
       <div>
         <p>ลงชื่อ......................................................................</p>
         <p class="mt-1" id="rpt-admin-name">(นายเอกณัฏฐ์ ศิริพัฒน์)</p>
@@ -1579,17 +1499,21 @@
       }
     }
 
-    function confirmLogout() { showModal('logout-confirm-modal'); }
-
     function executeLogout() {
       closeModal('logout-confirm-modal');
       toggleBottomSheet(false);
-      logActivity('LOGOUT', 'users', STATE.currentUser?.id, `ออกจากระบบ`);
+      
+      if (STATE.currentUser) {
+        logActivity('LOGOUT', 'users', STATE.currentUser.id, `ออกจากระบบ`);
+      }
+      
       STATE.currentUser = null;
       localStorage.removeItem('ksp_session');
       sessionStorage.removeItem('ksp_session');
+      
       document.getElementById('app-layout').classList.add('hidden');
       document.getElementById('landing-view').classList.remove('hidden');
+      
       showToast('ออกจากระบบเรียบร้อยแล้ว', 'info');
       loadLandingStats();
     }
@@ -2043,37 +1967,51 @@
     function openDeviceModal(device = null) {
       populateConfigSelects();
       const nextUid = device ? device.device_uid : generateNextDeviceUid();
-      document.getElementById('device-form-id').value = device ? device.id : '';
-      document.getElementById('device-form-uid').value = nextUid;
-      document.getElementById('device-form-uid-badge').innerText = `Auto ID: ${nextUid}`;
+      
+      const setVal = (id, val) => {
+        const el = document.getElementById(id);
+        if (el) el.value = val;
+      };
 
-      document.getElementById('device-form-holder-type').value = device ? device.holder_type : 'นักเรียน';
-      document.getElementById('device-form-academic-year').value = device ? (device.academic_year || '2569') : '2569';
+      setVal('device-form-id', device ? device.id : '');
+      setVal('device-form-uid', nextUid);
 
-      document.getElementById('device-form-serial').value = device ? device.serial_number : '';
-      document.getElementById('device-form-asset').value = device ? device.asset_code : '';
-      document.getElementById('device-form-model').value = device ? device.device_model : STATE.settings.supported_models[0];
-      document.getElementById('device-form-storage').value = device ? device.storage_capacity : '64GB';
-      document.getElementById('device-form-color').value = device ? device.color : 'Silver';
+      const badge = document.getElementById('device-form-uid-badge');
+      if (badge) badge.innerText = `Auto ID: ${nextUid}`;
 
-      document.getElementById('device-form-user-code').value = device ? (device.user_code || '') : '';
-      document.getElementById('device-form-user').value = device ? device.assigned_user : '';
-      document.getElementById('device-form-grade').value = device ? (device.grade_level || 'ม.1') : 'ม.1';
-      document.getElementById('device-form-classroom').value = device ? (device.classroom || '') : '';
-      document.getElementById('device-form-student-no').value = device ? (device.student_no || '') : '';
+      setVal('device-form-holder-type', device ? device.holder_type : 'นักเรียน');
+      setVal('device-form-academic-year', device ? (device.academic_year || '2569') : '2569');
+      setVal('device-form-serial', device ? device.serial_number : '');
+      setVal('device-form-asset', device ? device.asset_code : '');
+      setVal('device-form-model', device ? device.device_model : STATE.settings.supported_models[0]);
+      setVal('device-form-storage', device ? device.storage_capacity : '64GB');
+      setVal('device-form-color', device ? device.color : 'Silver');
+      setVal('device-form-user-code', device ? (device.user_code || '') : '');
+      setVal('device-form-user', device ? device.assigned_user : '');
+      setVal('device-form-grade', device ? (device.grade_level || 'ม.1') : 'ม.1');
+      setVal('device-form-classroom', device ? (device.classroom || '') : '');
+      setVal('device-form-student-no', device ? (device.student_no || '') : '');
+      setVal('device-form-advisor', device ? (device.advisor_name || '') : '');
+      setVal('device-form-parent', device ? (device.parent_name || '') : '');
+      setVal('device-form-phone', device ? (device.contact_phone || '') : '');
+      setVal('device-form-borrow-date', device ? (device.borrow_date || '') : new Date().toISOString().split('T')[0]);
 
-      document.getElementById('device-form-advisor').value = device ? (device.advisor_name || '') : '';
-      document.getElementById('device-form-parent').value = device ? (device.parent_name || '') : '';
-      document.getElementById('device-form-phone').value = device ? (device.contact_phone || '') : '';
-      document.getElementById('device-form-borrow-date').value = device ? (device.borrow_date || '') : new Date().toISOString().split('T')[0];
+      const setCheck = (id, checked) => {
+        const el = document.getElementById(id);
+        if (el) el.checked = checked;
+      };
 
-      document.getElementById('device-form-stylus').checked = device ? !!device.has_stylus : true;
-      document.getElementById('device-form-keyboard').checked = device ? !!device.has_keyboard_case : true;
-      document.getElementById('device-form-adapter').checked = device ? !!device.has_adapter_cable : true;
-      document.getElementById('device-form-status').value = device ? device.device_status : 'พร้อมใช้งาน';
+      setCheck('device-form-stylus', device ? !!device.has_stylus : true);
+      setCheck('device-form-keyboard', device ? !!device.has_keyboard_case : true);
+      setCheck('device-form-adapter', device ? !!device.has_adapter_cable : true);
+      setVal('device-form-status', device ? device.device_status : 'พร้อมใช้งาน');
 
-      toggleHolderFormFields(document.getElementById('device-form-holder-type').value);
-      document.getElementById('device-modal-title').innerText = device ? 'แก้ไขข้อมูลทะเบียน iPad' : 'เพิ่มทะเบียน iPad ใหม่ (Auto-ID)';
+      const holderSelect = document.getElementById('device-form-holder-type');
+      if (holderSelect) toggleHolderFormFields(holderSelect.value);
+
+      const title = document.getElementById('device-modal-title');
+      if (title) title.innerText = device ? 'แก้ไขข้อมูลทะเบียน iPad' : 'เพิ่มทะเบียน iPad ใหม่ (Auto-ID)';
+
       showModal('device-modal');
     }
 
@@ -2098,11 +2036,11 @@
       const classBox = document.getElementById('student-class-fields');
       const lblCode = document.getElementById('lbl-user-code');
       if (type === 'นักเรียน') {
-        classBox.style.display = 'grid';
-        lblCode.innerText = 'รหัสนักเรียน';
+        if (classBox) classBox.style.display = 'grid';
+        if (lblCode) lblCode.innerText = 'รหัสนักเรียน';
       } else {
-        classBox.style.display = 'none';
-        lblCode.innerText = 'รหัสประจำตัวบุคลากร/ผู้ครอบครอง';
+        if (classBox) classBox.style.display = 'none';
+        if (lblCode) lblCode.innerText = 'รหัสประจำตัวบุคลากร/ผู้ครอบครอง';
       }
     }
 
@@ -2252,7 +2190,7 @@
       showModal('device-history-modal');
     }
 
-    /* ================= IPAD REPAIR SMART SEARCH ================= */
+    /* ================= SMART SEARCH & REPAIR CONTROLLER ================= */
     function handleSmartSearch(query) {
       const resultsContainer = document.getElementById('smart-search-results');
       const q = query.trim().toLowerCase();
@@ -2325,7 +2263,6 @@
       document.getElementById('smart-search-results').classList.add('hidden');
     }
 
-    /* ================= IPAD REPAIR WORKFLOW ================= */
     function openRepairModal() {
       populateConfigSelects();
       document.getElementById('repair-form').reset();
@@ -2344,7 +2281,6 @@
       const category = document.getElementById('repair-category').value;
       const priority = document.querySelector('input[name="priority"]:checked')?.value || 'ปกติ';
       const detail = document.getElementById('repair-detail').value.trim();
-      const imageFile = document.getElementById('repair-image-file').files[0];
 
       showLoader('กำลังส่งเรื่องแจ้งซ่อม...');
       try {
@@ -2596,67 +2532,6 @@
       printArea.classList.add('hidden');
     }
 
-    /* ================= EXECUTIVE MONTHLY REPORT (PDF) ================= */
-    function printMonthlyExecutiveReport() {
-      const selectedYear = document.getElementById('report-year-select')?.value || STATE.settings.academic_year;
-      const filteredRepairs = STATE.repairs.filter(r => !selectedYear || r.academic_year === selectedYear);
-      const filteredDevices = STATE.devices.filter(d => !selectedYear || d.academic_year === selectedYear);
-
-      const studentCount = filteredDevices.filter(d => d.holder_type === 'นักเรียน').length;
-      const teacherCount = filteredDevices.filter(d => d.holder_type === 'ครู').length;
-      const labCount = filteredDevices.filter(d => ['ห้องปฏิบัติการ', 'สำรอง'].includes(d.holder_type)).length;
-      const totalCount = filteredDevices.length || STATE.devices.length;
-
-      const totalRepairs = filteredRepairs.length;
-      const completedRepairs = filteredRepairs.filter(r => ['ซ่อมเสร็จแล้ว', 'ส่งคืนแล้ว'].includes(r.status)).length;
-      const totalCost = filteredRepairs.reduce((sum, r) => sum + (parseFloat(r.estimated_cost) || 0), 0);
-
-      document.getElementById('rpt-school-logo').src = STATE.settings.logo_url;
-      document.getElementById('rpt-print-date').innerText = formatDateTimeThai(new Date());
-      document.getElementById('rpt-academic-year').innerText = selectedYear || 'รวมทุกปีการศึกษา';
-      document.getElementById('rpt-admin-name').innerText = `(${STATE.currentUser?.full_name || 'นายเอกณัฏฐ์ ศิริพัฒน์'})`;
-
-      document.getElementById('rpt-count-student').innerText = `${studentCount.toLocaleString()} เครื่อง`;
-      document.getElementById('rpt-count-teacher').innerText = `${teacherCount.toLocaleString()} เครื่อง`;
-      document.getElementById('rpt-count-lab').innerText = `${labCount.toLocaleString()} เครื่อง`;
-      document.getElementById('rpt-count-total').innerText = `${totalCount.toLocaleString()} เครื่อง`;
-
-      document.getElementById('rpt-repair-total').innerText = `${totalRepairs} รายการ`;
-      document.getElementById('rpt-repair-completed').innerText = `${completedRepairs} รายการ`;
-      document.getElementById('rpt-cost-total').innerText = `${totalCost.toLocaleString('th-TH', { minimumFractionDigits: 2 })} บาท`;
-
-      const tbody = document.getElementById('rpt-repairs-tbody');
-      if (filteredRepairs.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="p-3 text-center">ไม่มีข้อมูลการแจ้งซ่อมในรอบปีการศึกษา ${selectedYear}</td></tr>`;
-      } else {
-        tbody.innerHTML = filteredRepairs.map(r => `
-          <tr class="border-b border-gray-300">
-            <td class="p-2 border-r border-gray-300 font-mono font-bold">${r.ticket_no}</td>
-            <td class="p-2 border-r border-gray-300 font-mono">${r.device_uid || '-'} (${r.ipad_serial})</td>
-            <td class="p-2 border-r border-gray-300">${r.problem_category}</td>
-            <td class="p-2 border-r border-gray-300">${r.status}</td>
-            <td class="p-2 border-r border-gray-300">${r.replaced_parts || '-'}</td>
-            <td class="p-2 text-right font-mono">${(parseFloat(r.estimated_cost) || 0).toLocaleString('th-TH', { minimumFractionDigits: 2 })}</td>
-          </tr>
-        `).join('');
-      }
-
-      const printArea = document.getElementById('print-monthly-report-area');
-      printArea.classList.remove('hidden');
-      window.print();
-      printArea.classList.add('hidden');
-    }
-
-    function printDeviceRegistryPDF() {
-      showToast('กำลังเตรียมเอกสาร PDF ทะเบียน iPad...', 'info');
-      printMonthlyExecutiveReport();
-    }
-
-    function printRepairsListPDF() {
-      showToast('กำลังเตรียมเอกสาร PDF สรุปงานซ่อมบำรุง...', 'info');
-      printMonthlyExecutiveReport();
-    }
-
     /* ================= AUDIT LOGS ================= */
     async function logActivity(action, tableName, recordId, description) {
       if (!sbClient) return;
@@ -2742,10 +2617,9 @@
       showLoader('กำลังอัปโหลดโลโก้...');
       try {
         const filePath = `system/logo_${Date.now()}.jpg`;
-        const { error: upErr } = await sbClient.storage.from('system-assets').upload(filePath, file);
-        if (upErr) throw upErr;
-
+        await sbClient.storage.from('system-assets').upload(filePath, file);
         const { data: pubUrl } = sbClient.storage.from('system-assets').getPublicUrl(filePath);
+
         STATE.settings.logo_url = pubUrl.publicUrl;
         document.getElementById('settings-preview-logo').src = pubUrl.publicUrl;
         showToast('อัปโหลดโลโก้เรียบร้อย', 'success');
