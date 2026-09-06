@@ -41,7 +41,7 @@
 
     /* Dark Mode */
     html.dark body { background-color: var(--bg-canvas-dark); color: #F8FAFC; }
-    html.dark .glass-panel { background-color: #1E293B; border: 1px solid #334155; }
+    html.dark .glass-panel { background-color: #1E3A8A; border: 1px solid #334155; }
     html.dark .input-box { background-color: #0F172A; border: 1px solid #475569; color: #F8FAFC; }
     html.dark .th-bg { background-color: #0F172A; color: #94A3B8; border-bottom: 1px solid #334155; }
     html.dark tr.hover-row:hover { background-color: #334155; }
@@ -67,8 +67,8 @@
 
     @media print {
       body * { visibility: hidden !important; }
-      #sticker-print-area, #sticker-print-area * { visibility: visible !important; }
-      #sticker-print-area { position: absolute; left: 0; top: 0; width: 100%; background: #fff; }
+      #sticker-print-area, #sticker-print-area *, #ticket-print-area, #ticket-print-area * { visibility: visible !important; }
+      #sticker-print-area, #ticket-print-area { position: absolute; left: 0; top: 0; width: 100%; background: #fff; }
       .no-print { display: none !important; }
     }
   </style>
@@ -501,7 +501,7 @@
     </div>
   </div>
 
-  <!-- QR Passport View Modal (Public Instant Access) -->
+  <!-- QR Passport View Modal (With Real-time Repair Status Tracking) -->
   <div id="qr-passport-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
     <div class="glass-panel w-full max-w-md rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
       <button onclick="closeModal('qr-passport-modal')" class="absolute top-5 right-5 opacity-50 hover:opacity-100"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -510,7 +510,11 @@
         <h3 id="pass-asset-id" class="font-extrabold text-base mt-1 text-ksp-primary">OBEC-IPAD-...</h3>
         <p id="pass-model" class="text-xs opacity-70 font-medium">iPad</p>
       </div>
-      <div class="py-4 text-center">
+      
+      <!-- Active Repair Status Banner (Real-time Tracking) -->
+      <div id="pass-active-repair-banner" class="my-3 hidden"></div>
+
+      <div class="py-3 text-center">
         <div id="qrcode-passport-container" class="p-3 bg-white border border-gray-200 rounded-2xl inline-block shadow-inner"></div>
         <p class="text-[11px] opacity-60 font-mono mt-1" id="pass-serial">S/N: DMPZ...</p>
       </div>
@@ -659,6 +663,41 @@
         <button onclick="window.print()" class="px-4 py-2 bg-ksp-primary text-white rounded-xl text-xs font-bold shadow"><i data-lucide="printer" class="w-4 h-4 inline mr-1"></i> พิมพ์สติ๊กเกอร์</button>
       </div>
       <div id="sticker-print-area" class="grid grid-cols-3 gap-4 p-4 bg-white text-black border rounded-2xl"></div>
+    </div>
+  </div>
+
+  <!-- Repair Ticket Slip Printable Modal -->
+  <div id="ticket-print-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
+    <div class="glass-panel w-full max-w-lg rounded-3xl p-6 shadow-2xl relative bg-white text-black">
+      <button onclick="closeModal('ticket-print-modal')" class="absolute top-5 right-5 opacity-50 hover:opacity-100 no-print"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <div class="flex justify-between items-center mb-4 no-print">
+        <h3 class="text-base font-bold">พิมพ์ใบส่งซ่อม / ใบนัดรับเครื่อง</h3>
+        <button onclick="window.print()" class="px-4 py-2 bg-ksp-primary text-white rounded-xl text-xs font-bold shadow"><i data-lucide="printer" class="w-4 h-4 inline mr-1"></i> พิมพ์ใบรับซ่อม</button>
+      </div>
+      <div id="ticket-print-area" class="p-6 border-2 border-dashed border-gray-400 rounded-2xl space-y-3 text-xs">
+        <div class="text-center pb-3 border-b">
+          <h2 class="font-bold text-sm">ใบส่งซ่อมและใบนัดรับเครื่อง iPad</h2>
+          <p class="text-[11px]">โรงเรียนกระสังพิทยาคม สพม.บุรีรัมย์</p>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div><strong>Ticket ID:</strong> <span id="slip-ticket-id" class="font-mono"></span></div>
+          <div><strong>วันที่แจ้ง:</strong> <span id="slip-date"></span></div>
+          <div><strong>Asset ID:</strong> <span id="slip-asset" class="font-mono"></span></div>
+          <div><strong>Serial S/N:</strong> <span id="slip-sn" class="font-mono"></span></div>
+          <div><strong>ผู้ถือครอง:</strong> <span id="slip-holder"></span></div>
+          <div><strong>ชั้น/ห้อง:</strong> <span id="slip-grade-room"></span></div>
+        </div>
+        <div class="pt-2 border-t">
+          <strong>อาการชำรุด:</strong> <p id="slip-issue" class="mt-1 bg-gray-50 p-2 rounded"></p>
+        </div>
+        <div class="grid grid-cols-2 gap-2 pt-2 border-t">
+          <div><strong>ช่างผู้รับผิดชอบ:</strong> <span id="slip-tech"></span></div>
+          <div><strong>เบอร์ติดต่อ:</strong> <span id="slip-phone"></span></div>
+        </div>
+        <div class="pt-4 text-center text-[10px] opacity-70 border-t">
+          <p>กรุณานำใบส่งซ่อมฉบับนี้มาแสดงเพื่อรับเครื่องคืน ณ ห้อง 521</p>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1004,6 +1043,7 @@
       processPublicScannedCode(val);
     }
 
+    // Digital Passport with Real-time Repair Status Tracking Banner
     function openQrPassportModal(deviceId) {
       const d = APP_STATE.devices.find(item => item.id === deviceId);
       if (!d) return;
@@ -1015,6 +1055,28 @@
       document.getElementById('pass-holder-name').innerText = d.holder_name;
       document.getElementById('pass-holder-code').innerText = d.holder_code;
       document.getElementById('pass-grade-room').innerText = `${d.grade}/${d.room}`;
+      document.getElementById('pass-status').innerText = d.status;
+
+      // Active Repair Tracking Banner
+      const activeRepair = d.repairs.find(r => r.status !== 'ซ่อมสำเร็จ');
+      const bannerEl = document.getElementById('pass-active-repair-banner');
+      if (activeRepair) {
+        bannerEl.className = "my-3 p-3 bg-amber-50 dark:bg-amber-900 dark:bg-opacity-20 border border-amber-200 dark:border-amber-700 rounded-2xl text-xs text-left";
+        bannerEl.innerHTML = `
+          <div class="flex items-center justify-between font-bold text-amber-700 dark:text-amber-400 mb-1">
+            <span><i data-lucide="wrench" class="w-3.5 h-3.5 inline mr-1"></i> สถานะซ่อมปัจจุบัน: ${activeRepair.status}</span>
+            <span class="font-mono">${activeRepair.ticket_id}</span>
+          </div>
+          <p class="text-gray-700 dark:text-gray-300">อาการ: ${activeRepair.issue_type}</p>
+          <div class="mt-1 pt-1 border-t border-amber-200 dark:border-amber-800 flex justify-between text-[11px] opacity-90">
+            <span>ช่าง: ${activeRepair.tech}</span>
+            <span>โทร: ${activeRepair.phone || '-'}</span>
+          </div>
+        `;
+        bannerEl.classList.remove('hidden');
+      } else {
+        bannerEl.classList.add('hidden');
+      }
       
       const qrContainer = document.getElementById('qrcode-passport-container');
       qrContainer.innerHTML = '';
@@ -1028,10 +1090,12 @@
           <div class="p-2 bg-gray-50 dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-700">
             <div class="flex justify-between font-bold text-[11px]"><span class="text-blue-500">${r.ticket_id}</span><span class="opacity-50">${formatDateThai(r.date)}</span></div>
             <p class="mt-0.5 opacity-80">${r.issue_type}</p>
+            <p class="mt-1 text-[10px] text-accent font-semibold">สถานะ: ${r.status}</p>
           </div>
         `).join('');
       }
       showModal('qr-passport-modal');
+      lucide.createIcons();
     }
 
     // Admin Auth & Session
@@ -1289,7 +1353,7 @@
       showModal('sticker-modal');
     }
 
-    // Admin Maintenance with Filter Bar support
+    // Admin Maintenance with Filter Bar support & Slip Print Button
     function renderAdminMaintenanceTable() {
       const tbody = document.getElementById('adm-maint-table-body');
       if (!tbody) return;
@@ -1310,7 +1374,7 @@
           if (fIssue !== 'ALL' && r.issue_type !== fIssue) return;
           if (fName && !d.holder_name.toLowerCase().includes(fName) && !d.serial_number.toLowerCase().includes(fName) && !r.ticket_id.toLowerCase().includes(fName)) return;
 
-          allRepairs.push({ ...r, devId: d.id, sn: d.serial_number, holder: d.holder_name });
+          allRepairs.push({ ...r, devId: d.id, asset: d.asset_id, sn: d.serial_number, holder: d.holder_name, grade: d.grade, room: d.room });
         });
       });
 
@@ -1322,8 +1386,9 @@
           <td class="p-3.5">${formatDateThai(r.date)}</td>
           <td class="p-3.5"><span class="px-2 py-0.5 rounded text-[11px] font-bold ${r.status === 'ซ่อมสำเร็จ' ? 'badge-success' : 'badge-repair'}">${r.status}</span></td>
           <td class="p-3.5 text-right space-x-1">
+            <button onclick="printRepairSlip('${r.ticket_id}', '${r.asset}', '${r.sn}', '${r.holder}', '${r.grade}', '${r.room}', '${r.issue_type}', '${r.date}', '${r.tech}', '${r.phone}')" class="px-2 py-1 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg text-xs font-bold inline-flex items-center gap-1 shadow"><i data-lucide="printer" class="w-3.5 h-3.5"></i> พิมพ์ใบซ่อม</button>
             ${r.status !== 'ซ่อมสำเร็จ' ? 
-              `<button onclick="resolveMaintenance('${r.devId}', '${r.ticket_id}')" class="px-2.5 py-1 bg-green-600 text-white rounded-lg text-xs font-bold inline-flex items-center gap-1 shadow"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> สิ้นสุดงานซ่อม</button>` : 
+              `<button onclick="resolveMaintenance('${r.devId}', '${r.ticket_id}')" class="px-2.5 py-1 bg-green-600 text-white rounded-lg text-xs font-bold inline-flex items-center gap-1 shadow"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> สิ้นสุด</button>` : 
               `<button onclick="undoMaintenance('${r.devId}', '${r.ticket_id}')" class="px-2.5 py-1 bg-amber-500 text-white rounded-lg text-xs font-bold inline-flex items-center gap-1 shadow"><i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> ยกเลิก</button>`
             }
             <button onclick="editMaintenance('${r.devId}', '${r.ticket_id}')" class="p-1.5 text-blue-500 rounded-lg"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
@@ -1332,6 +1397,19 @@
         </tr>
       `).join('');
       lucide.createIcons();
+    }
+
+    function printRepairSlip(ticketId, asset, sn, holder, grade, room, issue, date, tech, phone) {
+      document.getElementById('slip-ticket-id').innerText = ticketId;
+      document.getElementById('slip-date').innerText = formatDateThai(date);
+      document.getElementById('slip-asset').innerText = asset;
+      document.getElementById('slip-sn').innerText = sn;
+      document.getElementById('slip-holder').innerText = holder;
+      document.getElementById('slip-grade-room').innerText = `${grade}/${room}`;
+      document.getElementById('slip-issue').innerText = issue;
+      document.getElementById('slip-tech').innerText = tech || '-';
+      document.getElementById('slip-phone').innerText = phone || '-';
+      showModal('ticket-print-modal');
     }
 
     function resolveMaintenance(devId, ticketId) {
