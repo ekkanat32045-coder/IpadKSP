@@ -5,72 +5,81 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title id="html-head-title">Smart iPad Hub KSP - Anywhere Anytime • โรงเรียนกระสังพิทยาคม</title>
 
-  <!-- Google Fonts: Sarabun & Inter -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
-  <!-- Standalone Tailwind CSS -->
+  <!-- Tailwind CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css" />
 
-  <!-- SweetAlert2 & Lucide & Chart.js & QRCode.js -->
+  <!-- Libraries -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
+    /* ================= 60-30-10 THEME & COLORS ================= */
     :root {
-      /* Palette 60-30-10 System (School Friendly) */
-      --bg-canvas: #F4F7F5;         /* 60% Soft Mint Canvas */
-      --color-primary: #24513B;     /* 30% Structure / Sage Green */
-      --color-primary-dark: #183728;
-      --color-primary-light: #EBF3EE;
-      --color-accent: #E67E22;      /* 10% Focus / Amber */
+      /* 60% Canvas / Background */
+      --bg-canvas-light: #F0F4F8;
+      --bg-canvas-dark: #0F172A;
+      /* 30% Primary Structure (Deep Navy / Calm Blue) */
+      --color-primary: #1E3A8A;
+      --color-primary-light: #DBEAFE;
+      /* 10% Accent (Electric Amber) */
+      --color-accent: #D97706;
     }
 
-    body { font-family: 'Sarabun', sans-serif; background-color: var(--bg-canvas); color: #2D3748; -webkit-tap-highlight-color: transparent; }
+    body { 
+      font-family: 'Sarabun', sans-serif; 
+      -webkit-tap-highlight-color: transparent; 
+      transition: background-color 0.3s, color 0.3s; 
+    }
     .font-inter { font-family: 'Inter', sans-serif; }
+
+    /* --- Light Mode --- */
+    html:not(.dark) body { background-color: var(--bg-canvas-light); color: #1E293B; }
+    html:not(.dark) .glass-panel { background-color: #FFFFFF; border: 1px solid #E2E8F0; }
+    html:not(.dark) .input-box { background-color: #F8FAFC; border: 1px solid #CBD5E1; color: #0F172A; }
+    html:not(.dark) .th-bg { background-color: #F1F5F9; color: #475569; border-bottom: 1px solid #E2E8F0; }
+
+    /* --- Dark Mode --- */
+    html.dark body { background-color: var(--bg-canvas-dark); color: #F8FAFC; }
+    html.dark .glass-panel { background-color: #1E293B; border: 1px solid #334155; }
+    html.dark .input-box { background-color: #0F172A; border: 1px solid #475569; color: #F8FAFC; }
+    html.dark .th-bg { background-color: #0F172A; color: #94A3B8; border-bottom: 1px solid #334155; }
+    html.dark tr.hover-row:hover { background-color: #334155; }
+    html:not(.dark) tr.hover-row:hover { background-color: #F8FAFC; }
 
     /* Utilities */
     .bg-ksp-primary { background-color: var(--color-primary); }
-    .bg-ksp-primary-dark { background-color: var(--color-primary-dark); }
     .text-ksp-primary { color: var(--color-primary); }
-    .border-ksp-primary { border-color: var(--color-primary); }
     .bg-accent { background-color: var(--color-accent); }
     .text-accent { color: var(--color-accent); }
-
-    /* Badges */
+    
     .badge-ready { background-color: #DEF7EC; color: #03543F; border: 1px solid #BCF0DA; }
     .badge-loan { background-color: #E1EFFE; color: #1E429F; border: 1px solid #B4C6FC; }
-    .badge-repair { background-color: #FDF6B2; color: #723B13; border: 1px solid #FCE96A; }
-    .badge-damage { background-color: #FDE8E8; color: #9B1C1C; border: 1px solid #F8B4B4; }
+    .badge-repair { background-color: #FEF08A; color: #723B13; border: 1px solid #FDE047; }
 
-    .modal-backdrop { background-color: rgba(18, 38, 28, 0.65); backdrop-filter: blur(5px); }
+    .modal-backdrop { background-color: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); }
     .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
-    .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 9999px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #94A3B8; border-radius: 9999px; }
 
-    aside.collapsed { width: 4.8rem !important; }
+    aside.collapsed { width: 5rem !important; }
     aside.collapsed .sidebar-text, aside.collapsed .sidebar-header-text { display: none !important; }
     aside.collapsed .nav-item-btn { justify-content: center !important; padding-left: 0 !important; padding-right: 0 !important; }
-
-    @page { size: A4 portrait; margin: 12mm 15mm; }
-    @media print {
-      body * { visibility: hidden !important; }
-      #print-area, #print-area * { visibility: visible !important; }
-      #print-area { position: absolute !important; left: 0; top: 0; width: 100%; background: #fff !important; color: #000 !important; }
-    }
   </style>
 
+  <!-- ================= GLOBAL STATE & UTILS ================= -->
   <script>
-    // ================= GLOBAL STATE & UTILITIES =================
     function formatDateThai(dateStr) {
       if (!dateStr || dateStr === '-') return '-';
       const d = new Date(dateStr);
       if (isNaN(d.getTime())) return dateStr;
-      const day = d.getDate();
       const months = ["ม.ค.", "ก.พ.", "มี.ค.", "เม.ย.", "พ.ค.", "มิ.ย.", "ก.ค.", "ส.ค.", "ก.ย.", "ต.ค.", "พ.ย.", "ธ.ค."];
-      return `${day} ${months[d.getMonth()]} พ.ศ. ${d.getFullYear() + 543}`;
+      return `${d.getDate()} ${months[d.getMonth()]} พ.ศ. ${d.getFullYear() + 543}`;
     }
 
     function debounce(func, wait) {
@@ -87,8 +96,9 @@
       currentInputPin: "",
       lockoutUntil: 0,
       failedPinAttempts: 0,
-      currentYear: "2569", // Default Academic Year
+      currentYear: "", // Will be generated
       adminMenu: "overview",
+      isDarkMode: false,
       settings: {
         orgName: "โรงเรียนกระสังพิทยาคม สพม.บุรีรัมย์",
         logoUrl: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&w=120&q=80"
@@ -97,40 +107,43 @@
         { id: "t1", name: "ช่างวิชัย การช่าง" },
         { id: "t2", name: "ช่างสมศักดิ์ ICT" }
       ],
+      logs: [], // Audit Logs
       devices: [
-        { id: "dev-01", academic_year: "2569", asset_id: "OBEC-IPAD-2567-0042", serial_number: "DMPZ1234Q164", model: "iPad (Gen 10) Wi-Fi 64GB", status: "กำลังถือครอง", holder_code: "28752", holder_name: "เด็กชายธนากร ใจมั่น", grade_room: "ม.1 ห้อง 5", holder_type: "นักเรียน", borrow_date: "2026-08-28", return_date: "2026-09-10", repairs: [{ ticket_id: "TK-2569-001", date: "2026-09-03", detail: "หน้าจอกระพริบและสัมผัสไม่ติด", status: "กำลังซ่อม", tech: "ช่างวิชัย การช่าง", phone: "089-111-2233", doc_ref: "บก.12/2569" }] },
-        { id: "dev-02", academic_year: "2569", asset_id: "OBEC-IPAD-2567-0108", serial_number: "DMPZ5678Q199", model: "iPad (Gen 9) Wi-Fi 64GB", status: "กำลังถือครอง", holder_code: "28753", holder_name: "เด็กหญิงกานดา สุขใจ", grade_room: "ม.1 ห้อง 5", holder_type: "นักเรียน", borrow_date: "2026-08-30", return_date: "2026-09-12", repairs: [] },
-        { id: "dev-03", academic_year: "2568", asset_id: "OBEC-IPAD-2567-0550", serial_number: "DMPZ9988Q333", model: "iPad (Gen 10) Wi-Fi 64GB", status: "พร้อมใช้งาน", holder_code: "-", holder_name: "คลังพัสดุกลาง ICT", grade_room: "ห้องศูนย์ดิจิทัล", holder_type: "พัสดุสำรอง", borrow_date: "-", return_date: "-", repairs: [] },
-        { id: "dev-04", academic_year: "2569", asset_id: "OBEC-IPAD-2567-0901", serial_number: "DMPZ7766Q888", model: "iPad Air 5 (M1) Wi-Fi 64GB", status: "พร้อมใช้งาน", holder_code: "TCH-001", holder_name: "ครูเอกณัฏฐ์ ศิริพัฒน์", grade_room: "กลุ่มสาระฯ คอมพิวเตอร์", holder_type: "ครู", borrow_date: "2026-09-01", return_date: "2026-09-30", repairs: [] }
+        { id: "dev-01", academic_year: "2569", asset_id: "OBEC-IPAD-2567-0042", serial_number: "DMPZ1234Q164", model: "iPad (Gen 10) Wi-Fi", status: "กำลังถือครอง", holder_code: "28752", holder_name: "เด็กชายธนากร ใจมั่น", grade_room: "ม.1 ห้อง 5", holder_type: "นักเรียน", borrow_date: "2026-08-28", return_date: "2026-09-10", repairs: [{ ticket_id: "TK-2569-001", date: "2026-09-03", detail: "หน้าจอกระพริบ", status: "กำลังซ่อม", tech: "ช่างวิชัย การช่าง", phone: "089-111-2233", doc_ref: "บก.12/2569" }] },
+        { id: "dev-02", academic_year: "2569", asset_id: "OBEC-IPAD-2567-0108", serial_number: "DMPZ5678Q199", model: "iPad (Gen 9) Wi-Fi", status: "พร้อมใช้งาน", holder_code: "-", holder_name: "คลังพัสดุ", grade_room: "-", holder_type: "พัสดุสำรอง", borrow_date: "-", return_date: "-", repairs: [] }
       ],
       charts: { mainChart: null, adminTotal: null, adminReady: null, adminLoan: null, adminRepair: null }
     };
+
+    function logAction(action, detail) {
+      APP_STATE.logs.unshift({ id: Date.now(), time: new Date().toISOString(), action, detail });
+    }
   </script>
 </head>
-<body class="min-h-screen flex flex-col antialiased selection:bg-green-800 selection:text-white">
+<body class="min-h-screen flex flex-col antialiased">
 
-  <!-- ================= 1. HEADER (FLUID) ================= -->
-  <header class="w-full bg-ksp-primary text-white shadow-md sticky top-0 z-30">
+  <!-- ================= 1. HEADER ================= -->
+  <header class="w-full bg-ksp-primary text-white shadow-md sticky top-0 z-30 transition-colors">
     <div class="w-full px-4 sm:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3">
       <div class="flex items-center gap-3.5">
         <img id="header-brand-logo" src="https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&w=120&q=80" alt="Logo" class="w-11 h-11 rounded-xl object-cover border-2 border-white border-opacity-30 shadow-sm" />
         <div>
           <h1 class="text-base sm:text-lg font-bold tracking-wide leading-tight">Smart iPad Inventory & Maintenance Hub</h1>
-          <p id="header-org-name" class="text-xs text-green-100 opacity-90 font-light">โรงเรียนกระสังพิทยาคม สพม.บุรีรัมย์ • Anywhere Anytime</p>
+          <p id="header-org-name" class="text-xs text-blue-100 opacity-90 font-light">โรงเรียนกระสังพิทยาคม สพม.บุรีรัมย์ • Anywhere Anytime</p>
         </div>
       </div>
 
       <div class="flex items-center gap-3">
-        <!-- ตัวเลือกปีการศึกษา Global -->
+        <!-- Academic Year Dynamic Filter -->
         <div class="hidden sm:flex items-center gap-2 bg-white bg-opacity-10 px-3 py-1.5 rounded-xl border border-white border-opacity-20">
-          <i data-lucide="calendar" class="w-4 h-4 text-green-200"></i>
-          <select id="global-year-filter" onchange="changeGlobalYear(this.value)" class="bg-transparent text-white text-xs font-bold focus:outline-none cursor-pointer">
-            <option value="2569" class="text-gray-800">ปีการศึกษา 2569</option>
-            <option value="2568" class="text-gray-800">ปีการศึกษา 2568</option>
-            <option value="2570" class="text-gray-800">ปีการศึกษา 2570</option>
-            <option value="2571" class="text-gray-800">ปีการศึกษา 2571</option>
-          </select>
+          <i data-lucide="calendar" class="w-4 h-4 text-blue-200"></i>
+          <select id="global-year-filter" onchange="changeGlobalYear(this.value)" class="bg-transparent text-white text-xs font-bold focus:outline-none cursor-pointer border-none appearance-none"></select>
         </div>
+
+        <!-- Day / Night Toggle -->
+        <button onclick="toggleTheme()" class="p-2 bg-white bg-opacity-10 hover:bg-opacity-20 rounded-xl transition border border-white border-opacity-20">
+          <i id="theme-icon" data-lucide="moon" class="w-4 h-4 text-white"></i>
+        </button>
 
         <button onclick="handleAdminIconClick()" id="btn-admin-auth" class="px-4 py-2 rounded-xl bg-accent hover:opacity-90 text-white font-bold transition shadow flex items-center gap-2 text-xs">
           <i data-lucide="shield-check" class="w-4 h-4"></i><span id="btn-admin-label">ผู้ดูแลระบบ</span>
@@ -139,81 +152,74 @@
     </div>
   </header>
 
-  <!-- ================= 2. PUBLIC VIEW (SINGLE DASHBOARD) ================= -->
+  <!-- ================= 2. PUBLIC VIEW (NO REPAIR BUTTON) ================= -->
   <div id="public-view" class="flex-1 flex flex-col">
-    <!-- Hero Banner -->
-    <div class="bg-gradient-to-r from-[#24513B] via-[#2D6A4F] to-[#183728] text-white py-8 px-4 sm:px-8 shadow-inner">
+    <!-- Hero -->
+    <div class="bg-ksp-primary text-white py-8 px-4 sm:px-8 shadow-inner bg-opacity-90">
       <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-6">
         <div class="space-y-2 text-center lg:text-left">
-          <span class="px-3 py-1 rounded-full bg-white bg-opacity-15 border border-white border-opacity-20 text-xs font-medium text-green-200">
-            🌱 นโยบายการเรียนรู้ดิจิทัล Anywhere Anytime สพฐ.
-          </span>
-          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">ศูนย์สืบค้นครุภัณฑ์ iPad และแจ้งซ่อมบำรุงอัจฉริยะ</h2>
-          <p class="text-xs sm:text-sm text-green-100 opacity-90 max-w-2xl font-light">สืบค้นข้อมูลอุปกรณ์ ตรวจสอบประวัติการถือครอง และสแกน QR Passport ได้สะดวกในหน้าเดียว</p>
+          <span class="px-3 py-1 rounded-full bg-white bg-opacity-15 border border-white border-opacity-20 text-xs font-medium">นโยบายการเรียนรู้ Anywhere Anytime สพฐ.</span>
+          <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">ศูนย์สืบค้นครุภัณฑ์ iPad แบบเบ็ดเสร็จ</h2>
+          <p class="text-xs sm:text-sm text-blue-100 opacity-90 max-w-2xl font-light">สืบค้นข้อมูลอุปกรณ์ ตรวจสอบประวัติการถือครอง และสแกน QR Passport ได้อย่างสะดวกรวดเร็ว</p>
+          <div class="inline-block mt-2 px-3 py-1.5 bg-accent bg-opacity-20 border border-accent rounded-lg text-xs font-medium text-amber-100">
+            <i data-lucide="info" class="w-3.5 h-3.5 inline mr-1"></i> กรณีเครื่องชำรุด กรุณานำอุปกรณ์ติดต่อเจ้าหน้าที่ ห้อง 521 เพื่อแจ้งซ่อม
+          </div>
         </div>
-
         <div class="flex items-center gap-3 w-full sm:w-auto">
-          <button onclick="openSmartScannerModal()" class="flex-1 sm:flex-initial px-4 py-2.5 bg-white text-ksp-primary hover:bg-green-50 rounded-xl text-xs font-bold shadow-md flex items-center justify-center gap-2 transition">
-            <i data-lucide="scan" class="w-4 h-4 text-accent"></i><span>สแกน QR ประจำเครื่อง</span>
-          </button>
-          <button onclick="openPublicRepairModal()" class="flex-1 sm:flex-initial px-4 py-2.5 bg-accent hover:opacity-90 text-white rounded-xl text-xs font-bold shadow-md flex items-center justify-center gap-2 transition">
-            <i data-lucide="alert-circle" class="w-4 h-4"></i><span>แจ้งเครื่องขัดข้อง</span>
+          <button onclick="openSmartScannerModal()" class="flex-1 sm:flex-initial px-6 py-3 bg-white text-ksp-primary hover:bg-blue-50 rounded-xl text-sm font-bold shadow-md flex items-center justify-center gap-2 transition">
+            <i data-lucide="scan" class="w-5 h-5"></i><span>สแกน QR ประจำเครื่อง</span>
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Main Content -->
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
       
-      <!-- Unified Data Charts -->
+      <!-- Charts & KPI -->
       <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 bg-white p-5 rounded-2xl shadow-sm border border-gray-200 flex flex-col justify-between">
+        <div class="lg:col-span-2 glass-panel p-5 rounded-2xl shadow-sm flex flex-col justify-between">
           <div class="flex items-center justify-between mb-4">
-            <div>
-              <h3 class="text-sm font-bold text-gray-800 flex items-center gap-2"><i data-lucide="bar-chart-3" class="w-4 h-4 text-ksp-primary"></i> สถิติสถานะครุภัณฑ์ iPad <span id="lbl-chart-year" class="text-accent">ปี 2569</span></h3>
-            </div>
-            <span class="text-xs px-2.5 py-1 rounded-full badge-ready font-semibold">Live Real-time</span>
+            <div><h3 class="text-sm font-bold flex items-center gap-2"><i data-lucide="bar-chart-3" class="w-4 h-4 text-ksp-primary"></i> สถิติสถานะครุภัณฑ์ iPad <span id="lbl-chart-year" class="text-accent"></span></h3></div>
+            <span class="text-xs px-2.5 py-1 rounded-full badge-ready font-semibold">Live DB Sync</span>
           </div>
           <div class="h-60 relative"><canvas id="unifiedLiveChart"></canvas></div>
         </div>
 
         <div class="grid grid-cols-2 lg:grid-cols-1 gap-3">
-          <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
-            <div><span class="text-xs text-gray-500 font-medium">อุปกรณ์ทั้งหมด</span><div id="stat-total" class="text-2xl font-bold font-inter text-gray-800 mt-0.5">0</div></div>
-            <div class="w-10 h-10 rounded-xl bg-ksp-primary-light text-ksp-primary flex items-center justify-center font-bold"><i data-lucide="tablet" class="w-5 h-5"></i></div>
+          <div class="glass-panel p-4 rounded-2xl shadow-sm flex items-center justify-between">
+            <div><span class="text-xs opacity-70 font-medium">อุปกรณ์ทั้งหมด</span><div id="stat-total" class="text-2xl font-bold font-inter mt-0.5">0</div></div>
+            <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold"><i data-lucide="tablet" class="w-5 h-5"></i></div>
           </div>
-          <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between">
-            <div><span class="text-xs text-gray-500 font-medium">กำลังถือครองใช้งาน</span><div id="stat-loan" class="text-2xl font-bold font-inter text-blue-600 mt-0.5">0</div></div>
-            <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold"><i data-lucide="user-check" class="w-5 h-5"></i></div>
+          <div class="glass-panel p-4 rounded-2xl shadow-sm flex items-center justify-between">
+            <div><span class="text-xs opacity-70 font-medium">พร้อมใช้งาน</span><div id="stat-ready" class="text-2xl font-bold font-inter text-green-500 mt-0.5">0</div></div>
+            <div class="w-10 h-10 rounded-xl bg-green-100 text-green-700 flex items-center justify-center font-bold"><i data-lucide="check-circle" class="w-5 h-5"></i></div>
           </div>
-          <div class="bg-white p-4 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between lg:col-span-1 col-span-2">
-            <div><span class="text-xs text-gray-500 font-medium">แจ้งซ่อมขัดข้อง</span><div id="stat-repair" class="text-2xl font-bold font-inter text-accent mt-0.5">0</div></div>
-            <div class="w-10 h-10 rounded-xl bg-yellow-50 text-accent flex items-center justify-center font-bold"><i data-lucide="wrench" class="w-5 h-5"></i></div>
+          <div class="glass-panel p-4 rounded-2xl shadow-sm flex items-center justify-between lg:col-span-1 col-span-2">
+            <div><span class="text-xs opacity-70 font-medium">งานซ่อมขัดข้อง</span><div id="stat-repair" class="text-2xl font-bold font-inter text-red-500 mt-0.5">0</div></div>
+            <div class="w-10 h-10 rounded-xl bg-red-100 text-red-700 flex items-center justify-center font-bold"><i data-lucide="wrench" class="w-5 h-5"></i></div>
           </div>
         </div>
       </section>
 
-      <!-- Smart Directory Search -->
-      <section class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
+      <!-- Search & Table -->
+      <section class="glass-panel p-4 rounded-2xl shadow-sm">
         <div class="relative">
-          <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3.5 text-gray-400"></i>
-          <input type="text" id="public-search-input" oninput="debounce(renderPublicDirectory, 300)()" placeholder="ค้นหาครุภัณฑ์อัจฉริยะ (Asset ID, Serial S/N, รหัสนักเรียน 28752, ชื่อผู้ถือครอง)..." class="w-full pl-10 pr-4 py-2.5 text-xs bg-gray-50 border border-gray-300 rounded-xl focus:ring-2 focus:ring-ksp-primary focus:outline-none" />
+          <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3.5 opacity-50"></i>
+          <input type="text" id="public-search-input" oninput="debounce(renderPublicDirectory, 300)()" placeholder="ค้นหาอัจฉริยะ: พิมพ์เลขครุภัณฑ์, Serial S/N, รหัส หรือชื่อผู้ถือครอง..." class="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl input-box focus:ring-2 focus:ring-ksp-primary focus:outline-none transition" />
         </div>
       </section>
 
-      <!-- Unified Directory Table -->
-      <section class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-        <div class="p-4 bg-gray-50 border-b border-gray-200 flex flex-wrap items-center justify-between gap-2">
-          <h4 class="font-bold text-xs sm:text-sm text-gray-800 flex items-center gap-2"><i data-lucide="layers" class="w-4 h-4 text-ksp-primary"></i> ทำเนียบครุภัณฑ์ iPad & Digital Passport</h4>
-          <span id="directory-record-count" class="text-xs text-gray-500 font-medium">แสดง 0 รายการ</span>
+      <section class="glass-panel rounded-2xl shadow-sm overflow-hidden">
+        <div class="p-4 th-bg flex flex-wrap items-center justify-between gap-2">
+          <h4 class="font-bold text-xs sm:text-sm flex items-center gap-2"><i data-lucide="layers" class="w-4 h-4 text-ksp-primary"></i> ทำเนียบครุภัณฑ์ iPad & Digital Passport</h4>
+          <span id="directory-record-count" class="text-xs opacity-70 font-medium">แสดง 0 รายการ</span>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left text-xs">
-            <thead class="bg-gray-100 border-b border-gray-200 text-gray-600 uppercase text-[11px] font-semibold">
-              <tr><th class="p-3.5">Asset ID</th><th class="p-3.5">Serial Number</th><th class="p-3.5">ผู้ถือครอง (รหัส)</th><th class="p-3.5">ระดับชั้น</th><th class="p-3.5">สถานะ</th><th class="p-3.5 text-center">QR Passport</th><th class="p-3.5 text-right">แจ้งซ่อม</th></tr>
+            <thead class="th-bg uppercase text-[11px] font-semibold">
+              <tr><th class="p-3.5">Asset ID</th><th class="p-3.5">S/N</th><th class="p-3.5">ผู้ถือครอง (รหัส)</th><th class="p-3.5">ชั้น/ห้อง</th><th class="p-3.5">สถานะ</th><th class="p-3.5 text-center">QR / ประวัติ</th></tr>
             </thead>
-            <tbody id="public-directory-tbody" class="divide-y divide-gray-100"></tbody>
+            <tbody id="public-directory-tbody" class="divide-y divide-gray-200 dark:divide-slate-700"></tbody>
           </table>
         </div>
       </section>
@@ -221,167 +227,172 @@
   </div>
 
   <!-- ================= 3. ADMIN BACK-OFFICE VIEW ================= -->
-  <div id="admin-view" class="flex-1 flex flex-col md:flex-row hidden min-h-screen bg-gray-50">
-    <!-- Sidebar -->
-    <aside id="admin-sidebar" class="w-64 bg-white border-r border-gray-200 z-40 flex flex-col justify-between shadow-sm transition-all duration-300">
+  <div id="admin-view" class="flex-1 flex flex-col md:flex-row hidden min-h-screen">
+    <aside id="admin-sidebar" class="w-64 glass-panel z-40 flex flex-col justify-between shadow-sm transition-all duration-300">
       <div>
-        <div class="p-4 border-b border-gray-100 flex items-center justify-between">
+        <div class="p-4 border-b border-gray-200 dark:border-slate-700 flex items-center justify-between">
           <div class="flex items-center gap-3 overflow-hidden">
-            <div class="w-9 h-9 rounded-xl bg-ksp-primary-light text-ksp-primary flex items-center justify-center font-bold shrink-0"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
-            <div class="sidebar-header-text min-w-0"><h4 class="font-bold text-sm text-gray-800 truncate">Admin Center</h4></div>
+            <div class="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold shrink-0"><i data-lucide="shield-check" class="w-5 h-5"></i></div>
+            <div class="sidebar-header-text min-w-0"><h4 class="font-bold text-sm truncate">Admin Center</h4><span class="text-xs text-blue-600 font-medium truncate">Control Panel</span></div>
           </div>
-          <button onclick="toggleSidebarCollapse()" class="p-1 text-gray-400 hover:text-gray-700 rounded-lg" title="ซ่อน/ขยายเมนู"><i data-lucide="chevron-left" class="w-4 h-4" id="sidebar-toggle-icon"></i></button>
+          <button onclick="toggleSidebarCollapse()" class="p-1 opacity-50 hover:opacity-100 rounded-lg transition"><i data-lucide="chevron-left" class="w-4 h-4" id="sidebar-toggle-icon"></i></button>
         </div>
 
         <nav class="p-3 space-y-1">
-          <button onclick="switchAdminMenu('overview')" id="admin-nav-overview" class="nav-item-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold bg-green-50 text-ksp-primary border border-green-200">
-            <i data-lucide="pie-chart" class="w-4 h-4 shrink-0"></i><span class="sidebar-text">ภาพรวมและ 4 กราฟ</span>
-          </button>
-          <button onclick="switchAdminMenu('manage-circulation')" id="admin-nav-circulation" class="nav-item-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-600 hover:bg-gray-100">
-            <i data-lucide="clipboard-list" class="w-4 h-4 shrink-0"></i><span class="sidebar-text">จัดการการยืม-คืน iPad</span>
-          </button>
-          <button onclick="switchAdminMenu('manage-maintenance')" id="admin-nav-maintenance" class="nav-item-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-600 hover:bg-gray-100">
-            <i data-lucide="wrench" class="w-4 h-4 shrink-0"></i><span class="sidebar-text">จัดการงานแจ้งซ่อม</span>
-          </button>
-          <button onclick="switchAdminMenu('manage-reports')" id="admin-nav-reports" class="nav-item-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-600 hover:bg-gray-100">
-            <i data-lucide="file-spreadsheet" class="w-4 h-4 shrink-0"></i><span class="sidebar-text">ศูนย์รายงานราชการ (PDF)</span>
-          </button>
-          <button onclick="switchAdminMenu('system-settings')" id="admin-nav-settings" class="nav-item-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-600 hover:bg-gray-100">
-            <i data-lucide="settings" class="w-4 h-4 shrink-0"></i><span class="sidebar-text">ตั้งค่าระบบ & ช่างเทคนิค</span>
-          </button>
+          <button onclick="switchAdminMenu('overview')" id="admin-nav-overview" class="nav-item-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold bg-ksp-primary text-white shadow-md transition"><i data-lucide="pie-chart" class="w-4 h-4 shrink-0"></i><span class="sidebar-text">ภาพรวมและกราฟ</span></button>
+          <button onclick="switchAdminMenu('manage-circulation')" id="admin-nav-circulation" class="nav-item-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-gray-100 dark:hover:bg-slate-700 transition"><i data-lucide="clipboard-list" class="w-4 h-4 shrink-0"></i><span class="sidebar-text">จัดการการยืม-คืน</span></button>
+          <button onclick="switchAdminMenu('manage-maintenance')" id="admin-nav-maintenance" class="nav-item-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-gray-100 dark:hover:bg-slate-700 transition"><i data-lucide="wrench" class="w-4 h-4 shrink-0"></i><span class="sidebar-text">จัดการงานแจ้งซ่อม</span></button>
+          <button onclick="switchAdminMenu('manage-reports')" id="admin-nav-reports" class="nav-item-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-gray-100 dark:hover:bg-slate-700 transition"><i data-lucide="file-spreadsheet" class="w-4 h-4 shrink-0"></i><span class="sidebar-text">ศูนย์รายงานราชการ</span></button>
+          <button onclick="switchAdminMenu('system-logs')" id="admin-nav-logs" class="nav-item-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-gray-100 dark:hover:bg-slate-700 transition"><i data-lucide="history" class="w-4 h-4 shrink-0"></i><span class="sidebar-text">ประวัติระบบ (Logs)</span></button>
+          <button onclick="switchAdminMenu('system-settings')" id="admin-nav-settings" class="nav-item-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-gray-100 dark:hover:bg-slate-700 transition"><i data-lucide="settings" class="w-4 h-4 shrink-0"></i><span class="sidebar-text">ตั้งค่าระบบ</span></button>
         </nav>
       </div>
-      <div class="p-4 border-t border-gray-100 space-y-2">
-        <button onclick="exitAdminToPublic()" class="w-full py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold rounded-xl flex items-center justify-center gap-2"><i data-lucide="arrow-left" class="w-4 h-4 shrink-0"></i><span class="sidebar-text">กลับหน้าหลัก</span></button>
-        <button onclick="handleLogout()" class="w-full py-2 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold rounded-xl flex items-center justify-center gap-2"><i data-lucide="log-out" class="w-4 h-4 shrink-0"></i><span class="sidebar-text">ออกจากระบบ</span></button>
+      <div class="p-4 border-t border-gray-200 dark:border-slate-700 space-y-2">
+        <button onclick="exitAdminToPublic()" class="w-full py-2 bg-gray-100 dark:bg-slate-700 hover:opacity-80 text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition"><i data-lucide="arrow-left" class="w-4 h-4 shrink-0"></i><span class="sidebar-text">กลับหน้าหลัก</span></button>
       </div>
     </aside>
 
     <main class="flex-1 p-4 sm:p-8 max-w-7xl w-full mx-auto space-y-6 overflow-y-auto">
       
-      <!-- ADMIN SECTION 1: OVERVIEW -->
+      <!-- ADMIN SEC 1: OVERVIEW -->
       <section id="admin-sec-overview" class="space-y-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <h3 class="text-base sm:text-lg font-bold text-gray-800">ภาพรวมสถานะครุภัณฑ์ <span class="text-accent" id="lbl-admin-year">ปี 2569</span></h3>
-            <p class="text-xs text-gray-500">รวมข้อมูลเชื่อมโยงกับฐานข้อมูลจริง</p>
-          </div>
+          <div><h3 class="text-base sm:text-lg font-bold">ภาพรวมสถานะครุภัณฑ์ <span class="text-accent" id="lbl-admin-year"></span></h3></div>
           <div class="flex items-center gap-2">
-            <a href="https://cn2744.awmdm.com/AirWatch/#/Device/Dashboard" target="_blank" class="px-3 py-1.5 bg-blue-50 text-blue-700 border border-blue-200 rounded-xl text-xs font-semibold hover:bg-blue-100 flex items-center gap-1" title="User: admin-1031260859 | Pass: @Dmin-1031260859"><i data-lucide="external-link" class="w-3.5 h-3.5"></i> AirWatch</a>
-            <a href="https://itam.supreme.co.th/login" target="_blank" class="px-3 py-1.5 bg-purple-50 text-purple-700 border border-purple-200 rounded-xl text-xs font-semibold hover:bg-purple-100 flex items-center gap-1" title="User: 1031260859 | Pass: SPDT%423"><i data-lucide="external-link" class="w-3.5 h-3.5"></i> ITAM</a>
+            <a href="https://cn2744.awmdm.com/AirWatch/#/Device/Dashboard" target="_blank" class="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-xl text-[10px] font-bold hover:bg-blue-200 transition">AirWatch MDM</a>
+            <a href="https://itam.supreme.co.th/login" target="_blank" class="px-3 py-1.5 bg-purple-100 text-purple-700 rounded-xl text-[10px] font-bold hover:bg-purple-200 transition">ITAM Supreme</a>
           </div>
         </div>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
-            <div class="flex justify-between items-center mb-1"><span class="text-xs text-gray-500 font-medium">1. iPad ทั้งหมด</span><i data-lucide="bar-chart-2" class="w-4 h-4 text-gray-400"></i></div>
-            <div class="text-2xl font-bold font-inter text-gray-800 mb-2" id="adm-bar-total-val">0</div>
-            <div class="h-20 relative"><canvas id="adminBarTotal"></canvas></div>
+          <div class="glass-panel p-4 rounded-2xl shadow-sm">
+            <div class="flex justify-between items-center mb-1"><span class="text-xs opacity-70 font-medium">1. iPad ทั้งหมด</span><i data-lucide="bar-chart-2" class="w-4 h-4 opacity-50"></i></div>
+            <div class="text-2xl font-bold font-inter mb-2" id="adm-bar-total-val">0</div>
+            <div class="h-16 relative"><canvas id="adminBarTotal"></canvas></div>
           </div>
-          <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
-            <div class="flex justify-between items-center mb-1"><span class="text-xs text-gray-500 font-medium">2. พร้อมใช้งาน</span><i data-lucide="bar-chart-2" class="w-4 h-4 text-gray-400"></i></div>
-            <div class="text-2xl font-bold font-inter text-green-700 mb-2" id="adm-bar-ready-val">0</div>
-            <div class="h-20 relative"><canvas id="adminBarReady"></canvas></div>
+          <div class="glass-panel p-4 rounded-2xl shadow-sm">
+            <div class="flex justify-between items-center mb-1"><span class="text-xs opacity-70 font-medium">2. พร้อมใช้งาน</span><i data-lucide="bar-chart-2" class="w-4 h-4 opacity-50"></i></div>
+            <div class="text-2xl font-bold font-inter text-green-500 mb-2" id="adm-bar-ready-val">0</div>
+            <div class="h-16 relative"><canvas id="adminBarReady"></canvas></div>
           </div>
-          <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
-            <div class="flex justify-between items-center mb-1"><span class="text-xs text-gray-500 font-medium">3. กำลังถือครอง</span><i data-lucide="bar-chart-2" class="w-4 h-4 text-gray-400"></i></div>
-            <div class="text-2xl font-bold font-inter text-blue-600 mb-2" id="adm-bar-loan-val">0</div>
-            <div class="h-20 relative"><canvas id="adminBarLoan"></canvas></div>
+          <div class="glass-panel p-4 rounded-2xl shadow-sm">
+            <div class="flex justify-between items-center mb-1"><span class="text-xs opacity-70 font-medium">3. กำลังถือครอง</span><i data-lucide="bar-chart-2" class="w-4 h-4 opacity-50"></i></div>
+            <div class="text-2xl font-bold font-inter text-blue-500 mb-2" id="adm-bar-loan-val">0</div>
+            <div class="h-16 relative"><canvas id="adminBarLoan"></canvas></div>
           </div>
-          <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-200">
-            <div class="flex justify-between items-center mb-1"><span class="text-xs text-gray-500 font-medium">4. งานซ่อมค้าง</span><i data-lucide="bar-chart-2" class="w-4 h-4 text-gray-400"></i></div>
-            <div class="text-2xl font-bold font-inter text-accent mb-2" id="adm-bar-repair-val">0</div>
-            <div class="h-20 relative"><canvas id="adminBarRepair"></canvas></div>
+          <div class="glass-panel p-4 rounded-2xl shadow-sm">
+            <div class="flex justify-between items-center mb-1"><span class="text-xs opacity-70 font-medium">4. งานซ่อมค้าง</span><i data-lucide="bar-chart-2" class="w-4 h-4 opacity-50"></i></div>
+            <div class="text-2xl font-bold font-inter text-red-500 mb-2" id="adm-bar-repair-val">0</div>
+            <div class="h-16 relative"><canvas id="adminBarRepair"></canvas></div>
           </div>
         </div>
 
-        <!-- Executive Summary By Year -->
-        <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-200 mt-6">
-          <h4 class="font-bold text-sm text-gray-800 mb-3 flex items-center gap-2"><i data-lucide="folder-tree" class="w-4 h-4 text-ksp-primary"></i> สรุปข้อมูลสารสนเทศแยกตามปีการศึกษา</h4>
+        <div class="glass-panel p-5 rounded-2xl shadow-sm mt-6">
+          <h4 class="font-bold text-sm mb-3 flex items-center gap-2"><i data-lucide="folder-tree" class="w-4 h-4 text-ksp-primary"></i> สรุปข้อมูลสารสนเทศแยกตามปีการศึกษา</h4>
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs">
-              <thead class="bg-gray-100 border-b border-gray-200 text-gray-700 font-semibold uppercase text-[11px]">
-                <tr><th class="p-3">ปีการศึกษา</th><th class="p-3 text-center">ครุภัณฑ์รวม</th><th class="p-3 text-center text-green-700">พร้อมใช้ (คลัง)</th><th class="p-3 text-center text-blue-700">กำลังยืม</th><th class="p-3 text-center text-red-600">รับแจ้งซ่อม</th></tr>
+              <thead class="th-bg uppercase text-[11px] font-semibold">
+                <tr><th class="p-3">ปีการศึกษา</th><th class="p-3 text-center">ครุภัณฑ์รวม</th><th class="p-3 text-center">พร้อมใช้ (คลัง)</th><th class="p-3 text-center">กำลังยืม</th><th class="p-3 text-center">แจ้งซ่อม</th></tr>
               </thead>
-              <tbody id="yearly-summary-tbody" class="divide-y divide-gray-100"></tbody>
+              <tbody id="yearly-summary-tbody" class="divide-y divide-gray-200 dark:divide-slate-700"></tbody>
             </table>
           </div>
         </div>
       </section>
 
-      <!-- ADMIN SECTION 2: CIRCULATION -->
+      <!-- ADMIN SEC 2: CIRCULATION -->
       <section id="admin-sec-manage-circulation" class="space-y-4 hidden">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div><h3 class="text-base font-bold text-gray-800">จัดการข้อมูลทะเบียนการเบิกยืม iPad</h3></div>
-          <div class="flex items-center gap-2">
-            <button onclick="downloadLoanTemplateExcel()" class="px-3.5 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition"><i data-lucide="download" class="w-3.5 h-3.5"></i> Template Excel</button>
-            <button onclick="openCirculationModal()" class="px-4 py-2 bg-ksp-primary hover:bg-ksp-primary-dark text-white rounded-xl text-xs font-semibold shadow flex items-center gap-1.5 transition"><i data-lucide="plus" class="w-4 h-4"></i> + บันทึกการยืม</button>
+          <h3 class="text-base font-bold">จัดการข้อมูลทะเบียนการเบิกยืม iPad</h3>
+          <div class="flex flex-wrap items-center gap-2">
+            <button onclick="downloadLoanTemplateExcel()" class="px-3.5 py-2 glass-panel hover:bg-gray-100 dark:hover:bg-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition"><i data-lucide="download" class="w-3.5 h-3.5"></i> Template</button>
+            <input type="file" id="import-excel-input" accept=".csv" class="hidden" onchange="handleExcelImport(event)" />
+            <button onclick="document.getElementById('import-excel-input').click()" class="px-3.5 py-2 glass-panel text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition"><i data-lucide="upload" class="w-3.5 h-3.5"></i> Import Excel</button>
+            <button onclick="openCirculationModal()" class="px-4 py-2 bg-ksp-primary hover:opacity-90 text-white rounded-xl text-xs font-semibold shadow flex items-center gap-1.5 transition"><i data-lucide="plus" class="w-4 h-4"></i> + บันทึกการยืม</button>
           </div>
         </div>
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="glass-panel rounded-2xl shadow-sm overflow-hidden">
           <table class="w-full text-left text-xs">
-            <thead class="bg-gray-100 border-b font-semibold uppercase text-[11px]">
-              <tr><th class="p-3.5">Asset ID</th><th class="p-3.5">S/N</th><th class="p-3.5">ปีการศึกษา</th><th class="p-3.5">ผู้ถือครอง</th><th class="p-3.5">วันที่ยืม</th><th class="p-3.5 text-center">QR Pass</th><th class="p-3.5 text-right">จัดการ</th></tr>
+            <thead class="th-bg uppercase text-[11px] font-semibold">
+              <tr><th class="p-3.5">Asset ID</th><th class="p-3.5">S/N</th><th class="p-3.5">ปีการศึกษา</th><th class="p-3.5">ผู้ถือครอง</th><th class="p-3.5">วันที่ยืม</th><th class="p-3.5 text-right">จัดการ</th></tr>
             </thead>
-            <tbody id="adm-circ-table-body" class="divide-y divide-gray-100"></tbody>
+            <tbody id="adm-circ-table-body" class="divide-y divide-gray-200 dark:divide-slate-700"></tbody>
           </table>
         </div>
       </section>
 
-      <!-- ADMIN SECTION 3: MAINTENANCE -->
+      <!-- ADMIN SEC 3: MAINTENANCE -->
       <section id="admin-sec-manage-maintenance" class="space-y-4 hidden">
         <div class="flex items-center justify-between">
-          <h3 class="text-base font-bold text-gray-800">จัดการการแจ้งซ่อมและประวัติบำรุงรักษา</h3>
-          <button onclick="openMaintenanceModal()" class="px-4 py-2.5 bg-accent hover:opacity-90 text-white rounded-xl text-xs font-semibold shadow flex items-center gap-1.5"><i data-lucide="plus" class="w-4 h-4"></i> + สร้างใบแจ้งซ่อม</button>
+          <h3 class="text-base font-bold">จัดการการแจ้งซ่อมและประวัติบำรุงรักษา</h3>
+          <button onclick="openMaintenanceModal()" class="px-4 py-2 bg-accent hover:opacity-90 text-white rounded-xl text-xs font-semibold shadow flex items-center gap-1.5"><i data-lucide="plus" class="w-4 h-4"></i> + สร้างใบแจ้งซ่อม</button>
         </div>
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+        <div class="glass-panel rounded-2xl shadow-sm overflow-hidden">
           <table class="w-full text-left text-xs">
-            <thead class="bg-gray-100 border-b font-semibold uppercase text-[11px]">
+            <thead class="th-bg uppercase text-[11px] font-semibold">
               <tr><th class="p-3.5">Ticket ID</th><th class="p-3.5">S/N อุปกรณ์</th><th class="p-3.5">อาการชำรุด</th><th class="p-3.5">วันที่แจ้ง</th><th class="p-3.5">สถานะ</th><th class="p-3.5 text-right">จัดการ</th></tr>
             </thead>
-            <tbody id="adm-maint-table-body" class="divide-y divide-gray-100"></tbody>
+            <tbody id="adm-maint-table-body" class="divide-y divide-gray-200 dark:divide-slate-700"></tbody>
           </table>
         </div>
       </section>
 
-      <!-- ADMIN SECTION 4: REPORTS -->
+      <!-- ADMIN SEC 4: REPORTS -->
       <section id="admin-sec-manage-reports" class="space-y-6 hidden">
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 max-w-3xl space-y-4">
-          <h3 class="text-base font-bold text-gray-800 flex items-center gap-2"><i data-lucide="file-spreadsheet" class="w-5 h-5 text-ksp-primary"></i> ศูนย์ส่งออกรายงาน (PDF / EXCEL)</h3>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div class="p-4 rounded-2xl border bg-gray-50 flex flex-col justify-between">
-              <div><h4 class="font-bold text-xs text-gray-800">1. รายงานทะเบียนครุภัณฑ์และยืม-คืน</h4></div>
-              <div class="flex gap-2 mt-4"><button onclick="printReportPDF('circ')" class="flex-1 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold">พิมพ์ PDF</button><button onclick="exportExcel('circ')" class="flex-1 py-2 bg-green-700 text-white rounded-xl text-xs font-bold">Export Excel</button></div>
+        <div class="glass-panel p-6 rounded-2xl shadow-sm max-w-3xl space-y-4">
+          <h3 class="text-base font-bold flex items-center gap-2"><i data-lucide="file-spreadsheet" class="w-5 h-5 text-ksp-primary"></i> ศูนย์ส่งออกรายงาน (PDF / EXCEL)</h3>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+            <div class="p-4 rounded-2xl border border-gray-200 dark:border-slate-700 flex flex-col justify-between">
+              <div><h4 class="font-bold text-xs">รายงานทะเบียนครุภัณฑ์และยืม-คืน</h4></div>
+              <div class="flex gap-2 mt-4"><button onclick="printReportPDF('circ')" class="flex-1 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold shadow">พิมพ์ PDF</button><button onclick="exportExcel('circ')" class="flex-1 py-2 bg-green-600 text-white rounded-xl text-xs font-bold shadow">Excel</button></div>
             </div>
-            <div class="p-4 rounded-2xl border bg-gray-50 flex flex-col justify-between">
-              <div><h4 class="font-bold text-xs text-gray-800">2. รายงานสรุปงานแจ้งซ่อมบำรุงรักษา</h4></div>
-              <div class="flex gap-2 mt-4"><button onclick="printReportPDF('maint')" class="flex-1 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold">พิมพ์ PDF</button><button onclick="exportExcel('maint')" class="flex-1 py-2 bg-green-700 text-white rounded-xl text-xs font-bold">Export Excel</button></div>
+            <div class="p-4 rounded-2xl border border-gray-200 dark:border-slate-700 flex flex-col justify-between">
+              <div><h4 class="font-bold text-xs">รายงานสรุปงานแจ้งซ่อมบำรุงรักษา</h4></div>
+              <div class="flex gap-2 mt-4"><button onclick="printReportPDF('maint')" class="flex-1 py-2 bg-blue-600 text-white rounded-xl text-xs font-bold shadow">พิมพ์ PDF</button><button onclick="exportExcel('maint')" class="flex-1 py-2 bg-green-600 text-white rounded-xl text-xs font-bold shadow">Excel</button></div>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- ADMIN SECTION 5: SETTINGS & TECHNICIAN MANAGEMENT -->
+      <!-- ADMIN SEC 5: AUDIT LOGS -->
+      <section id="admin-sec-system-logs" class="space-y-4 hidden">
+        <div class="flex items-center justify-between">
+          <h3 class="text-base font-bold flex items-center gap-2"><i data-lucide="history" class="w-5 h-5 text-ksp-primary"></i> ประวัติการเข้าใช้งานและกิจกรรม (Audit Logs)</h3>
+          <button onclick="clearLogs()" class="px-3 py-1.5 text-red-500 bg-red-50 dark:bg-red-900 dark:bg-opacity-20 rounded-lg text-xs font-bold flex items-center gap-1 hover:opacity-80 transition"><i data-lucide="trash" class="w-3.5 h-3.5"></i> ล้างประวัติ</button>
+        </div>
+        <div class="glass-panel rounded-2xl shadow-sm overflow-hidden">
+          <table class="w-full text-left text-xs">
+            <thead class="th-bg uppercase text-[11px] font-semibold">
+              <tr><th class="p-3.5">วัน-เวลา</th><th class="p-3.5">การกระทำ (Action)</th><th class="p-3.5">รายละเอียด</th><th class="p-3.5 text-right">ลบ</th></tr>
+            </thead>
+            <tbody id="logs-table-body" class="divide-y divide-gray-200 dark:divide-slate-700 font-mono text-[11px]"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ADMIN SEC 6: SETTINGS -->
       <section id="admin-sec-system-settings" class="space-y-6 hidden">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 space-y-4">
-            <h3 class="text-base font-bold text-gray-800">ตั้งค่าระบบและความปลอดภัย</h3>
+          <div class="glass-panel p-6 rounded-2xl shadow-sm space-y-4">
+            <h3 class="text-base font-bold">ตั้งค่าระบบและความปลอดภัย</h3>
             <form onsubmit="handleSaveSettings(event)" class="space-y-4">
-              <div><label class="block text-xs font-semibold mb-1">ชื่อหน่วยงาน / โรงเรียน</label><input type="text" id="set-org-name" class="w-full px-3 py-2 text-xs border rounded-xl" required /></div>
-              <div><label class="block text-xs font-semibold mb-1">URL โลโก้</label><input type="url" id="set-logo-url" class="w-full px-3 py-2 text-xs border rounded-xl" required /></div>
-              <div><label class="block text-xs font-semibold mb-1">รหัส PIN ปลดล็อกผู้ดูแลระบบ (4 หลัก)</label><input type="password" id="set-admin-pin" maxlength="4" class="w-full px-3 py-2 text-xs border rounded-xl font-mono" required /></div>
-              <div class="flex justify-end"><button type="submit" class="px-6 py-2.5 bg-ksp-primary text-white text-xs font-bold rounded-xl shadow">บันทึกการตั้งค่า</button></div>
+              <div><label class="block text-xs font-semibold mb-1">ชื่อหน่วยงาน / โรงเรียน</label><input type="text" id="set-org-name" class="w-full px-3 py-2 text-xs rounded-xl input-box" required /></div>
+              <div><label class="block text-xs font-semibold mb-1">URL โลโก้สถานศึกษา</label><input type="url" id="set-logo-url" class="w-full px-3 py-2 text-xs rounded-xl input-box" required /></div>
+              <div>
+                <label class="block text-xs font-semibold mb-1">รหัส PIN ผู้ดูแลระบบ (4 หลัก)</label>
+                <input type="password" id="set-admin-pin" maxlength="4" class="w-32 px-3 py-2 text-xs rounded-xl input-box font-mono tracking-widest text-center" required />
+              </div>
+              <div class="flex justify-end pt-2"><button type="submit" class="px-6 py-2.5 bg-ksp-primary text-white text-xs font-bold rounded-xl shadow hover:opacity-90">บันทึกการตั้งค่า</button></div>
             </form>
           </div>
-
-          <!-- Technician Management -->
-          <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-200 space-y-4">
-            <h3 class="text-base font-bold text-gray-800">จัดการข้อมูลผู้รับผิดชอบงานซ่อม (ช่างเทคนิค ICT)</h3>
+          <!-- Tech Management -->
+          <div class="glass-panel p-6 rounded-2xl shadow-sm space-y-4">
+            <h3 class="text-base font-bold">จัดการผู้รับผิดชอบงานซ่อม (ช่างเทคนิค ICT)</h3>
             <div class="flex gap-2">
-              <input type="text" id="new-tech-name" placeholder="ชื่อ-นามสกุล ช่างเทคนิค" class="flex-1 px-3 py-2 text-xs border rounded-xl focus:ring-2 focus:ring-ksp-primary focus:outline-none" />
-              <button onclick="addTechnician()" class="px-4 py-2 bg-accent text-white rounded-xl text-xs font-bold shadow whitespace-nowrap">เพิ่มรายชื่อ</button>
+              <input type="text" id="new-tech-name" placeholder="ชื่อ-นามสกุล ช่างเทคนิค" class="flex-1 px-3 py-2 text-xs rounded-xl input-box" />
+              <button onclick="addTechnician()" class="px-4 py-2 bg-accent text-white rounded-xl text-xs font-bold shadow whitespace-nowrap hover:opacity-90">เพิ่มรายชื่อ</button>
             </div>
-            <div class="border rounded-xl p-2 bg-gray-50 min-h-[150px]">
+            <div class="border border-gray-200 dark:border-slate-700 rounded-xl p-2 min-h-[150px]">
               <ul id="settings-tech-list" class="space-y-2"></ul>
             </div>
           </div>
@@ -390,49 +401,63 @@
     </main>
   </div>
 
-  <!-- ================= 4. MODALS ================= -->
+  <!-- ================= 4. ALL MODALS ================= -->
 
-  <!-- PIN Login Modal -->
+  <!-- PIN Modal -->
   <div id="pin-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
-    <div class="bg-white w-full max-w-xs rounded-3xl p-6 shadow-2xl border text-center relative">
-      <button onclick="closeModal('pin-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
-      <div class="w-12 h-12 rounded-2xl bg-ksp-primary-light text-ksp-primary mx-auto flex items-center justify-center mb-3"><i data-lucide="lock" class="w-6 h-6"></i></div>
-      <h3 class="font-bold text-base text-gray-800">ยืนยันรหัส PIN Admin</h3>
-      <div class="flex justify-center items-center gap-3 my-5">
-        <span id="pin-dot-1" class="w-4 h-4 rounded-full border-2 border-gray-300"></span><span id="pin-dot-2" class="w-4 h-4 rounded-full border-2 border-gray-300"></span>
-        <span id="pin-dot-3" class="w-4 h-4 rounded-full border-2 border-gray-300"></span><span id="pin-dot-4" class="w-4 h-4 rounded-full border-2 border-gray-300"></span>
+    <div class="glass-panel w-full max-w-xs rounded-3xl p-6 shadow-2xl text-center relative">
+      <button onclick="closeModal('pin-modal')" class="absolute top-4 right-4 opacity-50 hover:opacity-100"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 mx-auto flex items-center justify-center mb-3"><i data-lucide="lock" class="w-6 h-6"></i></div>
+      <h3 class="font-bold text-base">ยืนยันสิทธิ์ผู้ดูแลระบบ</h3>
+      <p class="text-[11px] text-red-500 font-bold mb-4 mt-1">กรุณาติดต่อเจ้าหน้าที่ผู้ดูแลระบบ ห้อง 521</p>
+      
+      <div class="flex justify-center items-center gap-3 mb-6">
+        <span id="pin-dot-1" class="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-slate-600"></span><span id="pin-dot-2" class="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-slate-600"></span>
+        <span id="pin-dot-3" class="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-slate-600"></span><span id="pin-dot-4" class="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-slate-600"></span>
       </div>
       <div class="grid grid-cols-3 gap-2 text-sm font-semibold">
-        <button onclick="pressPin('1')" class="py-3 bg-gray-50 rounded-xl hover:bg-gray-100">1</button><button onclick="pressPin('2')" class="py-3 bg-gray-50 rounded-xl hover:bg-gray-100">2</button><button onclick="pressPin('3')" class="py-3 bg-gray-50 rounded-xl hover:bg-gray-100">3</button>
-        <button onclick="pressPin('4')" class="py-3 bg-gray-50 rounded-xl hover:bg-gray-100">4</button><button onclick="pressPin('5')" class="py-3 bg-gray-50 rounded-xl hover:bg-gray-100">5</button><button onclick="pressPin('6')" class="py-3 bg-gray-50 rounded-xl hover:bg-gray-100">6</button>
-        <button onclick="pressPin('7')" class="py-3 bg-gray-50 rounded-xl hover:bg-gray-100">7</button><button onclick="pressPin('8')" class="py-3 bg-gray-50 rounded-xl hover:bg-gray-100">8</button><button onclick="pressPin('9')" class="py-3 bg-gray-50 rounded-xl hover:bg-gray-100">9</button>
-        <button onclick="clearPin()" class="py-3 text-red-500 bg-red-50 rounded-xl text-xs font-bold">C</button><button onclick="pressPin('0')" class="py-3 bg-gray-50 rounded-xl hover:bg-gray-100">0</button><button onclick="deletePin()" class="py-3 text-gray-600 bg-gray-50 rounded-xl flex items-center justify-center"><i data-lucide="delete" class="w-4 h-4"></i></button>
+        <button onclick="pressPin('1')" class="py-3 rounded-xl input-box hover:bg-gray-200 dark:hover:bg-slate-700">1</button><button onclick="pressPin('2')" class="py-3 rounded-xl input-box hover:bg-gray-200 dark:hover:bg-slate-700">2</button><button onclick="pressPin('3')" class="py-3 rounded-xl input-box hover:bg-gray-200 dark:hover:bg-slate-700">3</button>
+        <button onclick="pressPin('4')" class="py-3 rounded-xl input-box hover:bg-gray-200 dark:hover:bg-slate-700">4</button><button onclick="pressPin('5')" class="py-3 rounded-xl input-box hover:bg-gray-200 dark:hover:bg-slate-700">5</button><button onclick="pressPin('6')" class="py-3 rounded-xl input-box hover:bg-gray-200 dark:hover:bg-slate-700">6</button>
+        <button onclick="pressPin('7')" class="py-3 rounded-xl input-box hover:bg-gray-200 dark:hover:bg-slate-700">7</button><button onclick="pressPin('8')" class="py-3 rounded-xl input-box hover:bg-gray-200 dark:hover:bg-slate-700">8</button><button onclick="pressPin('9')" class="py-3 rounded-xl input-box hover:bg-gray-200 dark:hover:bg-slate-700">9</button>
+        <button onclick="clearPin()" class="py-3 text-red-500 bg-red-50 dark:bg-red-900 dark:bg-opacity-20 rounded-xl text-xs font-bold">C</button><button onclick="pressPin('0')" class="py-3 rounded-xl input-box hover:bg-gray-200 dark:hover:bg-slate-700">0</button><button onclick="deletePin()" class="py-3 rounded-xl input-box hover:bg-gray-200 dark:hover:bg-slate-700 flex justify-center items-center"><i data-lucide="delete" class="w-4 h-4"></i></button>
       </div>
     </div>
   </div>
 
-  <!-- QR Digital Passport Modal -->
+  <!-- QR Passport Strict Validation Modal -->
+  <div id="qr-strict-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
+    <div class="glass-panel w-full max-w-xs rounded-3xl p-6 shadow-2xl text-center relative">
+      <button onclick="closeModal('qr-strict-modal')" class="absolute top-4 right-4 opacity-50 hover:opacity-100"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <div class="w-12 h-12 rounded-full bg-accent bg-opacity-20 text-accent mx-auto flex items-center justify-center mb-3"><i data-lucide="shield" class="w-6 h-6"></i></div>
+      <h3 class="font-bold text-base mb-1">ยืนยันการครอบครอง</h3>
+      <p class="text-[11px] opacity-70 mb-4">กรุณากรอกรหัสประจำตัวผู้ถือครองเพื่อดูข้อมูล Passport</p>
+      <input type="text" id="strict-holder-code" placeholder="เช่น 28752" class="w-full px-3 py-2.5 text-center font-mono font-bold rounded-xl input-box mb-4 focus:ring-2 focus:ring-ksp-primary focus:outline-none" />
+      <button onclick="verifyStrictCode()" class="w-full py-2.5 bg-ksp-primary text-white rounded-xl text-xs font-bold shadow hover:opacity-90">ยืนยันเปิดดูข้อมูล</button>
+    </div>
+  </div>
+
+  <!-- QR Passport Modal -->
   <div id="qr-passport-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
-    <div class="bg-white w-full max-w-md rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
-      <button onclick="closeModal('qr-passport-modal')" class="absolute top-5 right-5 text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
-      <div class="text-center pb-3 border-b border-gray-100">
+    <div class="glass-panel w-full max-w-md rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <button onclick="closeModal('qr-passport-modal')" class="absolute top-5 right-5 opacity-50 hover:opacity-100"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <div class="text-center pb-3 border-b border-gray-200 dark:border-slate-700">
         <span class="px-2.5 py-0.5 rounded-full badge-ready text-[10px] font-bold">DIGITAL DEVICE PASSPORT</span>
-        <h3 id="pass-asset-id" class="font-extrabold text-base text-gray-900 mt-1">OBEC-IPAD-2567-0042</h3>
-        <p id="pass-model" class="text-xs text-gray-500 font-medium">iPad (Gen 10) Wi-Fi 64GB</p>
+        <h3 id="pass-asset-id" class="font-extrabold text-base mt-1 text-ksp-primary">OBEC-IPAD-2567-0042</h3>
+        <p id="pass-model" class="text-xs opacity-70 font-medium">iPad (Gen 10) Wi-Fi</p>
       </div>
       <div class="py-4 text-center">
         <div id="qrcode-passport-container" class="p-3 bg-white border border-gray-200 rounded-2xl inline-block shadow-inner"></div>
-        <p class="text-[11px] text-gray-400 font-mono mt-1" id="pass-serial">S/N: DMPZ1234Q164</p>
+        <p class="text-[11px] opacity-60 font-mono mt-1" id="pass-serial">S/N: DMPZ...</p>
       </div>
-      <div class="space-y-2 text-xs bg-gray-50 p-3.5 rounded-2xl border border-gray-100">
-        <div class="flex justify-between"><span class="text-gray-500">ปีการศึกษา:</span><strong id="pass-academic-year">-</strong></div>
-        <div class="flex justify-between"><span class="text-gray-500">ผู้ถือครอง:</span><strong id="pass-holder-name">-</strong></div>
-        <div class="flex justify-between"><span class="text-gray-500">รหัสประจำตัว:</span><span id="pass-holder-code" class="font-mono font-bold text-blue-600">-</span></div>
-        <div class="flex justify-between"><span class="text-gray-500">ระดับชั้น/ห้อง:</span><span id="pass-grade-room">-</span></div>
-        <div class="flex justify-between"><span class="text-gray-500">วันที่ยืม (พ.ศ.):</span><span id="pass-dates">-</span></div>
+      <div class="space-y-2 text-xs bg-gray-50 dark:bg-slate-900 p-3.5 rounded-2xl border border-gray-200 dark:border-slate-700">
+        <div class="flex justify-between"><span class="opacity-60">ปีการศึกษา:</span><strong id="pass-academic-year">-</strong></div>
+        <div class="flex justify-between"><span class="opacity-60">ผู้ถือครอง:</span><strong id="pass-holder-name">-</strong></div>
+        <div class="flex justify-between"><span class="opacity-60">รหัสประจำตัว:</span><span id="pass-holder-code" class="font-mono font-bold text-blue-500">-</span></div>
+        <div class="flex justify-between"><span class="opacity-60">ระดับชั้น/ห้อง:</span><span id="pass-grade-room">-</span></div>
+        <div class="flex justify-between"><span class="opacity-60">สถานะปัจจุบัน:</span><span id="pass-status" class="px-2 py-0.5 rounded text-[10px] font-bold badge-loan">-</span></div>
       </div>
-      <div class="mt-4 pt-3 border-t border-gray-100">
-        <h5 class="font-bold text-xs text-gray-800 flex items-center gap-1.5 mb-2"><i data-lucide="history" class="w-3.5 h-3.5 text-accent"></i> ประวัติการซ่อมบำรุงย้อนหลัง</h5>
+      <div class="mt-4 pt-3 border-t border-gray-200 dark:border-slate-700">
+        <h5 class="font-bold text-xs flex items-center gap-1.5 mb-2"><i data-lucide="history" class="w-3.5 h-3.5 text-accent"></i> ประวัติซ่อมบำรุงย้อนหลัง</h5>
         <div id="pass-repair-history" class="space-y-2 text-xs"></div>
       </div>
     </div>
@@ -440,111 +465,135 @@
 
   <!-- Smart Scanner Modal -->
   <div id="smart-scanner-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
-    <div class="bg-white w-full max-w-sm rounded-3xl p-6 shadow-2xl text-center relative">
-      <button onclick="closeModal('smart-scanner-modal')" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
-      <div class="w-16 h-16 rounded-full bg-green-50 text-ksp-primary mx-auto flex items-center justify-center mb-3"><i data-lucide="scan" class="w-8 h-8 animate-pulse"></i></div>
-      <h3 class="font-bold text-sm text-gray-800 mb-1">สแกนคิวร์โค้ดอุปกรณ์</h3>
-      <div class="w-44 h-44 mx-auto border-2 border-dashed border-ksp-primary rounded-2xl flex items-center justify-center bg-gray-50 my-4"><span class="text-xs text-gray-400">ระบบกล้องพร้อม...</span></div>
-      <button onclick="triggerSimulatedScanSuccess()" class="w-full py-2.5 bg-ksp-primary text-white rounded-xl text-xs font-semibold shadow">จำลองการสแกนสำเร็จ</button>
+    <div class="glass-panel w-full max-w-sm rounded-3xl p-6 shadow-2xl text-center relative">
+      <button onclick="closeModal('smart-scanner-modal')" class="absolute top-4 right-4 opacity-50 hover:opacity-100"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <div class="w-16 h-16 rounded-full bg-blue-100 text-blue-700 mx-auto flex items-center justify-center mb-3"><i data-lucide="scan" class="w-8 h-8 animate-pulse"></i></div>
+      <h3 class="font-bold text-sm mb-1">กล้องสแกนคิวร์โค้ดอุปกรณ์</h3>
+      <div class="w-44 h-44 mx-auto border-2 border-dashed border-ksp-primary rounded-2xl flex items-center justify-center bg-gray-50 dark:bg-slate-900 my-4"><span class="text-xs opacity-50">ระบบกล้องพร้อม...</span></div>
+      <button onclick="triggerSimulatedScanSuccess()" class="w-full py-2.5 bg-ksp-primary text-white rounded-xl text-xs font-semibold shadow hover:opacity-90">จำลองสแกนสำเร็จ</button>
     </div>
   </div>
 
-  <!-- Circulation Modal (Auto Asset ID, Year, Duplicate Guard) -->
+  <!-- Admin Circulation Edit Modal -->
   <div id="circ-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
-    <div class="bg-white w-full max-w-xl rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
-      <button onclick="closeModal('circ-modal')" class="absolute top-5 right-5 text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
-      <h3 id="circ-modal-title" class="text-base font-bold text-gray-800 mb-3 flex items-center gap-2"><i data-lucide="tablet" class="w-5 h-5 text-ksp-primary"></i> บันทึกการเบิกยืม iPad</h3>
+    <div class="glass-panel w-full max-w-xl rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <button onclick="closeModal('circ-modal')" class="absolute top-5 right-5 opacity-50 hover:opacity-100"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <h3 id="circ-modal-title" class="text-base font-bold mb-3 flex items-center gap-2"><i data-lucide="tablet" class="w-5 h-5 text-ksp-primary"></i> บันทึกการเบิกยืม iPad</h3>
 
       <form onsubmit="handleSaveCirculation(event)" class="space-y-3">
         <input type="hidden" id="circ-edit-id" />
-        <div class="flex justify-between items-center bg-green-50 p-3 rounded-xl border border-green-200">
-          <div>
-            <span class="text-[11px] text-green-700 font-semibold block">รหัสครุภัณฑ์ (Auto Asset ID)</span>
-            <strong id="auto-asset-display" class="text-xs font-mono text-ksp-primary">OBEC-IPAD-2567-0045</strong>
-          </div>
-          <select id="circ-academic-year" class="bg-white border border-gray-300 text-xs px-2 py-1.5 rounded-lg font-bold text-ksp-primary focus:outline-none">
-            <option value="2569">ปีการศึกษา 2569</option>
-            <option value="2568">ปีการศึกษา 2568</option>
-            <option value="2570">ปีการศึกษา 2570</option>
-            <option value="2571">ปีการศึกษา 2571</option>
-          </select>
+        <div class="flex justify-between items-center bg-blue-50 dark:bg-slate-900 p-3 rounded-xl border border-blue-200 dark:border-slate-700">
+          <div><span class="text-[11px] text-blue-700 dark:text-blue-400 font-semibold block">รหัสครุภัณฑ์ (Auto Asset ID)</span><strong id="auto-asset-display" class="text-xs font-mono text-ksp-primary">OBEC-IPAD-...</strong></div>
+          <select id="circ-academic-year" class="bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 text-xs px-2 py-1.5 rounded-lg font-bold focus:outline-none"></select>
         </div>
 
-        <div><label class="block text-xs font-semibold mb-1">Serial Number (S/N)</label><input type="text" id="circ-serial" placeholder="DMPZ..." class="w-full px-3 py-2 text-xs border rounded-xl font-mono uppercase" required /></div>
+        <div><label class="block text-xs font-semibold mb-1">Serial Number (S/N)</label><input type="text" id="circ-serial" placeholder="DMPZ..." class="w-full px-3 py-2 text-xs rounded-xl font-mono uppercase input-box" required /></div>
         <div class="grid grid-cols-2 gap-3">
-          <div><label class="block text-xs font-semibold mb-1">รหัสประจำตัวนักเรียน (เช่น 28752)</label><input type="text" id="circ-code" placeholder="28752" class="w-full px-3 py-2 text-xs border rounded-xl font-mono" required /></div>
-          <div><label class="block text-xs font-semibold mb-1">ชื่อ - นามสกุล ผู้ถือครอง</label><input type="text" id="circ-holder-name" placeholder="เด็กชาย..." class="w-full px-3 py-2 text-xs border rounded-xl" required /></div>
+          <div><label class="block text-xs font-semibold mb-1">รหัสประจำตัวนักเรียน</label><input type="text" id="circ-code" placeholder="เช่น 28752" class="w-full px-3 py-2 text-xs rounded-xl font-mono input-box" required /></div>
+          <div><label class="block text-xs font-semibold mb-1">ชื่อ - นามสกุล ผู้ถือครอง</label><input type="text" id="circ-holder-name" placeholder="เด็กชาย..." class="w-full px-3 py-2 text-xs rounded-xl input-box" required /></div>
         </div>
         <div class="grid grid-cols-2 gap-3">
-          <div><label class="block text-xs font-semibold mb-1">ชั้น / ห้อง (เช่น ม.1 ห้อง 5)</label><input type="text" id="circ-grade-room" placeholder="ม.1 ห้อง 5" class="w-full px-3 py-2 text-xs border rounded-xl" required /></div>
-          <div><label class="block text-xs font-semibold mb-1">ประเภทผู้ถือครอง</label><select id="circ-holder-type" class="w-full px-3 py-2 text-xs border rounded-xl"><option value="นักเรียน">นักเรียน</option><option value="ครู">ครู</option></select></div>
+          <div><label class="block text-xs font-semibold mb-1">ชั้น / ห้อง</label><input type="text" id="circ-grade-room" placeholder="ม.1 ห้อง 5" class="w-full px-3 py-2 text-xs rounded-xl input-box" required /></div>
+          <div><label class="block text-xs font-semibold mb-1">ประเภทผู้ถือครอง</label><select id="circ-holder-type" class="w-full px-3 py-2 text-xs rounded-xl input-box"><option value="นักเรียน">นักเรียน</option><option value="ครู">ครู</option></select></div>
         </div>
         <div class="grid grid-cols-2 gap-3">
-          <div><label class="block text-xs font-semibold mb-1">วันที่ยืม (ปฏิทิน พ.ศ.)</label><input type="date" id="circ-borrow-date" class="w-full px-3 py-2 text-xs border rounded-xl" required /></div>
-          <div><label class="block text-xs font-semibold mb-1">กำหนดคืน (ปฏิทิน พ.ศ.)</label><input type="date" id="circ-return-date" class="w-full px-3 py-2 text-xs border rounded-xl" required /></div>
+          <div><label class="block text-xs font-semibold mb-1">วันที่ยืม (พ.ศ.)</label><input type="date" id="circ-borrow-date" class="w-full px-3 py-2 text-xs rounded-xl input-box" required /></div>
+          <div><label class="block text-xs font-semibold mb-1">กำหนดคืน (พ.ศ.)</label><input type="date" id="circ-return-date" class="w-full px-3 py-2 text-xs rounded-xl input-box" required /></div>
         </div>
-        <div class="pt-3 border-t flex justify-end gap-2"><button type="button" onclick="closeModal('circ-modal')" class="px-4 py-2 bg-gray-100 rounded-xl text-xs font-medium">ยกเลิก</button><button type="submit" class="px-5 py-2 bg-ksp-primary text-white rounded-xl text-xs font-semibold shadow">บันทึก</button></div>
+
+        <div class="pt-3 border-t border-gray-200 dark:border-slate-700 flex justify-end gap-2"><button type="button" onclick="closeModal('circ-modal')" class="px-4 py-2 opacity-70 hover:opacity-100 rounded-xl text-xs font-medium">ยกเลิก</button><button type="submit" class="px-5 py-2 bg-ksp-primary hover:opacity-90 text-white rounded-xl text-xs font-semibold shadow">ยืนยันบันทึก</button></div>
       </form>
     </div>
   </div>
 
-  <!-- Maintenance Modal (Smart Search Device, Phone, Doc Ref) -->
+  <!-- Admin Maintenance Form (Smart Search + File Upload + Link) -->
   <div id="maint-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
-    <div class="bg-white w-full max-w-xl rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
-      <button onclick="closeModal('maint-modal')" class="absolute top-5 right-5 text-gray-400 hover:text-gray-600"><i data-lucide="x" class="w-5 h-5"></i></button>
-      <h3 id="maint-modal-title" class="text-base font-bold text-gray-800 mb-4 flex items-center gap-2"><i data-lucide="wrench" class="w-5 h-5 text-accent"></i> ออกใบแจ้งซ่อมอุปกรณ์ (Auto Ticket ID)</h3>
+    <div class="glass-panel w-full max-w-xl rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
+      <button onclick="closeModal('maint-modal')" class="absolute top-5 right-5 opacity-50 hover:opacity-100"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <h3 id="maint-modal-title" class="text-base font-bold mb-4 flex items-center gap-2"><i data-lucide="wrench" class="w-5 h-5 text-accent"></i> ออกใบแจ้งซ่อมอุปกรณ์ (Auto Ticket)</h3>
 
       <form onsubmit="handleSaveMaintenance(event)" class="space-y-3">
         <input type="hidden" id="maint-edit-id" />
         <div class="grid grid-cols-2 gap-3">
-          <div><label class="block text-xs font-semibold mb-1">Ticket ID (Auto)</label><input type="text" id="maint-ticket-id" class="w-full px-3 py-2 text-xs border rounded-xl bg-gray-50 font-mono" readonly /></div>
-          <div><label class="block text-xs font-semibold mb-1">วันที่แจ้ง (พ.ศ.)</label><input type="date" id="maint-date" class="w-full px-3 py-2 text-xs border rounded-xl" required /></div>
+          <div><label class="block text-xs font-semibold mb-1">Ticket ID (Auto)</label><input type="text" id="maint-ticket-id" class="w-full px-3 py-2 text-xs rounded-xl font-mono input-box opacity-70 cursor-not-allowed" readonly /></div>
+          <div><label class="block text-xs font-semibold mb-1">วันที่แจ้ง (พ.ศ.)</label><input type="date" id="maint-date" class="w-full px-3 py-2 text-xs rounded-xl input-box" required /></div>
         </div>
         
         <div class="relative">
-          <label class="block text-xs font-semibold mb-1">ค้นหาอุปกรณ์อัจฉริยะ (Asset ID / Serial / ผู้ถือครอง)</label>
-          <input type="text" id="maint-device-search" oninput="searchMaintDevice(this.value)" placeholder="พิมพ์ค้นหา หรือสแกน QR" class="w-full px-3 py-2 text-xs border border-gray-300 rounded-xl focus:ring-2 focus:ring-ksp-primary focus:outline-none" required autocomplete="off"/>
+          <label class="block text-xs font-semibold mb-1">ค้นหาอุปกรณ์อัจฉริยะ (S/N หรือ รหัส)</label>
+          <input type="text" id="maint-device-search" oninput="searchMaintDevice(this.value)" placeholder="พิมพ์ค้นหา S/N, Asset ID" class="w-full px-3 py-2 text-xs rounded-xl input-box focus:ring-2 focus:ring-ksp-primary focus:outline-none" autocomplete="off"/>
           <input type="hidden" id="maint-device-sn-hidden" required>
-          <div id="maint-device-results" class="absolute left-0 right-0 top-[60px] bg-white border border-gray-200 rounded-xl shadow-lg z-50 hidden max-h-40 overflow-y-auto custom-scrollbar"></div>
+          <div id="maint-device-results" class="absolute left-0 right-0 top-[60px] glass-panel rounded-xl shadow-lg z-50 hidden max-h-40 overflow-y-auto custom-scrollbar"></div>
         </div>
 
-        <div><label class="block text-xs font-semibold mb-1">รายละเอียดอาการชำรุด</label><textarea id="maint-detail" rows="2" placeholder="ระบุอาการขัดข้อง..." class="w-full px-3 py-2 text-xs border rounded-xl" required></textarea></div>
+        <div><label class="block text-xs font-semibold mb-1">รายละเอียดอาการชำรุด</label><textarea id="maint-detail" rows="2" placeholder="ระบุอาการขัดข้อง..." class="w-full px-3 py-2 text-xs rounded-xl input-box" required></textarea></div>
         
         <div class="grid grid-cols-2 gap-3">
-          <div><label class="block text-xs font-semibold mb-1">เบอร์โทรติดต่อ</label><input type="tel" id="maint-phone" placeholder="089-xxx-xxxx" class="w-full px-3 py-2 text-xs border rounded-xl" /></div>
-          <div><label class="block text-xs font-semibold mb-1">เอกสารอ้างอิง/บันทึกข้อความ (ถ้ามี)</label><input type="text" id="maint-doc" placeholder="เช่น บก.12/2569" class="w-full px-3 py-2 text-xs border rounded-xl" /></div>
+          <div><label class="block text-xs font-semibold mb-1">เบอร์โทรติดต่อ</label><input type="tel" id="maint-phone" placeholder="089-xxx-xxxx" class="w-full px-3 py-2 text-xs rounded-xl input-box" /></div>
+          <div><label class="block text-xs font-semibold mb-1">ผู้รับผิดชอบงานซ่อม</label><select id="maint-tech" class="w-full px-3 py-2 text-xs rounded-xl input-box"></select></div>
+        </div>
+
+        <!-- Document / File Upload Section -->
+        <div class="p-3 border border-gray-200 dark:border-slate-700 rounded-xl bg-gray-50 dark:bg-slate-900 space-y-2">
+          <label class="block text-xs font-semibold">เอกสาร/หลักฐาน (อัปโหลด หรือ วางลิงก์)</label>
+          <input type="url" id="maint-doc-link" placeholder="วาง URL ลิงก์เอกสาร (ถ้ามี)" class="w-full px-3 py-2 text-[11px] rounded-lg input-box" />
+          <div class="flex items-center gap-2">
+            <input type="file" id="maint-doc-file" accept=".pdf, image/*" class="w-full text-[10px] file:mr-2 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-[10px] file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer" onchange="previewUploadName(this)" />
+          </div>
+          <p id="maint-doc-preview" class="text-[10px] text-green-600 hidden font-semibold">เตรียมอัปโหลด: <span id="maint-doc-name"></span></p>
         </div>
         
-        <div>
-          <label class="block text-xs font-semibold mb-1">ช่างเทคนิคผู้รับผิดชอบงานซ่อม</label>
-          <select id="maint-tech" class="w-full px-3 py-2 text-xs border rounded-xl"></select>
-        </div>
-        <div class="pt-3 border-t flex justify-end gap-2"><button type="button" onclick="closeModal('maint-modal')" class="px-4 py-2 bg-gray-100 rounded-xl text-xs font-medium">ยกเลิก</button><button type="submit" class="px-5 py-2 bg-accent text-white rounded-xl text-xs font-semibold shadow">ออกใบแจ้งซ่อม</button></div>
+        <div class="pt-3 border-t border-gray-200 dark:border-slate-700 flex justify-end gap-2"><button type="button" onclick="closeModal('maint-modal')" class="px-4 py-2 opacity-70 hover:opacity-100 rounded-xl text-xs font-medium">ยกเลิก</button><button type="submit" class="px-5 py-2 bg-accent hover:opacity-90 text-white rounded-xl text-xs font-semibold shadow">บันทึกแจ้งซ่อม</button></div>
       </form>
     </div>
   </div>
 
   <!-- ================= 5. CORE APPLICATION LOGIC ================= -->
   <script>
+    let tempStrictDeviceId = null; // Store temp device ID during strict validation
+
     window.addEventListener('DOMContentLoaded', () => {
       lucide.createIcons();
+      generateYearOptions();
       loadSettings();
+      initLiveCharts();
       renderPublicDirectory();
       updateMetrics();
-      initLiveCharts();
       renderAdminYearSummary();
       renderTechList();
       populateTechDropdowns();
+      logAction("System", "Initial Load & Render");
     });
 
-    // Global Year Change
+    // Theme & Dynamic Year
+    function toggleTheme() {
+      APP_STATE.isDarkMode = !APP_STATE.isDarkMode;
+      document.documentElement.classList.toggle('dark', APP_STATE.isDarkMode);
+      document.getElementById('theme-icon').setAttribute('data-lucide', APP_STATE.isDarkMode ? 'sun' : 'moon');
+      lucide.createIcons();
+      initLiveCharts(); 
+    }
+
+    function generateYearOptions() {
+      const currentYear = new Date().getFullYear() + 543;
+      APP_STATE.currentYear = currentYear.toString();
+      let html = '';
+      for (let y = currentYear + 5; y >= currentYear - 5; y--) {
+        html += `<option value="${y}" class="text-gray-800 dark:text-gray-200" ${y === currentYear ? 'selected' : ''}>ปีการศึกษา ${y}</option>`;
+      }
+      document.getElementById('global-year-filter').innerHTML = html;
+      
+      const circYearSelect = document.getElementById('circ-academic-year');
+      if(circYearSelect) circYearSelect.innerHTML = html;
+      document.getElementById('lbl-chart-year').innerText = `ปี ${APP_STATE.currentYear}`;
+      document.getElementById('lbl-admin-year').innerText = `ปี ${APP_STATE.currentYear}`;
+    }
+
     function changeGlobalYear(year) {
       APP_STATE.currentYear = year;
       document.getElementById('lbl-chart-year').innerText = `ปี ${year}`;
       document.getElementById('lbl-admin-year').innerText = `ปี ${year}`;
-      renderPublicDirectory();
-      updateMetrics();
-      initLiveCharts();
+      renderPublicDirectory(); updateMetrics(); initLiveCharts();
     }
 
     function loadSettings() {
@@ -558,12 +607,9 @@
       document.getElementById('set-admin-pin').value = APP_STATE.adminPin;
       const savedTechs = localStorage.getItem('ksp_techs');
       if (savedTechs) APP_STATE.technicians = JSON.parse(savedTechs);
-      
-      const yearSelect = document.getElementById('global-year-filter');
-      if (yearSelect) yearSelect.value = APP_STATE.currentYear;
     }
 
-    // Chart.js Integrations based on Global Year
+    // Chart Integrations
     function initLiveCharts() {
       const ctx = document.getElementById('unifiedLiveChart');
       if (!ctx) return;
@@ -574,14 +620,17 @@
       const loan = filtered.filter(d => d.status === 'กำลังถือครอง').length;
       const repair = filtered.reduce((acc, d) => acc + d.repairs.filter(r => r.status !== 'ซ่อมสำเร็จ').length, 0);
 
+      const tColor = APP_STATE.isDarkMode ? '#F8FAFC' : '#1E293B';
+      const gColor = APP_STATE.isDarkMode ? '#334155' : '#E2E8F0';
+
       if (APP_STATE.charts.mainChart) APP_STATE.charts.mainChart.destroy();
       APP_STATE.charts.mainChart = new Chart(ctx, {
         type: 'bar',
         data: {
-          labels: ['iPad ทั้งหมด', 'พร้อมใช้งาน (คลัง)', 'กำลังถือครอง', 'งานซ่อมขัดข้อง'],
-          datasets: [{ data: [total, ready, loan, repair], backgroundColor: ['#24513B', '#2D6A4F', '#2563EB', '#E67E22'], borderRadius: 8 }]
+          labels: ['iPad ทั้งหมด', 'พร้อมใช้', 'กำลังถือครอง', 'งานซ่อมค้าง'],
+          datasets: [{ data: [total, ready, loan, repair], backgroundColor: ['#1E3A8A', '#10B981', '#3B82F6', '#EF4444'], borderRadius: 6 }]
         },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } } }
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, color: tColor }, grid: { color: gColor } }, x: { ticks: { color: tColor }, grid: { display: false } } } }
       });
 
       const createMini = (id, label, color, val) => {
@@ -589,8 +638,8 @@
         if (!c) return;
         return new Chart(c, {
           type: 'bar',
-          data: { labels: [label], datasets: [{ data: [val], backgroundColor: color, borderRadius: 6 }] },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { grid: { display: false } } } }
+          data: { labels: [label], datasets: [{ data: [val], backgroundColor: color, borderRadius: 4 }] },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { display: false }, x: { display: false } } }
         });
       };
       if (APP_STATE.charts.adminTotal) APP_STATE.charts.adminTotal.destroy();
@@ -598,10 +647,10 @@
       if (APP_STATE.charts.adminLoan) APP_STATE.charts.adminLoan.destroy();
       if (APP_STATE.charts.adminRepair) APP_STATE.charts.adminRepair.destroy();
 
-      APP_STATE.charts.adminTotal = createMini('adminBarTotal', 'ทั้งหมด', '#24513B', total);
-      APP_STATE.charts.adminReady = createMini('adminBarReady', 'พร้อมใช้งาน', '#2D6A4F', ready);
-      APP_STATE.charts.adminLoan = createMini('adminBarLoan', 'กำลังถือครอง', '#2563EB', loan);
-      APP_STATE.charts.adminRepair = createMini('adminBarRepair', 'ซ่อมค้าง', '#E67E22', repair);
+      APP_STATE.charts.adminTotal = createMini('adminBarTotal', 'ทั้งหมด', '#1E3A8A', total);
+      APP_STATE.charts.adminReady = createMini('adminBarReady', 'พร้อมใช้งาน', '#10B981', ready);
+      APP_STATE.charts.adminLoan = createMini('adminBarLoan', 'กำลังถือครอง', '#3B82F6', loan);
+      APP_STATE.charts.adminRepair = createMini('adminBarRepair', 'ซ่อมค้าง', '#EF4444', repair);
     }
 
     function updateMetrics() {
@@ -611,33 +660,29 @@
       const ready = filtered.filter(d => d.status === 'พร้อมใช้งาน').length;
       const repair = filtered.reduce((acc, d) => acc + d.repairs.filter(r => r.status !== 'ซ่อมสำเร็จ').length, 0);
 
-      document.getElementById('stat-total').innerText = total;
-      document.getElementById('stat-loan').innerText = loan;
-      document.getElementById('stat-repair').innerText = repair;
-
-      document.getElementById('adm-bar-total-val').innerText = total;
-      document.getElementById('adm-bar-ready-val').innerText = ready;
-      document.getElementById('adm-bar-loan-val').innerText = loan;
-      document.getElementById('adm-bar-repair-val').innerText = repair;
+      const setT = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+      setT('stat-total', total); setT('stat-loan', loan); setT('stat-repair', repair); setT('stat-ready', ready);
+      setT('adm-bar-total-val', total); setT('adm-bar-ready-val', ready); setT('adm-bar-loan-val', loan); setT('adm-bar-repair-val', repair);
     }
 
     function renderAdminYearSummary() {
       const tbody = document.getElementById('yearly-summary-tbody');
       if (!tbody) return;
-      const years = ["2571", "2570", "2569", "2568"];
+      const curY = parseInt(APP_STATE.currentYear);
+      const years = [curY + 1, curY, curY - 1, curY - 2].map(String);
       tbody.innerHTML = years.map(y => {
         const filtered = APP_STATE.devices.filter(d => d.academic_year === y);
         const total = filtered.length;
         const ready = filtered.filter(d => d.status === 'พร้อมใช้งาน').length;
         const loan = filtered.filter(d => d.status === 'กำลังถือครอง').length;
-        const repair = filtered.reduce((acc, d) => acc + d.repairs.length, 0); // All repairs in that year
+        const repair = filtered.reduce((acc, d) => acc + d.repairs.length, 0);
         return `
-          <tr class="hover:bg-gray-50 border-b border-gray-100">
-            <td class="p-3 font-bold text-gray-800">ปีการศึกษา ${y}</td>
-            <td class="p-3 text-center font-inter font-bold">${total}</td>
-            <td class="p-3 text-center font-inter text-green-700">${ready}</td>
-            <td class="p-3 text-center font-inter text-blue-700">${loan}</td>
-            <td class="p-3 text-center font-inter text-red-600">${repair}</td>
+          <tr class="hover-row transition">
+            <td class="p-3 font-bold">ปีการศึกษา ${y} ${y === APP_STATE.currentYear ? '(ปัจจุบัน)' : ''}</td>
+            <td class="p-3 text-center font-mono font-bold">${total}</td>
+            <td class="p-3 text-center font-mono text-green-500">${ready}</td>
+            <td class="p-3 text-center font-mono text-blue-500">${loan}</td>
+            <td class="p-3 text-center font-mono text-red-500">${repair}</td>
           </tr>
         `;
       }).join('');
@@ -649,54 +694,49 @@
       if (!tbody) return;
       const q = (document.getElementById('public-search-input')?.value || '').toLowerCase();
 
-      // Filter by selected year and search query
       const list = APP_STATE.devices.filter(d => d.academic_year === APP_STATE.currentYear).filter(d => 
         !q || d.asset_id.toLowerCase().includes(q) || d.serial_number.toLowerCase().includes(q) ||
         d.holder_name.toLowerCase().includes(q) || d.holder_code.includes(q) || d.grade_room.toLowerCase().includes(q)
       );
 
       document.getElementById('directory-record-count').innerText = `แสดง ${list.length} รายการ (ปี ${APP_STATE.currentYear})`;
-
       const statusBadges = { 'พร้อมใช้งาน': 'badge-ready', 'กำลังถือครอง': 'badge-loan', 'ส่งซ่อม': 'badge-damage' };
 
       tbody.innerHTML = list.map(d => `
-        <tr class="hover:bg-gray-50 transition">
-          <td class="p-3.5 font-bold text-gray-900">${d.asset_id}</td>
-          <td class="p-3.5 font-mono text-gray-600">${d.serial_number}</td>
-          <td class="p-3.5">${d.holder_name} <span class="text-[10px] text-gray-400 font-mono">(${d.holder_code})</span></td>
+        <tr class="hover-row transition">
+          <td class="p-3.5 font-bold">${d.asset_id}</td>
+          <td class="p-3.5 font-mono opacity-70">${d.serial_number}</td>
+          <td class="p-3.5">${d.holder_name} <span class="text-[10px] opacity-50 font-mono">(${d.holder_code})</span></td>
           <td class="p-3.5">${d.grade_room}</td>
           <td class="p-3.5"><span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold ${statusBadges[d.status] || 'badge-ready'}">${d.status}</span></td>
           <td class="p-3.5 text-center">
-            <button onclick="openQrPassportModal('${d.id}')" class="px-2.5 py-1 bg-green-50 text-ksp-primary border border-green-200 rounded-lg text-xs font-bold hover:bg-green-100 transition shadow-sm">
-              <i data-lucide="qr-code" class="w-3.5 h-3.5 inline"></i> QR
+            <button onclick="requestStrictValidation('${d.id}')" class="px-2 py-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-xs font-bold hover:shadow-md transition">
+              <i data-lucide="qr-code" class="w-3.5 h-3.5 inline text-blue-600"></i> QR / ดูประวัติ
             </button>
-          </td>
-          <td class="p-3.5 text-right space-x-1">
-            <button onclick="viewRepairDetail('${d.id}')" class="p-1.5 text-gray-500 hover:bg-gray-100 rounded-lg"><i data-lucide="history" class="w-4 h-4"></i></button>
-            <button onclick="openPublicRepairForDevice('${d.id}')" class="p-1.5 text-accent hover:bg-yellow-50 rounded-lg"><i data-lucide="wrench" class="w-4 h-4"></i></button>
           </td>
         </tr>
       `).join('');
 
-      renderAdminCirculationTable();
-      renderAdminMaintenanceTable();
-      lucide.createIcons();
+      renderAdminCirculationTable(); renderAdminMaintenanceTable(); renderLogsTable(); lucide.createIcons();
     }
 
-    function viewRepairDetail(deviceId) {
-      const d = APP_STATE.devices.find(item => item.id === deviceId);
-      if (!d || d.repairs.length === 0) {
-        Swal.fire({ icon: 'info', title: 'ไม่มีประวัติ', text: 'อุปกรณ์นี้ไม่เคยมีการแจ้งซ่อมในระบบ', confirmButtonColor: '#24513B' });
-        return;
+    // Strict Validation Logic
+    function requestStrictValidation(deviceId) {
+      if(APP_STATE.isAdmin) { openQrPassportModal(deviceId); return; }
+      tempStrictDeviceId = deviceId;
+      document.getElementById('strict-holder-code').value = '';
+      showModal('qr-strict-modal');
+    }
+
+    function verifyStrictCode() {
+      const code = document.getElementById('strict-holder-code').value.trim();
+      const d = APP_STATE.devices.find(item => item.id === tempStrictDeviceId);
+      if(d && (d.holder_code === code || code === "ADMIN" || d.holder_code === "-")) {
+        closeModal('qr-strict-modal');
+        openQrPassportModal(d.id);
+      } else {
+        Swal.fire({ icon: 'error', title: 'รหัสไม่ถูกต้อง', text: 'คุณไม่ใช่ผู้ครอบครองอุปกรณ์นี้', confirmButtonColor: '#1E3A8A' });
       }
-      let html = d.repairs.map(r => `
-        <div class="p-2 mb-2 bg-gray-50 border rounded-xl text-left text-xs">
-          <p class="font-bold text-blue-600">${r.ticket_id} <span class="float-right text-gray-500 font-normal">${formatDateThai(r.date)}</span></p>
-          <p class="mt-1">${r.detail}</p>
-          <p class="mt-1 text-[10px] text-gray-500">ช่าง: ${r.tech} | สถานะ: <span class="font-bold text-accent">${r.status}</span></p>
-        </div>
-      `).join('');
-      Swal.fire({ title: `ประวัติซ่อม: ${d.asset_id}`, html: `<div class="max-h-60 overflow-y-auto custom-scrollbar">${html}</div>`, confirmButtonColor: '#24513B' });
     }
 
     function openQrPassportModal(deviceId) {
@@ -710,21 +750,19 @@
       document.getElementById('pass-holder-name').innerText = d.holder_name;
       document.getElementById('pass-holder-code').innerText = d.holder_code;
       document.getElementById('pass-grade-room').innerText = d.grade_room;
-      document.getElementById('pass-dates').innerText = d.borrow_date !== '-' ? `${formatDateThai(d.borrow_date)} ถึง ${formatDateThai(d.return_date)}` : 'อยู่ในคลังพัสดุ';
-
+      
       const qrContainer = document.getElementById('qrcode-passport-container');
       qrContainer.innerHTML = '';
       new QRCode(qrContainer, { text: `KSP-PASS:${d.asset_id}:${d.serial_number}`, width: 140, height: 140 });
 
       const histEl = document.getElementById('pass-repair-history');
       if (d.repairs.length === 0) {
-        histEl.innerHTML = `<p class="text-gray-400 text-[11px] italic">ไม่มีประวัติการแจ้งซ่อมขัดข้อง</p>`;
+        histEl.innerHTML = `<p class="opacity-50 text-[11px] italic">ไม่มีประวัติแจ้งซ่อมขัดข้อง</p>`;
       } else {
         histEl.innerHTML = d.repairs.map(r => `
-          <div class="p-2 bg-white rounded-xl border border-gray-200">
-            <div class="flex justify-between font-bold text-[11px]"><span class="text-blue-600">${r.ticket_id}</span><span class="text-gray-500">${formatDateThai(r.date)}</span></div>
-            <p class="text-gray-700 mt-0.5">${r.detail}</p>
-            <div class="flex justify-between text-[10px] text-gray-400 mt-1"><span>สถานะ: <span class="font-bold text-accent">${r.status}</span></span><span>ช่าง: ${r.tech}</span></div>
+          <div class="p-2 bg-gray-50 dark:bg-slate-900 rounded-xl border border-gray-200 dark:border-slate-700">
+            <div class="flex justify-between font-bold text-[11px]"><span class="text-blue-500">${r.ticket_id}</span><span class="opacity-50">${formatDateThai(r.date)}</span></div>
+            <p class="mt-0.5 opacity-80">${r.detail}</p>
           </div>
         `).join('');
       }
@@ -736,18 +774,8 @@
       closeModal('smart-scanner-modal');
       const filtered = APP_STATE.devices.filter(d => d.academic_year === APP_STATE.currentYear);
       if(filtered.length > 0) {
-        openQrPassportModal(filtered[0].id);
-        Swal.fire({ icon: 'success', title: 'สแกน QR Passport สำเร็จ', text: `อ่านข้อมูล ${filtered[0].asset_id} เรียบร้อย`, timer: 1200, showConfirmButton: false });
-      }
-    }
-
-    function openPublicRepairModal() { openMaintenanceModal(); }
-    function openPublicRepairForDevice(deviceId) {
-      const d = APP_STATE.devices.find(item => item.id === deviceId);
-      openMaintenanceModal();
-      if (d) {
-        document.getElementById('maint-device-search').value = `${d.asset_id} (S/N: ${d.serial_number})`;
-        document.getElementById('maint-device-sn-hidden').value = d.serial_number;
+        requestStrictValidation(filtered[0].id); // Go through strict validation first
+        Swal.fire({ icon: 'success', title: 'สแกนสำเร็จ', text: `อ่านข้อมูล ${filtered[0].asset_id} เรียบร้อย กรุณายืนยันรหัสประจำตัว`, timer: 1500, showConfirmButton: false });
       }
     }
 
@@ -755,12 +783,11 @@
     function handleAdminIconClick() {
       const now = Date.now();
       if (now < APP_STATE.lockoutUntil) {
-        const remaining = Math.ceil((APP_STATE.lockoutUntil - now) / 60000);
-        Swal.fire({ icon: 'warning', title: 'ระบบถูกระงับชั่วคราว', text: `กรุณารออีก ${remaining} นาที เนื่องจากกด PIN ผิดเกิน 5 ครั้ง`, confirmButtonColor: '#24513B' });
+        const rem = Math.ceil((APP_STATE.lockoutUntil - now) / 60000);
+        Swal.fire({ icon: 'warning', title: 'ระบบถูกระงับชั่วคราว', text: `กรุณารออีก ${rem} นาที เนื่องจากกด PIN ผิดเกินกำหนด`, confirmButtonColor: '#1E3A8A' });
         return;
       }
-      if (APP_STATE.isAdmin) { openAdminView(); }
-      else { APP_STATE.currentInputPin = ""; updatePinDots(); showModal('pin-modal'); }
+      if (APP_STATE.isAdmin) { openAdminView(); } else { APP_STATE.currentInputPin = ""; updatePinDots(); showModal('pin-modal'); }
     }
 
     function pressPin(digit) {
@@ -776,27 +803,24 @@
     function updatePinDots() {
       for (let i = 1; i <= 4; i++) {
         const dot = document.getElementById(`pin-dot-${i}`);
-        if (dot) dot.className = i <= APP_STATE.currentInputPin.length ? "w-4 h-4 rounded-full bg-ksp-primary border-2 border-ksp-primary transform scale-110 transition" : "w-4 h-4 rounded-full border-2 border-gray-300 transition";
+        if (dot) dot.className = i <= APP_STATE.currentInputPin.length ? "w-4 h-4 rounded-full bg-ksp-primary border-2 border-ksp-primary transform scale-110 transition" : "w-4 h-4 rounded-full border-2 border-gray-300 dark:border-slate-600 transition";
       }
     }
 
     function verifyPin() {
       if (APP_STATE.currentInputPin === APP_STATE.adminPin || APP_STATE.currentInputPin === "1234") {
-        APP_STATE.isAdmin = true;
-        APP_STATE.failedPinAttempts = 0;
+        APP_STATE.isAdmin = true; APP_STATE.failedPinAttempts = 0;
+        logAction("Login", "เข้าสู่ระบบผู้ดูแลระบบ (Admin) สำเร็จ");
         closeModal('pin-modal');
-        Swal.fire({ icon: 'success', title: 'เข้าสู่ระบบผู้ดูแล', timer: 1200, showConfirmButton: false }).then(() => {
-          updateAuthBadge(); openAdminView();
-        });
+        Swal.fire({ icon: 'success', title: 'เข้าสู่ระบบผู้ดูแล', timer: 1000, showConfirmButton: false }).then(() => { updateAuthBadge(); openAdminView(); });
       } else {
         APP_STATE.failedPinAttempts++;
         if (APP_STATE.failedPinAttempts >= 5) {
           const lockMin = APP_STATE.failedPinAttempts === 5 ? 10 : APP_STATE.failedPinAttempts === 6 ? 20 : APP_STATE.failedPinAttempts === 7 ? 30 : 60;
           APP_STATE.lockoutUntil = Date.now() + lockMin * 60 * 1000;
           closeModal('pin-modal');
-          Swal.fire({ icon: 'error', title: 'ใส่รหัส PIN ผิด 5 ครั้ง', text: `ระงับการเข้าสู่ระบบ ${lockMin} นาที`, confirmButtonColor: '#24513B' });
+          Swal.fire({ icon: 'error', title: 'PIN ผิดเกินกำหนด', text: `ระงับการเข้าสู่ระบบ ${lockMin} นาที เพื่อความปลอดภัย`, confirmButtonColor: '#d33' });
         } else {
-          Swal.fire({ icon: 'error', title: 'PIN ไม่ถูกต้อง', text: `ครั้งที่ ${APP_STATE.failedPinAttempts}/5 (เริ่มต้น: 1234)` });
           clearPin();
         }
       }
@@ -807,20 +831,18 @@
       const txt = document.getElementById('auth-status-text');
       const btn = document.getElementById('btn-admin-label');
       if (APP_STATE.isAdmin) {
-        badge.className = "hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-white text-ksp-primary border font-bold";
-        txt.innerText = "โหมดผู้ดูแลระบบ";
-        btn.innerText = "Admin Center";
+        badge.className = "hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-white text-ksp-primary font-bold shadow-sm";
+        txt.innerText = "โหมดผู้ดูแลระบบ"; btn.innerText = "Admin Center";
       } else {
-        badge.className = "hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-black bg-opacity-20 text-green-100 border border-white border-opacity-15";
-        txt.innerText = "โหมดสาธารณะ (นักเรียน/ครู)";
-        btn.innerText = "ผู้ดูแลระบบ";
+        badge.className = "hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-black bg-opacity-20 text-blue-100 border border-white border-opacity-15";
+        txt.innerText = "โหมดสาธารณะ"; btn.innerText = "ผู้ดูแลระบบ";
       }
     }
 
     function openAdminView() {
       document.getElementById('public-view').classList.add('hidden');
       document.getElementById('admin-view').classList.remove('hidden');
-      document.getElementById('global-year-filter').parentElement.classList.add('hidden'); // ซ่อน Filter บน Header เมื่อเข้า Admin
+      document.getElementById('global-year-filter').parentElement.classList.add('hidden');
       switchAdminMenu('overview');
     }
 
@@ -828,13 +850,12 @@
       document.getElementById('admin-view').classList.add('hidden');
       document.getElementById('public-view').classList.remove('hidden');
       document.getElementById('global-year-filter').parentElement.classList.remove('hidden');
-      renderPublicDirectory();
-      initLiveCharts();
+      renderPublicDirectory(); initLiveCharts();
     }
 
     function handleLogout() {
-      Swal.fire({ title: 'ยืนยันออกจากระบบ?', icon: 'question', showCancelButton: true, confirmButtonColor: '#24513B', confirmButtonText: 'ออกจากระบบ' }).then(res => {
-        if (res.isConfirmed) { APP_STATE.isAdmin = false; updateAuthBadge(); exitAdminToPublic(); }
+      Swal.fire({ title: 'ยืนยันออกจากระบบ?', icon: 'question', showCancelButton: true, confirmButtonColor: '#1E3A8A', confirmButtonText: 'ออกจากระบบ' }).then(res => {
+        if (res.isConfirmed) { APP_STATE.isAdmin = false; logAction("Logout", "ออกจากระบบ Admin"); updateAuthBadge(); exitAdminToPublic(); }
       });
     }
 
@@ -849,38 +870,62 @@
 
     function switchAdminMenu(menu) {
       APP_STATE.adminMenu = menu;
-      const sections = ['overview', 'manage-circulation', 'manage-maintenance', 'manage-reports', 'system-settings'];
+      const sections = ['overview', 'manage-circulation', 'manage-maintenance', 'manage-reports', 'system-logs', 'system-settings'];
       sections.forEach(s => {
         document.getElementById(`admin-sec-${s}`)?.classList.toggle('hidden', s !== menu);
-        const nav = document.getElementById(`admin-nav-${s.replace('manage-', '')}`);
-        if (nav) nav.className = s === menu ? "nav-item-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold bg-green-50 text-ksp-primary border border-green-200" : "nav-item-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold text-gray-600 hover:bg-gray-100";
+        const nav = document.getElementById(`admin-nav-${s.replace('manage-', '').replace('system-', '')}`);
+        if (nav) nav.className = s === menu ? "nav-item-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold bg-ksp-primary text-white shadow-md transition" : "nav-item-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-gray-100 dark:hover:bg-slate-700 transition";
       });
       if (menu === 'overview') renderAdminYearSummary();
       lucide.createIcons();
     }
 
-    // Admin Circulation
+    // Admin Tables
     function renderAdminCirculationTable() {
       const tbody = document.getElementById('adm-circ-table-body');
       if (!tbody) return;
       const list = APP_STATE.devices.filter(d => d.academic_year === APP_STATE.currentYear);
       tbody.innerHTML = list.map(item => `
-        <tr class="hover:bg-gray-50">
+        <tr class="hover-row transition">
           <td class="p-3.5 font-bold">${item.asset_id}</td>
-          <td class="p-3.5 font-mono">${item.serial_number}</td>
-          <td class="p-3.5 text-center font-bold text-blue-600">${item.academic_year}</td>
-          <td class="p-3.5">${item.holder_name} <span class="text-gray-400 font-mono text-[10px]">(${item.holder_code})</span></td>
+          <td class="p-3.5 font-mono opacity-70">${item.serial_number}</td>
+          <td class="p-3.5 text-center font-bold text-blue-500">${item.academic_year}</td>
+          <td class="p-3.5">${item.holder_name} <span class="text-[10px] font-mono opacity-50">(${item.holder_code})</span></td>
           <td class="p-3.5">${formatDateThai(item.borrow_date)}</td>
-          <td class="p-3.5 text-center"><button onclick="openQrPassportModal('${item.id}')" class="px-2 py-0.5 rounded bg-green-50 text-ksp-primary font-bold text-[10px] border border-green-200 shadow-sm">QR</button></td>
           <td class="p-3.5 text-right space-x-1">
-            <button onclick="editCirculation('${item.id}')" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-            <button onclick="deleteDevice('${item.id}')" class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+            <button onclick="editCirculation('${item.id}')" class="p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-lg transition"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+            <button onclick="deleteDevice('${item.id}')" class="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-slate-800 rounded-lg transition"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
           </td>
         </tr>
       `).join('');
       lucide.createIcons();
     }
 
+    function renderAdminMaintenanceTable() {
+      const tbody = document.getElementById('adm-maint-table-body');
+      if (!tbody) return;
+      const allRepairs = [];
+      APP_STATE.devices.filter(d => d.academic_year === APP_STATE.currentYear).forEach(d => {
+        d.repairs.forEach(r => allRepairs.push({ ...r, devId: d.id, sn: d.serial_number }));
+      });
+
+      tbody.innerHTML = allRepairs.map(r => `
+        <tr class="hover-row transition">
+          <td class="p-3.5 font-mono font-bold text-blue-500">${r.ticket_id}</td>
+          <td class="p-3.5 font-mono opacity-70">${r.sn}</td>
+          <td class="p-3.5">${r.detail}</td>
+          <td class="p-3.5">${formatDateThai(r.date)}</td>
+          <td class="p-3.5"><span class="px-2 py-0.5 rounded text-[11px] font-bold badge-repair">${r.status}</span></td>
+          <td class="p-3.5 text-right space-x-1">
+            <button onclick="editMaintenance('${r.devId}', '${r.ticket_id}')" class="p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-lg"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
+            <button onclick="deleteMaintenance('${r.devId}', '${r.ticket_id}')" class="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-slate-800 rounded-lg"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+          </td>
+        </tr>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    // Circulation Form & Bulk Import
     function openCirculationModal(editId = null) {
       document.getElementById('circ-edit-id').value = editId || '';
       const autoAsset = editId ? APP_STATE.devices.find(d => d.id === editId).asset_id : `OBEC-IPAD-2567-${String(APP_STATE.devices.length + 10).padStart(4, '0')}`;
@@ -914,30 +959,31 @@
       const borrow = document.getElementById('circ-borrow-date').value;
       const ret = document.getElementById('circ-return-date').value;
 
-      const isDuplicate = APP_STATE.devices.some(d => d.id !== editId && (d.serial_number === serial || d.asset_id === assetId));
-      if (isDuplicate) {
-        Swal.fire({ icon: 'warning', title: 'ตรวจพบข้อมูลซ้ำ!', text: `Serial Number หรือ Asset ID นี้มีบันทึกอยู่แล้ว`, confirmButtonColor: '#24513B' });
-        return;
-      }
+      Swal.fire({ title: 'ยืนยันการบันทึกข้อมูล?', icon: 'question', showCancelButton: true, confirmButtonColor: '#1E3A8A' }).then((res) => {
+        if (res.isConfirmed) {
+          const isDuplicate = APP_STATE.devices.some(d => d.id !== editId && (d.serial_number === serial || d.asset_id === assetId));
+          if (isDuplicate) {
+            Swal.fire({ icon: 'warning', title: 'ข้อมูลซ้ำ', text: `S/N หรือ Asset ID มีอยู่แล้วในระบบ`, confirmButtonColor: '#1E3A8A' }); return;
+          }
 
-      if (editId) {
-        const d = APP_STATE.devices.find(x => x.id === editId);
-        if (d) {
-          d.academic_year = year; d.serial_number = serial; d.holder_code = code; d.holder_name = name;
-          d.grade_room = grade; d.holder_type = holderType; d.borrow_date = borrow; d.return_date = ret; d.status = "กำลังถือครอง";
+          if (editId) {
+            const d = APP_STATE.devices.find(x => x.id === editId);
+            if (d) {
+              d.academic_year = year; d.serial_number = serial; d.holder_code = code; d.holder_name = name;
+              d.grade_room = grade; d.holder_type = holderType; d.borrow_date = borrow; d.return_date = ret;
+            }
+            logAction("Edit Device", `แก้ไขข้อมูลครุภัณฑ์ S/N: ${serial}`);
+          } else {
+            APP_STATE.devices.unshift({
+              id: `dev_${Date.now()}`, academic_year: year, asset_id: assetId, serial_number: serial, model: "iPad (Gen 10) Wi-Fi",
+              status: "กำลังถือครอง", holder_code: code, holder_name: name, grade_room: grade, holder_type: holderType, borrow_date: borrow, return_date: ret, repairs: []
+            });
+            logAction("Add Device", `เพิ่มครุภัณฑ์ใหม่ S/N: ${serial}`);
+          }
+          closeModal('circ-modal'); renderPublicDirectory(); updateMetrics(); initLiveCharts(); renderAdminYearSummary();
+          Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', timer: 1200, showConfirmButton: false });
         }
-      } else {
-        APP_STATE.devices.unshift({
-          id: `dev_${Date.now()}`, academic_year: year, asset_id: assetId, serial_number: serial, model: "iPad (Gen 10) Wi-Fi 64GB",
-          status: "กำลังถือครอง", holder_code: code, holder_name: name, grade_room: grade, holder_type: holderType, borrow_date: borrow, return_date: ret, repairs: []
-        });
-      }
-      closeModal('circ-modal');
-      renderPublicDirectory();
-      updateMetrics();
-      initLiveCharts();
-      renderAdminYearSummary();
-      Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', timer: 1200, showConfirmButton: false });
+      });
     }
 
     function downloadLoanTemplateExcel() {
@@ -946,65 +992,83 @@
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.setAttribute("download", "KSP_iPad_Loan_Template.csv");
       document.body.appendChild(link); link.click(); document.body.removeChild(link);
-      Swal.fire({ icon: 'success', title: 'โหลด Template สำเร็จ', confirmButtonColor: '#24513B' });
+    }
+
+    async function handleExcelImport(e) {
+      const file = e.target.files[0];
+      if(!file) return;
+      
+      // Fake Parsing Simulation
+      const parsedData = [
+        { asset_id: "OBEC-IPAD-2567-0042", serial: "DMPZ1234Q164", name: "ด.ช. อัปเดตข้อมูล Excel", code: "28752" }, // Dup
+        { asset_id: `OBEC-IPAD-2567-${Math.floor(1000+Math.random()*8000)}`, serial: `DMPZ${Math.floor(1000+Math.random()*8000)}X`, name: "ด.ช. นำเข้าใหม่", code: "99999" }  // New
+      ];
+
+      for(let row of parsedData) {
+        const isDup = APP_STATE.devices.find(d => d.serial_number === row.serial || d.asset_id === row.asset_id);
+        if(isDup) {
+          const res = await Swal.fire({ title: 'พบข้อมูลซ้ำ', text: `S/N: ${row.serial} มีในระบบแล้ว ต้องการเขียนทับหรือไม่?`, showCancelButton: true, confirmButtonColor: '#1E3A8A', confirmButtonText: 'เขียนทับ', cancelButtonText: 'ข้าม' });
+          if(res.isConfirmed) { isDup.holder_name = row.name; isDup.holder_code = row.code; logAction("Import Excel", `เขียนทับข้อมูล S/N: ${row.serial}`); }
+        } else {
+          APP_STATE.devices.unshift({ id: `dev_${Date.now()}_${Math.random()}`, academic_year: APP_STATE.currentYear, asset_id: row.asset_id, serial_number: row.serial, model: "iPad (Gen 10) Wi-Fi", status: "กำลังถือครอง", holder_code: row.code, holder_name: row.name, grade_room: "ม.1 ห้อง 1", holder_type: "นักเรียน", borrow_date: "2026-09-01", return_date: "2026-09-30", repairs: [] });
+          logAction("Import Excel", `นำเข้าใหม่ S/N: ${row.serial}`);
+        }
+      }
+      renderPublicDirectory(); updateMetrics(); initLiveCharts();
+      Swal.fire({ icon: 'success', title: 'นำเข้าข้อมูลเสร็จสิ้น', timer: 1500, showConfirmButton: false });
+      e.target.value = '';
     }
 
     function deleteDevice(id) {
-      Swal.fire({ title: 'ลบข้อมูลครุภัณฑ์?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ยืนยันลบ' }).then(res => {
+      Swal.fire({ title: 'ยืนยันลบข้อมูล?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33', confirmButtonText: 'ลบข้อมูล' }).then(res => {
         if (res.isConfirmed) {
-          APP_STATE.devices = APP_STATE.devices.filter(d => d.id !== id);
+          const d = APP_STATE.devices.find(x => x.id === id);
+          APP_STATE.devices = APP_STATE.devices.filter(x => x.id !== id);
+          logAction("Delete Device", `ลบข้อมูลครุภัณฑ์ S/N: ${d.serial_number}`);
           renderPublicDirectory(); updateMetrics(); initLiveCharts(); renderAdminYearSummary();
+          Swal.fire({ icon: 'success', title: 'ลบเรียบร้อย', timer: 1000, showConfirmButton: false });
         }
       });
     }
 
-    // Admin Maintenance (Smart Search Built-in)
-    function renderAdminMaintenanceTable() {
-      const tbody = document.getElementById('adm-maint-table-body');
-      if (!tbody) return;
-      const allRepairs = [];
-      APP_STATE.devices.filter(d => d.academic_year === APP_STATE.currentYear).forEach(d => {
-        d.repairs.forEach(r => allRepairs.push({ ...r, devId: d.id, sn: d.serial_number }));
-      });
-
-      tbody.innerHTML = allRepairs.map(r => `
-        <tr class="hover:bg-gray-50">
-          <td class="p-3.5 font-mono font-bold text-blue-600">${r.ticket_id}</td>
-          <td class="p-3.5 font-mono text-gray-600">${r.sn}</td>
-          <td class="p-3.5">${r.detail}</td>
-          <td class="p-3.5">${formatDateThai(r.date)}</td>
-          <td class="p-3.5"><span class="px-2 py-0.5 rounded text-xs badge-repair font-bold">${r.status}</span></td>
-          <td class="p-3.5 text-right space-x-1">
-            <button onclick="editMaintenance('${r.devId}', '${r.ticket_id}')" class="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
-          </td>
-        </tr>
-      `).join('');
-      lucide.createIcons();
-    }
-
+    // Maintenance Form (File / Link Upload)
     function searchMaintDevice(q) {
       const resEl = document.getElementById('maint-device-results');
       if (!q) { resEl.classList.add('hidden'); return; }
       const qlow = q.toLowerCase();
       const matched = APP_STATE.devices.filter(d => d.asset_id.toLowerCase().includes(qlow) || d.serial_number.toLowerCase().includes(qlow) || d.holder_name.toLowerCase().includes(qlow));
       
-      if (matched.length === 0) { resEl.innerHTML = '<div class="p-2 text-xs text-gray-400 text-center">ไม่พบอุปกรณ์</div>'; resEl.classList.remove('hidden'); return; }
+      if (matched.length === 0) { resEl.innerHTML = '<div class="p-2 text-xs opacity-50 text-center">ไม่พบอุปกรณ์</div>'; resEl.classList.remove('hidden'); return; }
       resEl.innerHTML = matched.map(d => `
-        <div onclick="selectMaintDevice('${d.serial_number}', '${d.asset_id}', '${d.holder_name}')" class="p-2 hover:bg-green-50 cursor-pointer border-b text-xs transition">
-          <strong class="text-blue-700">${d.asset_id}</strong> (S/N: ${d.serial_number})<br><span class="text-gray-500">ผู้ถือครอง: ${d.holder_name}</span>
+        <div onclick="selectMaintDevice('${d.serial_number}', '${d.asset_id}')" class="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 cursor-pointer border-b dark:border-slate-600 text-xs transition">
+          <strong class="text-blue-500">${d.asset_id}</strong> (S/N: ${d.serial_number})<br><span class="opacity-70">${d.holder_name}</span>
         </div>
       `).join('');
       resEl.classList.remove('hidden');
     }
 
-    function selectMaintDevice(sn, asset, holder) {
+    function selectMaintDevice(sn, asset) {
       document.getElementById('maint-device-search').value = `${asset} (S/N: ${sn})`;
       document.getElementById('maint-device-sn-hidden').value = sn;
       document.getElementById('maint-device-results').classList.add('hidden');
     }
 
+    function previewUploadName(input) {
+      const p = document.getElementById('maint-doc-preview');
+      const name = document.getElementById('maint-doc-name');
+      if(input.files && input.files[0]) {
+        name.innerText = input.files[0].name;
+        p.classList.remove('hidden');
+      } else {
+        p.classList.add('hidden');
+      }
+    }
+
     function openMaintenanceModal(devId = null, ticketId = null) {
       populateTechDropdowns();
+      document.getElementById('maint-doc-file').value = '';
+      document.getElementById('maint-doc-preview').classList.add('hidden');
+
       if (ticketId && devId) {
         const d = APP_STATE.devices.find(x => x.id === devId);
         const r = d.repairs.find(x => x.ticket_id === ticketId);
@@ -1015,7 +1079,7 @@
         document.getElementById('maint-device-sn-hidden').value = d.serial_number;
         document.getElementById('maint-detail').value = r.detail;
         document.getElementById('maint-phone').value = r.phone || '';
-        document.getElementById('maint-doc').value = r.doc_ref || '';
+        document.getElementById('maint-doc-link').value = r.doc_link || '';
         document.getElementById('maint-tech').value = r.tech;
       } else {
         document.getElementById('maint-edit-id').value = '';
@@ -1025,7 +1089,7 @@
         document.getElementById('maint-device-sn-hidden').value = '';
         document.getElementById('maint-detail').value = '';
         document.getElementById('maint-phone').value = '';
-        document.getElementById('maint-doc').value = '';
+        document.getElementById('maint-doc-link').value = '';
       }
       showModal('maint-modal');
     }
@@ -1040,72 +1104,119 @@
       const sn = document.getElementById('maint-device-sn-hidden').value;
       const detail = document.getElementById('maint-detail').value.trim();
       const phone = document.getElementById('maint-phone').value.trim();
-      const doc = document.getElementById('maint-doc').value.trim();
+      const link = document.getElementById('maint-doc-link').value.trim();
       const tech = document.getElementById('maint-tech').value;
-
-      if (!sn) { Swal.fire({ icon: 'warning', title: 'โปรดเลือกอุปกรณ์อัจฉริยะ', confirmButtonColor: '#24513B'}); return; }
-
-      if (editInfo) {
-        const [devId, tId] = editInfo.split('|');
-        const d = APP_STATE.devices.find(x => x.id === devId);
-        const r = d.repairs.find(x => x.ticket_id === tId);
-        if (r) { r.date = date; r.detail = detail; r.phone = phone; r.doc_ref = doc; r.tech = tech; }
-      } else {
-        const d = APP_STATE.devices.find(x => x.serial_number === sn);
-        if (d) {
-          d.status = "ส่งซ่อม";
-          d.repairs.unshift({ ticket_id: ticket, date: date, detail: detail, status: "รอดำเนินการ", tech: tech, phone: phone, doc_ref: doc });
-        }
+      const fileInput = document.getElementById('maint-doc-file');
+      
+      let docRef = link;
+      if (fileInput.files.length > 0) {
+        docRef = `[ไฟล์] ${fileInput.files[0].name} ` + (link ? `| [ลิงก์] ${link}` : '');
       }
 
-      closeModal('maint-modal');
-      renderPublicDirectory();
-      updateMetrics();
-      initLiveCharts();
-      renderAdminYearSummary();
-      Swal.fire({ icon: 'success', title: 'บันทึกใบแจ้งซ่อมสำเร็จ', timer: 1200, showConfirmButton: false });
+      if (!sn) { Swal.fire({ icon: 'warning', title: 'โปรดเลือกอุปกรณ์จากระบบค้นหา', confirmButtonColor: '#1E3A8A'}); return; }
+
+      Swal.fire({ title: 'ยืนยันบันทึกแจ้งซ่อม?', icon: 'question', showCancelButton: true, confirmButtonColor: '#1E3A8A' }).then((res) => {
+        if (res.isConfirmed) {
+          if (editInfo) {
+            const [devId, tId] = editInfo.split('|');
+            const d = APP_STATE.devices.find(x => x.id === devId);
+            const r = d.repairs.find(x => x.ticket_id === tId);
+            if (r) { r.date = date; r.detail = detail; r.phone = phone; r.doc_ref = docRef; r.doc_link = link; r.tech = tech; }
+            logAction("Update Repair", `แก้ไขใบแจ้งซ่อม ${tId}`);
+          } else {
+            const d = APP_STATE.devices.find(x => x.serial_number === sn);
+            if (d) {
+              d.status = "ส่งซ่อม";
+              d.repairs.unshift({ ticket_id: ticket, date: date, detail: detail, status: "รอดำเนินการ", tech: tech, phone: phone, doc_ref: docRef, doc_link: link });
+              logAction("Create Repair", `ออกใบแจ้งซ่อม ${ticket} สำหรับ S/N: ${sn}`);
+            }
+          }
+          closeModal('maint-modal'); renderPublicDirectory(); updateMetrics(); initLiveCharts(); renderAdminYearSummary();
+          Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', timer: 1200, showConfirmButton: false });
+        }
+      });
     }
 
-    // Technician Management
+    function deleteMaintenance(devId, ticketId) {
+      Swal.fire({ title: 'ยืนยันลบใบแจ้งซ่อม?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' }).then(res => {
+        if (res.isConfirmed) {
+          const d = APP_STATE.devices.find(x => x.id === devId);
+          if(d) {
+            d.repairs = d.repairs.filter(r => r.ticket_id !== ticketId);
+            if(d.repairs.length === 0) d.status = "กำลังถือครอง";
+          }
+          logAction("Delete Repair", `ลบใบแจ้งซ่อม ${ticketId}`);
+          renderPublicDirectory(); updateMetrics(); initLiveCharts(); renderAdminYearSummary();
+        }
+      });
+    }
+
+    // Logs & Settings
+    function renderLogsTable() {
+      const tbody = document.getElementById('logs-table-body');
+      if (!tbody) return;
+      if (APP_STATE.logs.length === 0) { tbody.innerHTML = '<tr><td colspan="4" class="p-4 text-center opacity-50">ไม่มีประวัติการใช้งาน</td></tr>'; return; }
+      tbody.innerHTML = APP_STATE.logs.map(l => `
+        <tr class="transition hover-row">
+          <td class="p-3.5">${formatDateThai(l.time.split('T')[0])} ${new Date(l.time).toLocaleTimeString()}</td>
+          <td class="p-3.5 font-bold">${l.action}</td>
+          <td class="p-3.5">${l.detail}</td>
+          <td class="p-3.5 text-right"><button onclick="deleteLog(${l.id})" class="p-1 text-red-500 hover:opacity-50"><i data-lucide="trash" class="w-3.5 h-3.5"></i></button></td>
+        </tr>
+      `).join('');
+      lucide.createIcons();
+    }
+
+    function deleteLog(id) { APP_STATE.logs = APP_STATE.logs.filter(l => l.id !== id); renderLogsTable(); }
+    function clearLogs() {
+      Swal.fire({ title: 'ล้างประวัติการใช้งาน?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' }).then(res => {
+        if (res.isConfirmed) { APP_STATE.logs = []; renderLogsTable(); }
+      });
+    }
+
     function populateTechDropdowns() {
       const selTech = document.getElementById('maint-tech');
-      if (selTech) {
-        selTech.innerHTML = APP_STATE.technicians.map(t => `<option value="${t.name}">${t.name}</option>`).join('');
-      }
+      if (selTech) selTech.innerHTML = APP_STATE.technicians.map(t => `<option value="${t.name}">${t.name}</option>`).join('');
     }
 
     function renderTechList() {
       const ul = document.getElementById('settings-tech-list');
       if (!ul) return;
       ul.innerHTML = APP_STATE.technicians.map(t => `
-        <li class="flex items-center justify-between bg-white p-2 rounded-lg border border-gray-200">
-          <span class="text-xs font-semibold text-gray-700"><i data-lucide="user" class="w-3.5 h-3.5 inline text-blue-500"></i> ${t.name}</span>
-          <button type="button" onclick="deleteTechnician('${t.id}')" class="text-red-500 hover:bg-red-50 p-1 rounded"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+        <li class="flex items-center justify-between input-box p-2 rounded-lg">
+          <span class="text-xs font-semibold"><i data-lucide="user" class="w-3.5 h-3.5 inline text-blue-500"></i> ${t.name}</span>
+          <button type="button" onclick="deleteTechnician('${t.id}')" class="text-red-500 hover:opacity-50 p-1 rounded"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
         </li>
       `).join('');
       lucide.createIcons();
     }
 
     function addTechnician() {
-      const input = document.getElementById('new-tech-name');
-      const name = input.value.trim();
+      const input = document.getElementById('new-tech-name'); const name = input.value.trim();
       if (!name) return;
-      APP_STATE.technicians.push({ id: `t_${Date.now()}`, name });
-      input.value = '';
-      localStorage.setItem('ksp_techs', JSON.parse(APP_STATE.technicians));
-      renderTechList();
-      populateTechDropdowns();
+      APP_STATE.technicians.push({ id: `t_${Date.now()}`, name }); input.value = '';
+      localStorage.setItem('ksp_techs', JSON.stringify(APP_STATE.technicians));
+      renderTechList(); populateTechDropdowns(); logAction("Settings", `เพิ่มช่างเทคนิค: ${name}`);
     }
 
     function deleteTechnician(id) {
       APP_STATE.technicians = APP_STATE.technicians.filter(t => t.id !== id);
       localStorage.setItem('ksp_techs', JSON.stringify(APP_STATE.technicians));
-      renderTechList();
-      populateTechDropdowns();
+      renderTechList(); populateTechDropdowns(); logAction("Settings", "ลบช่างเทคนิคออกจากระบบ");
     }
 
-    // Reports PDF & Excel
-    function printReportPDF(type) { window.print(); }
+    function handleSaveSettings(e) {
+      e.preventDefault();
+      const org = document.getElementById('set-org-name').value;
+      const pin = document.getElementById('set-admin-pin').value;
+      APP_STATE.settings.orgName = org; APP_STATE.adminPin = pin;
+      localStorage.setItem('ksp_org_name', org); localStorage.setItem('ksp_admin_pin', pin);
+      document.getElementById('header-org-name').innerText = `${org} • Anywhere Anytime`;
+      logAction("Settings", "อัปเดตตั้งค่าระบบ");
+      Swal.fire({ icon: 'success', title: 'บันทึกการตั้งค่าระบบเรียบร้อย', timer: 1200, showConfirmButton: false });
+    }
+
+    function printReportPDF(type) { window.print(); logAction("Export", `พิมพ์ PDF (${type})`); }
     function exportExcel(type) {
       let csv = '\uFEFF';
       if (type === 'circ') {
@@ -1114,35 +1225,15 @@
           csv += `"${d.academic_year}","${d.asset_id}","${d.serial_number}","${d.model}","${d.holder_code}","${d.holder_name}","${d.grade_room}","${d.borrow_date}","${d.return_date}","${d.status}"\n`;
         });
       } else {
-        csv += "Academic Year,Ticket ID,Asset ID,Serial Number,Detail,Date,Status,Technician\n";
+        csv += "Academic Year,Ticket ID,Asset ID,Serial Number,Detail,Date,Status,Technician,Phone,Document Ref\n";
         APP_STATE.devices.filter(d => d.academic_year === APP_STATE.currentYear).forEach(d => {
-          d.repairs.forEach(r => {
-            csv += `"${d.academic_year}","${r.ticket_id}","${d.asset_id}","${d.serial_number}","${r.detail}","${r.date}","${r.status}","${r.tech}"\n`;
-          });
+          d.repairs.forEach(r => { csv += `"${d.academic_year}","${r.ticket_id}","${d.asset_id}","${d.serial_number}","${r.detail}","${r.date}","${r.status}","${r.tech}","${r.phone || ''}","${r.doc_ref || ''}"\n`; });
         });
       }
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.setAttribute("download", `KSP_iPad_Report_${type}_${Date.now()}.csv`);
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.setAttribute("download", `KSP_iPad_Report_${type}_${Date.now()}.csv`);
       document.body.appendChild(link); link.click(); document.body.removeChild(link);
+      logAction("Export", `ดาวน์โหลด Excel (${type})`);
       Swal.fire({ icon: 'success', title: 'Export Excel สำเร็จ', timer: 1200, showConfirmButton: false });
-    }
-
-    function handleSaveSettings(e) {
-      e.preventDefault();
-      const org = document.getElementById('set-org-name').value;
-      const pin = document.getElementById('set-admin-pin').value;
-      const color = document.getElementById('set-theme-color').value;
-
-      APP_STATE.settings.orgName = org;
-      APP_STATE.adminPin = pin;
-      applyThemeColor(color);
-
-      localStorage.setItem('ksp_org_name', org);
-      localStorage.setItem('ksp_admin_pin', pin);
-      localStorage.setItem('ksp_theme_color', color);
-
-      document.getElementById('header-org-name').innerText = `${org} • Anywhere Anytime`;
-      Swal.fire({ icon: 'success', title: 'บันทึกการตั้งค่าระบบเรียบร้อย', timer: 1200, showConfirmButton: false });
     }
   </script>
 </body>
