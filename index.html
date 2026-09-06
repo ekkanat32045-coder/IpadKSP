@@ -41,7 +41,7 @@
 
     /* Dark Mode */
     html.dark body { background-color: var(--bg-canvas-dark); color: #F8FAFC; }
-    html.dark .glass-panel { background-color: #1E3A8A; border: 1px solid #334155; }
+    html.dark .glass-panel { background-color: #1E293B; border: 1px solid #334155; }
     html.dark .input-box { background-color: #0F172A; border: 1px solid #475569; color: #F8FAFC; }
     html.dark .th-bg { background-color: #0F172A; color: #94A3B8; border-bottom: 1px solid #334155; }
     html.dark tr.hover-row:hover { background-color: #334155; }
@@ -584,28 +584,28 @@
           <select id="circ-academic-year" class="bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 text-xs px-2 py-1.5 rounded-lg font-bold focus:outline-none"></select>
         </div>
 
-        <div><label class="block text-xs font-semibold mb-1">Serial Number (S/N) 10 หลัก (อักษรพิมพ์ใหญ่ + ตัวเลข)</label><input type="text" id="circ-serial" placeholder="เช่น DMPZ1234Q1" class="w-full px-3 py-2 text-xs rounded-xl font-mono uppercase input-box" required /></div>
+        <div><label class="block text-xs font-semibold mb-1">Serial Number (S/N) 10 หลัก (อักษรพิมพ์ใหญ่ + ตัวเลข) <span class="text-red-500">*</span></label><input type="text" id="circ-serial" placeholder="เช่น DMPZ1234Q1" class="w-full px-3 py-2 text-xs rounded-xl font-mono uppercase input-box" /></div>
         <div class="grid grid-cols-2 gap-3">
-          <div><label class="block text-xs font-semibold mb-1">รหัสประจำตัวนักเรียน</label><input type="text" id="circ-code" placeholder="เช่น 28752" class="w-full px-3 py-2 text-xs rounded-xl font-mono input-box" required /></div>
-          <div><label class="block text-xs font-semibold mb-1">ชื่อ - นามสกุล ผู้ถือครอง</label><input type="text" id="circ-holder-name" placeholder="เด็กชาย..." class="w-full px-3 py-2 text-xs rounded-xl input-box" required /></div>
+          <div><label class="block text-xs font-semibold mb-1">รหัสประจำตัวนักเรียน <span class="text-red-500">*</span></label><input type="text" id="circ-code" placeholder="เช่น 28752" class="w-full px-3 py-2 text-xs rounded-xl font-mono input-box" /></div>
+          <div><label class="block text-xs font-semibold mb-1">ชื่อ - นามสกุล ผู้ถือครอง <span class="text-red-500">*</span></label><input type="text" id="circ-holder-name" placeholder="เด็กชาย..." class="w-full px-3 py-2 text-xs rounded-xl input-box" /></div>
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-xs font-semibold mb-1">ชั้น</label>
-            <select id="circ-grade" class="w-full px-3 py-2 text-xs rounded-xl input-box" required>
+            <label class="block text-xs font-semibold mb-1">ชั้น <span class="text-red-500">*</span></label>
+            <select id="circ-grade" class="w-full px-3 py-2 text-xs rounded-xl input-box">
               <option value="ม.1">ม.1</option><option value="ม.2">ม.2</option><option value="ม.3">ม.3</option><option value="ม.4">ม.4</option><option value="ม.5">ม.5</option><option value="ม.6">ม.6</option>
             </select>
           </div>
           <div>
-            <label class="block text-xs font-semibold mb-1">ห้อง</label>
-            <input type="text" id="circ-room" placeholder="เช่น 8" class="w-full px-3 py-2 text-xs rounded-xl input-box" required />
+            <label class="block text-xs font-semibold mb-1">ห้อง <span class="text-red-500">*</span></label>
+            <input type="text" id="circ-room" placeholder="เช่น 8" class="w-full px-3 py-2 text-xs rounded-xl input-box" />
           </div>
         </div>
         <div class="grid grid-cols-2 gap-3">
-          <div><label class="block text-xs font-semibold mb-1">ประเภทผู้ถือครอง</label><select id="circ-holder-type" class="w-full px-3 py-2 text-xs rounded-xl input-box"><option value="นักเรียน">นักเรียน</option><option value="ครู">ครู</option></select></div>
-          <div><label class="block text-xs font-semibold mb-1">วันที่ยืม (พ.ศ.)</label><input type="date" id="circ-borrow-date" class="w-full px-3 py-2 text-xs rounded-xl input-box" required /></div>
+          <div><label class="block text-xs font-semibold mb-1">ประเภทผู้ถือครอง <span class="text-red-500">*</span></label><select id="circ-holder-type" class="w-full px-3 py-2 text-xs rounded-xl input-box"><option value="นักเรียน">นักเรียน</option><option value="ครู">ครู</option></select></div>
+          <div><label class="block text-xs font-semibold mb-1">วันที่ยืม (พ.ศ.) <span class="text-red-500">*</span></label><input type="date" id="circ-borrow-date" class="w-full px-3 py-2 text-xs rounded-xl input-box" /></div>
         </div>
-        <div><label class="block text-xs font-semibold mb-1">กำหนดคืน (พ.ศ.)</label><input type="date" id="circ-return-date" class="w-full px-3 py-2 text-xs rounded-xl input-box" required /></div>
+        <div><label class="block text-xs font-semibold mb-1">กำหนดคืน (พ.ศ.) <span class="text-red-500">*</span></label><input type="date" id="circ-return-date" class="w-full px-3 py-2 text-xs rounded-xl input-box" /></div>
 
         <div class="pt-3 border-t border-gray-200 dark:border-slate-700 flex justify-end gap-2"><button type="button" onclick="closeModal('circ-modal')" class="px-4 py-2 opacity-70 hover:opacity-100 rounded-xl text-xs font-medium">ยกเลิก</button><button type="submit" class="px-5 py-2 bg-ksp-primary hover:opacity-90 text-white rounded-xl text-xs font-semibold shadow">ยืนยันบันทึก</button></div>
       </form>
@@ -622,7 +622,7 @@
         <input type="hidden" id="maint-edit-id" />
         <div class="grid grid-cols-2 gap-3">
           <div><label class="block text-xs font-semibold mb-1">Ticket ID (Auto)</label><input type="text" id="maint-ticket-id" class="w-full px-3 py-2 text-xs rounded-xl font-mono input-box opacity-70 cursor-not-allowed" readonly /></div>
-          <div><label class="block text-xs font-semibold mb-1">วันที่แจ้ง <span class="text-red-500">*</span></label><input type="date" id="maint-date" class="w-full px-3 py-2 text-xs rounded-xl input-box" required /></div>
+          <div><label class="block text-xs font-semibold mb-1">วันที่แจ้ง <span class="text-red-500">*</span></label><input type="date" id="maint-date" class="w-full px-3 py-2 text-xs rounded-xl input-box" /></div>
         </div>
         
         <div class="relative">
@@ -630,23 +630,27 @@
             <span>ค้นหาหรือสแกนอุปกรณ์ (S/N 10 หลัก) <span class="text-red-500">*</span></span>
             <button type="button" onclick="startCameraScanner()" class="px-2.5 py-1 bg-ksp-primary text-white rounded-lg text-[10px] font-bold flex items-center gap-1 shadow"><i data-lucide="scan" class="w-3 h-3"></i> เปิดกล้องสแกน</button>
           </label>
-          <input type="text" id="maint-device-search" oninput="searchMaintDevice(this.value)" placeholder="พิมพ์ S/N หรือใช้เครื่องยิงบาร์โค้ดสแกนที่นี่..." class="w-full px-3 py-2 text-xs rounded-xl input-box focus:ring-2 focus:ring-ksp-primary focus:outline-none font-mono" autocomplete="off" required/>
-          <input type="hidden" id="maint-device-sn-hidden" required>
+          <input type="text" id="maint-device-search" oninput="searchMaintDevice(this.value)" placeholder="พิมพ์ S/N หรือใช้เครื่องยิงบาร์โค้ดสแกนที่นี่..." class="w-full px-3 py-2 text-xs rounded-xl input-box focus:ring-2 focus:ring-ksp-primary focus:outline-none font-mono" autocomplete="off"/>
+          <input type="hidden" id="maint-device-sn-hidden">
           <div id="maint-device-results" class="absolute left-0 right-0 top-[70px] glass-panel rounded-xl shadow-lg z-50 hidden max-h-40 overflow-y-auto custom-scrollbar"></div>
         </div>
 
         <div>
           <label class="block text-xs font-semibold mb-1">รายละเอียดอาการชำรุด <span class="text-red-500">*</span></label>
-          <select id="maint-issue-type" class="w-full px-3 py-2 text-xs rounded-xl input-box" required></select>
+          <select id="maint-issue-type" class="w-full px-3 py-2 text-xs rounded-xl input-box"></select>
         </div>
         <div>
           <label class="block text-xs font-semibold mb-1">หมายเหตุ (จำเป็นหากเลือก "อื่น ๆ")</label>
           <input type="text" id="maint-remark" placeholder="ระบุเพิ่มเติม..." class="w-full px-3 py-2 text-xs rounded-xl input-box" />
         </div>
+        <div>
+          <label class="block text-xs font-semibold mb-1">เอกสารอ้างอิง / บันทึกข้อความ (ลิงก์ PDF / Drive ถ้ามี)</label>
+          <input type="url" id="maint-doc-link" placeholder="https://..." class="w-full px-3 py-2 text-xs rounded-xl input-box font-mono" />
+        </div>
         
         <div class="grid grid-cols-2 gap-3">
-          <div><label class="block text-xs font-semibold mb-1">เบอร์โทรติดต่อ</label><input type="tel" id="maint-phone" placeholder="089-xxx-xxxx" class="w-full px-3 py-2 text-xs rounded-xl input-box" /></div>
-          <div><label class="block text-xs font-semibold mb-1">ผู้รับผิดชอบงานซ่อม <span class="text-red-500">*</span></label><select id="maint-tech" class="w-full px-3 py-2 text-xs rounded-xl input-box" required></select></div>
+          <div><label class="block text-xs font-semibold mb-1">เบอร์โทรติดต่อ <span class="text-red-500">*</span></label><input type="tel" id="maint-phone" placeholder="089-xxx-xxxx" class="w-full px-3 py-2 text-xs rounded-xl input-box" /></div>
+          <div><label class="block text-xs font-semibold mb-1">ผู้รับผิดชอบงานซ่อม <span class="text-red-500">*</span></label><select id="maint-tech" class="w-full px-3 py-2 text-xs rounded-xl input-box"></select></div>
         </div>
 
         <div class="pt-3 border-t border-gray-200 dark:border-slate-700 flex justify-end gap-2"><button type="button" onclick="closeModal('maint-modal')" class="px-4 py-2 opacity-70 hover:opacity-100 rounded-xl text-xs font-medium">ยกเลิก</button><button type="submit" class="px-5 py-2 bg-accent hover:opacity-90 text-white rounded-xl text-xs font-semibold shadow">บันทึกแจ้งซ่อม</button></div>
@@ -689,6 +693,9 @@
         </div>
         <div class="pt-2 border-t">
           <strong>อาการชำรุด:</strong> <p id="slip-issue" class="mt-1 bg-gray-50 p-2 rounded"></p>
+        </div>
+        <div id="slip-doc-container" class="pt-2 border-t hidden">
+          <strong>เอกสารอ้างอิง:</strong> <a id="slip-doc-link" href="#" target="_blank" class="text-blue-600 underline font-mono"></a>
         </div>
         <div class="grid grid-cols-2 gap-2 pt-2 border-t">
           <div><strong>ช่างผู้รับผิดชอบ:</strong> <span id="slip-tech"></span></div>
@@ -963,6 +970,7 @@
           <p class="font-bold text-blue-500">${r.ticket_id} <span class="float-right opacity-50 font-normal">${formatDateThai(r.date)}</span></p>
           <p class="mt-1 font-semibold">${r.issue_type}</p>
           ${r.remark ? `<p class="mt-0.5 text-gray-500">หมายเหตุ: ${r.remark}</p>` : ''}
+          ${r.doc_link ? `<p class="mt-1"><a href="${r.doc_link}" target="_blank" class="text-blue-600 underline font-mono text-[10px]">🔗 เอกสารอ้างอิง</a></p>` : ''}
           <p class="mt-1 text-[10px] opacity-70">ช่าง: ${r.tech} | สถานะ: <span class="font-bold text-accent">${r.status}</span></p>
         </div>
       `).join('');
@@ -1068,6 +1076,7 @@
             <span class="font-mono">${activeRepair.ticket_id}</span>
           </div>
           <p class="text-gray-700 dark:text-gray-300">อาการ: ${activeRepair.issue_type}</p>
+          ${activeRepair.doc_link ? `<p class="mt-1"><a href="${activeRepair.doc_link}" target="_blank" class="text-blue-600 underline font-mono text-[10px]">🔗 เอกสารอ้างอิง</a></p>` : ''}
           <div class="mt-1 pt-1 border-t border-amber-200 dark:border-amber-800 flex justify-between text-[11px] opacity-90">
             <span>ช่าง: ${activeRepair.tech}</span>
             <span>โทร: ${activeRepair.phone || '-'}</span>
@@ -1307,8 +1316,21 @@
       const borrow = document.getElementById('circ-borrow-date').value;
       const ret = document.getElementById('circ-return-date').value;
 
+      // Strict Validation: Check empty fields
+      if (!serial || !code || !name || !grade || !room || !borrow || !ret) {
+        Swal.fire({ icon: 'warning', title: 'กรอกข้อมูลไม่ครบ', text: 'กรุณากรอกข้อมูลให้ครบทุกช่องที่จำเป็น', confirmButtonColor: '#1E3A8A' });
+        return;
+      }
+
       const snRegex = /^[A-Z0-9]{10}$/;
       if (!snRegex.test(serial)) { Swal.fire({ icon: 'error', title: 'S/N ไม่ถูกต้อง', text: 'ต้องเป็นอักษรพิมพ์ใหญ่และตัวเลข รวม 10 หลัก', confirmButtonColor: '#1E3A8A' }); return; }
+
+      // Strict S/N Duplication Check within the same Academic Year
+      const isDuplicate = APP_STATE.devices.some(d => d.academic_year === year && d.serial_number.toUpperCase() === serial && d.id !== editId);
+      if (isDuplicate) {
+        Swal.fire({ icon: 'error', title: 'Serial Number ซ้ำ', text: 'Serial Number นี้มีบันทึกอยู่แล้วในปีการศึกษาเดียวกัน ไม่สามารถบันทึกซ้ำได้', confirmButtonColor: '#1E3A8A' });
+        return;
+      }
 
       if (editId) {
         const d = APP_STATE.devices.find(x => x.id === editId);
@@ -1386,7 +1408,7 @@
           <td class="p-3.5">${formatDateThai(r.date)}</td>
           <td class="p-3.5"><span class="px-2 py-0.5 rounded text-[11px] font-bold ${r.status === 'ซ่อมสำเร็จ' ? 'badge-success' : 'badge-repair'}">${r.status}</span></td>
           <td class="p-3.5 text-right space-x-1">
-            <button onclick="printRepairSlip('${r.ticket_id}', '${r.asset}', '${r.sn}', '${r.holder}', '${r.grade}', '${r.room}', '${r.issue_type}', '${r.date}', '${r.tech}', '${r.phone}')" class="px-2 py-1 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg text-xs font-bold inline-flex items-center gap-1 shadow"><i data-lucide="printer" class="w-3.5 h-3.5"></i> พิมพ์ใบซ่อม</button>
+            <button onclick="printRepairSlip('${r.ticket_id}', '${r.asset}', '${r.sn}', '${r.holder}', '${r.grade}', '${r.room}', '${r.issue_type}', '${r.date}', '${r.tech}', '${r.phone}', '${r.doc_link || ''}')" class="px-2 py-1 bg-blue-100 text-blue-700 hover:bg-blue-200 rounded-lg text-xs font-bold inline-flex items-center gap-1 shadow"><i data-lucide="printer" class="w-3.5 h-3.5"></i> พิมพ์ใบซ่อม</button>
             ${r.status !== 'ซ่อมสำเร็จ' ? 
               `<button onclick="resolveMaintenance('${r.devId}', '${r.ticket_id}')" class="px-2.5 py-1 bg-green-600 text-white rounded-lg text-xs font-bold inline-flex items-center gap-1 shadow"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> สิ้นสุด</button>` : 
               `<button onclick="undoMaintenance('${r.devId}', '${r.ticket_id}')" class="px-2.5 py-1 bg-amber-500 text-white rounded-lg text-xs font-bold inline-flex items-center gap-1 shadow"><i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> ยกเลิก</button>`
@@ -1399,7 +1421,7 @@
       lucide.createIcons();
     }
 
-    function printRepairSlip(ticketId, asset, sn, holder, grade, room, issue, date, tech, phone) {
+    function printRepairSlip(ticketId, asset, sn, holder, grade, room, issue, date, tech, phone, docLink) {
       document.getElementById('slip-ticket-id').innerText = ticketId;
       document.getElementById('slip-date').innerText = formatDateThai(date);
       document.getElementById('slip-asset').innerText = asset;
@@ -1409,6 +1431,16 @@
       document.getElementById('slip-issue').innerText = issue;
       document.getElementById('slip-tech').innerText = tech || '-';
       document.getElementById('slip-phone').innerText = phone || '-';
+      
+      const docContainer = document.getElementById('slip-doc-container');
+      const docLinkEl = document.getElementById('slip-doc-link');
+      if (docLink) {
+        docLinkEl.href = docLink;
+        docLinkEl.innerText = docLink;
+        docContainer.classList.remove('hidden');
+      } else {
+        docContainer.classList.add('hidden');
+      }
       showModal('ticket-print-modal');
     }
 
@@ -1533,6 +1565,7 @@
         document.getElementById('maint-device-sn-hidden').value = d.serial_number;
         document.getElementById('maint-issue-type').value = r.issue_type;
         document.getElementById('maint-remark').value = r.remark || '';
+        document.getElementById('maint-doc-link').value = r.doc_link || '';
         document.getElementById('maint-phone').value = r.phone || '';
         document.getElementById('maint-tech').value = r.tech;
       } else {
@@ -1542,6 +1575,7 @@
         document.getElementById('maint-device-search').value = '';
         document.getElementById('maint-device-sn-hidden').value = '';
         document.getElementById('maint-remark').value = '';
+        document.getElementById('maint-doc-link').value = '';
         document.getElementById('maint-phone').value = '';
       }
       showModal('maint-modal');
@@ -1557,8 +1591,15 @@
       const sn = document.getElementById('maint-device-sn-hidden').value;
       const issue = document.getElementById('maint-issue-type').value;
       const remark = document.getElementById('maint-remark').value.trim();
+      const docLink = document.getElementById('maint-doc-link').value.trim();
       const phone = document.getElementById('maint-phone').value.trim();
       const tech = document.getElementById('maint-tech').value;
+
+      // Strict Validation: Check empty required fields
+      if (!date || !sn || !issue || !phone || !tech) {
+        Swal.fire({ icon: 'warning', title: 'กรอกข้อมูลไม่ครบ', text: 'กรุณากรอกข้อมูลให้ครบทุกช่องที่จำเป็น', confirmButtonColor: '#1E3A8A' });
+        return;
+      }
 
       const device = APP_STATE.devices.find(d => d.serial_number.toUpperCase() === sn.toUpperCase());
       if (!device) {
@@ -1574,10 +1615,10 @@
             const [devId, tId] = editInfo.split('|');
             const d = APP_STATE.devices.find(x => x.id === devId);
             const r = d.repairs.find(x => x.ticket_id === tId);
-            if (r) { r.date = date; r.issue_type = issue; r.remark = remark; r.phone = phone; r.tech = tech; }
+            if (r) { r.date = date; r.issue_type = issue; r.remark = remark; r.doc_link = docLink; r.phone = phone; r.tech = tech; }
           } else {
             device.status = "ส่งซ่อม";
-            device.repairs.unshift({ ticket_id: ticket, date: date, issue_type: issue, remark: remark, status: "รอดำเนินการ", tech: tech, phone: phone });
+            device.repairs.unshift({ ticket_id: ticket, date: date, issue_type: issue, remark: remark, doc_link: docLink, status: "รอดำเนินการ", tech: tech, phone: phone });
           }
           saveAppData();
           closeModal('maint-modal'); renderPublicDirectory(); updateMetrics(); initLiveCharts(); renderAdminYearSummary();
