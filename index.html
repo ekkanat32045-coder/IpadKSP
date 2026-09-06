@@ -20,25 +20,26 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
   <style>
-    /* ================= THEME & COLORS ================= */
+    /* ================= 60-30-10 THEME ================= */
     :root {
-      --ksp-theme-color: #1E40AF;   /* Primary Blue */
-      --ksp-theme-dark: #1E3A8A;    /* Dark Blue */
-      --ksp-theme-light: #EFF6FF;   /* Light Blue */
-      --ksp-accent: #D97706;        /* Accent Orange */
+      --bg-canvas-light: #F0F4F8;
+      --bg-canvas-dark: #0F172A;
+      --color-primary: #1E3A8A;
+      --color-primary-light: #DBEAFE;
+      --color-accent: #D97706;
     }
 
     body { font-family: 'Sarabun', sans-serif; -webkit-tap-highlight-color: transparent; transition: background-color 0.3s, color 0.3s; }
     .font-inter { font-family: 'Inter', sans-serif; }
 
     /* Light Mode */
-    html:not(.dark) body { background-color: #F8FAFC; color: #1E293B; }
+    html:not(.dark) body { background-color: var(--bg-canvas-light); color: #1E293B; }
     html:not(.dark) .glass-panel { background-color: #FFFFFF; border: 1px solid #E2E8F0; }
-    html:not(.dark) .input-box { background-color: #F1F5F9; border: 1px solid #CBD5E1; color: #0F172A; }
+    html:not(.dark) .input-box { background-color: #F8FAFC; border: 1px solid #CBD5E1; color: #0F172A; }
     html:not(.dark) .th-bg { background-color: #F1F5F9; color: #475569; border-bottom: 1px solid #E2E8F0; }
 
     /* Dark Mode */
-    html.dark body { background-color: #0F172A; color: #F8FAFC; }
+    html.dark body { background-color: var(--bg-canvas-dark); color: #F8FAFC; }
     html.dark .glass-panel { background-color: #1E293B; border: 1px solid #334155; }
     html.dark .input-box { background-color: #0F172A; border: 1px solid #475569; color: #F8FAFC; }
     html.dark .th-bg { background-color: #0F172A; color: #94A3B8; border-bottom: 1px solid #334155; }
@@ -46,13 +47,14 @@
     html:not(.dark) tr.hover-row:hover { background-color: #F8FAFC; }
 
     /* Utilities */
-    .bg-ksp-primary { background-color: var(--ksp-theme-color); }
-    .text-ksp-primary { color: var(--ksp-theme-color); }
-    .bg-accent { background-color: var(--ksp-accent); }
+    .bg-ksp-primary { background-color: var(--color-primary); }
+    .text-ksp-primary { color: var(--color-primary); }
+    .bg-accent { background-color: var(--color-accent); }
+    .text-accent { color: var(--color-accent); }
     
     .badge-ready { background-color: #DEF7EC; color: #03543F; border: 1px solid #BCF0DA; }
     .badge-loan { background-color: #E1EFFE; color: #1E429F; border: 1px solid #B4C6FC; }
-    .badge-damage { background-color: #FDE8E8; color: #9B1C1C; border: 1px solid #F8B4B4; }
+    .badge-repair { background-color: #FEF08A; color: #723B13; border: 1px solid #FDE047; }
     .badge-success { background-color: #D1FAE5; color: #065F46; border: 1px solid #A7F3D0; }
 
     .modal-backdrop { background-color: rgba(15, 23, 42, 0.75); backdrop-filter: blur(5px); }
@@ -62,12 +64,9 @@
     aside.collapsed { width: 5rem !important; }
     aside.collapsed .sidebar-text, aside.collapsed .sidebar-header-text { display: none !important; }
     aside.collapsed .nav-item-btn { justify-content: center !important; padding-left: 0 !important; padding-right: 0 !important; }
-
-    @page { size: A4 portrait; margin: 12mm 15mm; }
-    @media print { body * { visibility: hidden !important; } #print-area, #print-area * { visibility: visible !important; } #print-area { position: absolute !important; left: 0; top: 0; width: 100%; background: #fff !important; color: #000 !important; } }
   </style>
 
-  <!-- ================= GLOBAL STATE & UTILS ================= -->
+  <!-- ================= GLOBAL STATE ================= -->
   <script>
     function formatDateThai(dateStr) {
       if (!dateStr || dateStr === '-') return '-';
@@ -103,21 +102,21 @@
         { id: "t2", name: "ช่างสมศักดิ์ ICT" }
       ],
       issueTypes: [
-        { id: "iss1", name: "ระบบปฏิบัติการ/แอปพลิเคชันขัดข้อง" },
-        { id: "iss2", name: "แบตเตอรี่เสื่อม/ชาร์ทไฟไม่เข้า" },
-        { id: "iss3", name: "เคส/แป้นพิมพ์ใช้งานไม่ได้" },
-        { id: "iss4", name: "หน้าจอมีปัญหา (แตก/ร้าว/ไม่แสดงผล)" },
-        { id: "iss5", name: "ปากกาใช้งานไม่ได้" },
-        { id: "iss6", name: "การเชื่อมต่ออินเทอร์เน็ตไม่ได้ / E-sim" },
-        { id: "iss7", name: "เปิดเครื่องไม่ติด" },
-        { id: "iss8", name: "รหัสหน้าจอล็อค" },
-        { id: "iss9", name: "อุปกรณ์ (IPAD) เครื่องสูญหาย" },
-        { id: "iss10", name: "อื่น ๆ (กรอกในช่องหมายเหตุ)" }
+        { id: "iss1", name: "📱 ระบบปฏิบัติการ/แอปพลิเคชันขัดข้อง" },
+        { id: "iss2", name: "🔋 แบตเตอรี่เสื่อม/ชาร์ทไฟไม่เข้า" },
+        { id: "iss3", name: "⌨️ เคส/แป้นพิมพ์ใช้งานไม่ได้" },
+        { id: "iss4", name: "🖥️ หน้าจอมีปัญหา (แตก/ร้าว/ไม่แสดงผล)" },
+        { id: "iss5", name: "🖊️ ปากกาใช้งานไม่ได้" },
+        { id: "iss6", name: "🌐 การเชื่อมอินเทอร์เน็ตไม่ได้ / E-sim" },
+        { id: "iss7", name: "🔌 เปิดเครื่องไม่ติด" },
+        { id: "iss8", name: "🔒 รหัสหน้าจอล็อค" },
+        { id: "iss9", name: "🚨 อุปกรณ์ (IPAD) เครื่องสูญหาย" },
+        { id: "iss10", name: "📝 อื่น ๆ (กรอกในช่องหมายเหตุ)" }
       ],
       logs: [],
       devices: [
-        { id: "dev-01", academic_year: "2569", asset_id: "OBEC-IPAD-2567-0042", serial_number: "DMPZ1234Q164", model: "iPad (Gen 10) Wi-Fi", status: "ส่งซ่อม", holder_code: "28752", holder_name: "เด็กชายธนากร ใจมั่น", grade_room: "ม.1 ห้อง 5", holder_type: "นักเรียน", borrow_date: "2026-08-28", return_date: "2026-09-10", repairs: [{ ticket_id: "TK-2569-001", date: "2026-09-03", issue_type: "หน้าจอมีปัญหา (แตก/ร้าว/ไม่แสดงผล)", remark: "หล่นกระแทกพื้น", status: "กำลังซ่อม", tech: "ช่างวิชัย การช่าง", phone: "089-111-2233", doc_ref: "บก.12/2569", doc_link: "" }] },
-        { id: "dev-02", academic_year: "2569", asset_id: "OBEC-IPAD-2567-0108", serial_number: "DMPZ5678Q199", model: "iPad (Gen 9) Wi-Fi", status: "พร้อมใช้งาน", holder_code: "-", holder_name: "คลังพัสดุ", grade_room: "-", holder_type: "พัสดุสำรอง", borrow_date: "-", return_date: "-", repairs: [] }
+        { id: "dev-01", academic_year: "2569", asset_id: "OBEC-IPAD-2567-0042", serial_number: "DMPZ1234Q1", model: "iPad (Gen 10) Wi-Fi", status: "ส่งซ่อม", holder_code: "28752", holder_name: "เด็กชายธนากร ใจมั่น", grade_room: "ม.1 ห้อง 5", holder_type: "นักเรียน", borrow_date: "2026-08-28", return_date: "2026-09-10", repairs: [{ ticket_id: "TK-2569-001", date: "2026-09-03", issue_type: "🖥️ หน้าจอมีปัญหา (แตก/ร้าว/ไม่แสดงผล)", remark: "หล่นกระแทกพื้น", status: "กำลังซ่อม", tech: "ช่างวิชัย การช่าง", phone: "089-111-2233", doc_ref: "บก.12/2569", doc_link: "" }] },
+        { id: "dev-02", academic_year: "2569", asset_id: "OBEC-IPAD-2567-0108", serial_number: "DMPZ5678Q1", model: "iPad (Gen 9) Wi-Fi", status: "พร้อมใช้งาน", holder_code: "-", holder_name: "คลังพัสดุ", grade_room: "-", holder_type: "พัสดุสำรอง", borrow_date: "-", return_date: "-", repairs: [] }
       ],
       charts: { mainChart: null, adminTotal: null, adminReady: null, adminLoan: null, adminRepair: null }
     };
@@ -148,8 +147,9 @@
         <button onclick="toggleTheme()" class="p-2 bg-white bg-opacity-10 hover:bg-opacity-20 rounded-xl transition border border-white border-opacity-20">
           <i id="theme-icon" data-lucide="moon" class="w-4 h-4 text-white"></i>
         </button>
-        <button onclick="handleAdminIconClick()" id="btn-admin-auth" class="px-4 py-2 rounded-xl bg-accent hover:opacity-90 text-white font-bold transition shadow flex items-center gap-2 text-xs">
-          <i data-lucide="shield-check" class="w-4 h-4"></i><span id="btn-admin-label">ผู้ดูแลระบบ</span>
+        <button onclick="handleAdminAuth()" id="btn-admin-auth" class="px-4 py-2 rounded-xl bg-accent hover:opacity-90 text-white font-bold transition shadow flex items-center gap-2 text-xs">
+          <i data-lucide="shield-check" class="w-4 h-4" id="icon-admin-auth"></i>
+          <span id="btn-admin-label">ผู้ดูแลระบบ</span>
         </button>
       </div>
     </div>
@@ -164,9 +164,6 @@
           <span class="px-3 py-1 rounded-full bg-white bg-opacity-15 border border-white border-opacity-20 text-xs font-medium">นโยบายการเรียนรู้ Anywhere Anytime สพฐ.</span>
           <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white">ศูนย์สืบค้นครุภัณฑ์ iPad แบบเบ็ดเสร็จ</h2>
           <p class="text-xs sm:text-sm text-blue-100 opacity-90 max-w-2xl font-light">สืบค้นข้อมูลอุปกรณ์ ตรวจสอบประวัติการถือครอง และสแกน QR Passport ได้อย่างสะดวกรวดเร็ว</p>
-          <div class="inline-block mt-2 px-3 py-1.5 bg-accent bg-opacity-20 border border-accent rounded-lg text-xs font-medium text-amber-100">
-            <i data-lucide="info" class="w-3.5 h-3.5 inline mr-1"></i> กรณีเครื่องชำรุด กรุณานำอุปกรณ์ติดต่อเจ้าหน้าที่ ห้อง 521 เพื่อดำเนินการแจ้งซ่อม
-          </div>
         </div>
         <div class="flex items-center gap-3 w-full sm:w-auto">
           <button onclick="openSmartScannerModal()" class="flex-1 sm:flex-initial px-6 py-3 bg-white text-ksp-primary hover:bg-blue-50 rounded-xl text-sm font-bold shadow-md flex items-center justify-center gap-2 transition">
@@ -207,7 +204,7 @@
       <section class="glass-panel p-4 rounded-2xl shadow-sm">
         <div class="relative">
           <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3.5 opacity-50"></i>
-          <input type="text" id="public-search-input" oninput="debounce(renderPublicDirectory, 300)()" placeholder="ค้นหาอัจฉริยะ: พิมพ์เลขครุภัณฑ์, Serial S/N, รหัส หรือชื่อนักเรียน..." class="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl input-box focus:ring-2 focus:ring-ksp-primary focus:outline-none transition" />
+          <input type="text" id="public-search-input" oninput="debounce(renderPublicDirectory, 300)()" placeholder="ค้นหาอัจฉริยะ: พิมพ์เลขครุภัณฑ์, Serial S/N, รหัส หรือชื่อผู้ถือครอง..." class="w-full pl-10 pr-4 py-2.5 text-xs rounded-xl input-box focus:ring-2 focus:ring-ksp-primary focus:outline-none transition" />
         </div>
       </section>
 
@@ -249,7 +246,7 @@
         </nav>
       </div>
       <div class="p-4 border-t border-gray-200 dark:border-slate-700 space-y-2">
-        <button onclick="exitAdminToPublic()" class="w-full py-2 bg-gray-100 dark:bg-slate-700 hover:opacity-80 text-xs font-semibold rounded-xl flex items-center justify-center gap-2 transition"><i data-lucide="arrow-left" class="w-4 h-4 shrink-0"></i><span class="sidebar-text">กลับหน้าหลัก</span></button>
+        <button onclick="handleAdminAuth()" class="w-full py-2.5 bg-red-500 hover:bg-red-600 text-white text-xs font-bold rounded-xl flex items-center justify-center gap-2 transition shadow-sm"><i data-lucide="log-out" class="w-4 h-4 shrink-0"></i><span class="sidebar-text">ออกจากระบบผู้ดูแล</span></button>
       </div>
     </aside>
 
@@ -259,12 +256,7 @@
       <section id="admin-sec-overview" class="space-y-6">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div><h3 class="text-base sm:text-lg font-bold">ภาพรวมสถานะครุภัณฑ์ <span class="text-accent" id="lbl-admin-year"></span></h3></div>
-          <div class="flex items-center gap-2">
-            <a href="https://cn2744.awmdm.com/AirWatch/#/Device/Dashboard" target="_blank" class="px-3 py-1.5 bg-blue-100 text-blue-700 rounded-xl text-[10px] font-bold hover:bg-blue-200 transition">AirWatch MDM</a>
-            <a href="https://itam.supreme.co.th/login" target="_blank" class="px-3 py-1.5 bg-purple-100 text-purple-700 rounded-xl text-[10px] font-bold hover:bg-purple-200 transition">ITAM Supreme</a>
-          </div>
         </div>
-
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div class="glass-panel p-4 rounded-2xl shadow-sm">
             <div class="flex justify-between items-center mb-1"><span class="text-xs opacity-70 font-medium">1. iPad ทั้งหมด</span><i data-lucide="bar-chart-2" class="w-4 h-4 opacity-50"></i></div>
@@ -331,7 +323,7 @@
         <div class="glass-panel rounded-2xl shadow-sm overflow-hidden">
           <table class="w-full text-left text-xs">
             <thead class="th-bg uppercase text-[11px] font-semibold">
-              <tr><th class="p-3.5">Ticket ID</th><th class="p-3.5">S/N อุปกรณ์</th><th class="p-3.5">อาการชำรุด / หมายเหตุ</th><th class="p-3.5">วันที่แจ้ง</th><th class="p-3.5">สถานะ</th><th class="p-3.5 text-right">จัดการ</th></tr>
+              <tr><th class="p-3.5">Ticket ID</th><th class="p-3.5">S/N อุปกรณ์</th><th class="p-3.5">อาการชำรุด / หมายเหตุ</th><th class="p-3.5">วันที่แจ้ง</th><th class="p-3.5">สถานะ</th><th class="p-3.5 text-right">การจัดการงาน</th></tr>
             </thead>
             <tbody id="adm-maint-table-body" class="divide-y divide-gray-200 dark:divide-slate-700"></tbody>
           </table>
@@ -499,7 +491,7 @@
           <select id="circ-academic-year" class="bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 text-xs px-2 py-1.5 rounded-lg font-bold focus:outline-none"></select>
         </div>
 
-        <div><label class="block text-xs font-semibold mb-1">Serial Number (S/N)</label><input type="text" id="circ-serial" placeholder="DMPZ..." class="w-full px-3 py-2 text-xs rounded-xl font-mono uppercase input-box" required /></div>
+        <div><label class="block text-xs font-semibold mb-1">Serial Number (S/N) 10 หลัก</label><input type="text" id="circ-serial" placeholder="เช่น DMPZ1234Q1" class="w-full px-3 py-2 text-xs rounded-xl font-mono uppercase input-box" required /></div>
         <div class="grid grid-cols-2 gap-3">
           <div><label class="block text-xs font-semibold mb-1">รหัสประจำตัวนักเรียน</label><input type="text" id="circ-code" placeholder="เช่น 28752" class="w-full px-3 py-2 text-xs rounded-xl font-mono input-box" required /></div>
           <div><label class="block text-xs font-semibold mb-1">ชื่อ - นามสกุล ผู้ถือครอง</label><input type="text" id="circ-holder-name" placeholder="เด็กชาย..." class="w-full px-3 py-2 text-xs rounded-xl input-box" required /></div>
@@ -518,7 +510,7 @@
     </div>
   </div>
 
-  <!-- Admin Maintenance Form (Smart Search + Dropdown + File Upload) -->
+  <!-- Admin Maintenance Form (Smart Validation + Emojis) -->
   <div id="maint-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
     <div class="glass-panel w-full max-w-xl rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar bg-white dark:bg-slate-800">
       <button onclick="closeModal('maint-modal')" class="absolute top-5 right-5 opacity-50 hover:opacity-100"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -528,28 +520,28 @@
         <input type="hidden" id="maint-edit-id" />
         <div class="grid grid-cols-2 gap-3">
           <div><label class="block text-xs font-semibold mb-1">Ticket ID (Auto)</label><input type="text" id="maint-ticket-id" class="w-full px-3 py-2 text-xs rounded-xl font-mono input-box opacity-70 cursor-not-allowed" readonly /></div>
-          <div><label class="block text-xs font-semibold mb-1">วันที่แจ้ง (พ.ศ.)</label><input type="date" id="maint-date" class="w-full px-3 py-2 text-xs rounded-xl input-box" required /></div>
+          <div><label class="block text-xs font-semibold mb-1">วันที่แจ้ง <span class="text-red-500">*</span></label><input type="date" id="maint-date" class="w-full px-3 py-2 text-xs rounded-xl input-box" required /></div>
         </div>
         
         <div class="relative">
-          <label class="block text-xs font-semibold mb-1">ค้นหาอุปกรณ์อัจฉริยะ (S/N หรือ รหัส)</label>
-          <input type="text" id="maint-device-search" oninput="searchMaintDevice(this.value)" placeholder="พิมพ์ค้นหา S/N, Asset ID" class="w-full px-3 py-2 text-xs rounded-xl input-box focus:ring-2 focus:ring-ksp-primary focus:outline-none" autocomplete="off"/>
+          <label class="block text-xs font-semibold mb-1">ค้นหาอุปกรณ์อัจฉริยะ (S/N หรือ รหัส) <span class="text-red-500">*</span></label>
+          <input type="text" id="maint-device-search" oninput="searchMaintDevice(this.value)" placeholder="พิมพ์ค้นหา S/N 10 หลัก หรือ Asset ID" class="w-full px-3 py-2 text-xs rounded-xl input-box focus:ring-2 focus:ring-ksp-primary focus:outline-none" autocomplete="off" required/>
           <input type="hidden" id="maint-device-sn-hidden" required>
           <div id="maint-device-results" class="absolute left-0 right-0 top-[60px] glass-panel rounded-xl shadow-lg z-50 hidden max-h-40 overflow-y-auto custom-scrollbar"></div>
         </div>
 
         <div>
-          <label class="block text-xs font-semibold mb-1">รายละเอียดอาการชำรุด</label>
-          <select id="maint-issue-type" class="w-full px-3 py-2 text-xs rounded-xl input-box"></select>
+          <label class="block text-xs font-semibold mb-1">รายละเอียดอาการชำรุด <span class="text-red-500">*</span></label>
+          <select id="maint-issue-type" class="w-full px-3 py-2 text-xs rounded-xl input-box" required></select>
         </div>
         <div>
-          <label class="block text-xs font-semibold mb-1">หมายเหตุ (ถ้ามี)</label>
+          <label class="block text-xs font-semibold mb-1">หมายเหตุ (ระบุเพิ่มเติมหากเลือก "อื่น ๆ")</label>
           <input type="text" id="maint-remark" placeholder="ระบุเพิ่มเติม..." class="w-full px-3 py-2 text-xs rounded-xl input-box" />
         </div>
         
         <div class="grid grid-cols-2 gap-3">
           <div><label class="block text-xs font-semibold mb-1">เบอร์โทรติดต่อ</label><input type="tel" id="maint-phone" placeholder="089-xxx-xxxx" class="w-full px-3 py-2 text-xs rounded-xl input-box" /></div>
-          <div><label class="block text-xs font-semibold mb-1">ผู้รับผิดชอบงานซ่อม</label><select id="maint-tech" class="w-full px-3 py-2 text-xs rounded-xl input-box"></select></div>
+          <div><label class="block text-xs font-semibold mb-1">ผู้รับผิดชอบงานซ่อม <span class="text-red-500">*</span></label><select id="maint-tech" class="w-full px-3 py-2 text-xs rounded-xl input-box" required></select></div>
         </div>
 
         <!-- Document / File Upload Section -->
@@ -824,6 +816,14 @@
     }
 
     // PIN Authentication
+    function handleAdminAuth() {
+      if(APP_STATE.isAdmin) {
+         handleLogout();
+      } else {
+         handleAdminIconClick();
+      }
+    }
+
     function handleAdminIconClick() {
       const now = Date.now();
       if (now < APP_STATE.lockoutUntil) {
@@ -831,7 +831,7 @@
         Swal.fire({ icon: 'warning', title: 'ระบบถูกระงับชั่วคราว', text: `กรุณารออีก ${rem} นาที เนื่องจากกด PIN ผิดเกินกำหนด`, confirmButtonColor: '#1E3A8A' });
         return;
       }
-      if (APP_STATE.isAdmin) { openAdminView(); } else { APP_STATE.currentInputPin = ""; updatePinDots(); showModal('pin-modal'); }
+      APP_STATE.currentInputPin = ""; updatePinDots(); showModal('pin-modal');
     }
 
     function pressPin(digit) {
@@ -871,16 +871,20 @@
     }
 
     function updateAuthBadge() {
-      const badge = document.getElementById('auth-status-badge');
-      const txt = document.getElementById('auth-status-text');
-      const btn = document.getElementById('btn-admin-label');
+      const btn = document.getElementById('btn-admin-auth');
+      const label = document.getElementById('btn-admin-label');
+      const icon = document.getElementById('icon-admin-auth');
+      
       if (APP_STATE.isAdmin) {
-        badge.className = "hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-white text-ksp-primary font-bold shadow-sm";
-        txt.innerText = "โหมดผู้ดูแลระบบ"; btn.innerText = "Admin Center";
+        btn.className = "px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold transition shadow flex items-center gap-2 text-xs";
+        label.innerText = "ออกจากระบบ";
+        icon.setAttribute("data-lucide", "log-out");
       } else {
-        badge.className = "hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-black bg-opacity-20 text-blue-100 border border-white border-opacity-15";
-        txt.innerText = "โหมดสาธารณะ"; btn.innerText = "ผู้ดูแลระบบ";
+        btn.className = "px-4 py-2 rounded-xl bg-accent hover:opacity-90 text-white font-bold transition shadow flex items-center gap-2 text-xs";
+        label.innerText = "ผู้ดูแลระบบ";
+        icon.setAttribute("data-lucide", "shield-check");
       }
+      lucide.createIcons();
     }
 
     function openAdminView() {
@@ -945,10 +949,9 @@
       lucide.createIcons();
     }
 
-    // Smart Bulk Import with Confirmation
     function downloadLoanTemplateExcel() {
       let csv = '\uFEFFAcademic Year,Asset ID,Serial Number,Student ID,Holder Name,Grade Room,Holder Type,Borrow Date,Return Date\n';
-      csv += '"2569","OBEC-IPAD-2567-9999","DMPZ9999Q999","28752","เด็กชายทดสอบ ระบบ","ม.1 ห้อง 5","นักเรียน","2026-09-06","2026-09-20"\n';
+      csv += '"2569","OBEC-IPAD-2567-9999","DMPZ9999Q1","28752","เด็กชายทดสอบ ระบบ","ม.1 ห้อง 5","นักเรียน","2026-09-06","2026-09-20"\n';
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.setAttribute("download", "KSP_iPad_Loan_Template.csv");
       document.body.appendChild(link); link.click(); document.body.removeChild(link);
@@ -959,8 +962,8 @@
       if(!file) return;
       
       const parsedData = [
-        { asset_id: "OBEC-IPAD-2567-0042", serial: "DMPZ1234Q164", name: "ด.ช. อัปเดตข้อมูล Excel", code: "28752" }, 
-        { asset_id: `OBEC-IPAD-2567-${Math.floor(1000+Math.random()*8000)}`, serial: `DMPZ${Math.floor(1000+Math.random()*8000)}X`, name: "ด.ช. นำเข้าใหม่", code: "99999" }  
+        { asset_id: "OBEC-IPAD-2567-0042", serial: "DMPZ1234Q1", name: "ด.ช. อัปเดตข้อมูล Excel", code: "28752" }, 
+        { asset_id: `OBEC-IPAD-2567-${Math.floor(1000+Math.random()*8000)}`, serial: `DMPZ${Math.floor(100000+Math.random()*800000)}`, name: "ด.ช. นำเข้าใหม่", code: "99999" }  
       ];
 
       for(let row of parsedData) {
@@ -1050,7 +1053,7 @@
       });
     }
 
-    // Admin Maintenance (With Smart End Repair)
+    // Admin Maintenance
     function renderAdminMaintenanceTable() {
       const tbody = document.getElementById('adm-maint-table-body');
       if (!tbody) return;
@@ -1069,13 +1072,48 @@
             <span class="px-2 py-0.5 rounded text-[11px] font-bold ${r.status === 'ซ่อมสำเร็จ' ? 'badge-success' : 'badge-repair'}">${r.status}</span>
           </td>
           <td class="p-3.5 text-right space-x-1">
-            ${r.status !== 'ซ่อมสำเร็จ' ? `<button onclick="resolveMaintenance('${r.devId}', '${r.ticket_id}')" class="p-1.5 text-green-600 hover:bg-green-50 dark:hover:bg-slate-800 rounded-lg transition" title="สิ้นสุดการแจ้งซ่อม"><i data-lucide="check-circle" class="w-4 h-4"></i></button>` : ''}
+            ${r.status !== 'ซ่อมสำเร็จ' ? 
+              `<button onclick="resolveMaintenance('${r.devId}', '${r.ticket_id}')" class="p-1.5 text-green-600 hover:bg-green-50 dark:hover:bg-slate-800 rounded-lg transition" title="สิ้นสุดการซ่อม / ส่งคืน"><i data-lucide="check-circle" class="w-4 h-4"></i></button>` : 
+              `<button onclick="undoMaintenance('${r.devId}', '${r.ticket_id}')" class="p-1.5 text-orange-500 hover:bg-orange-50 dark:hover:bg-slate-800 rounded-lg transition" title="ยกเลิกการสิ้นสุดงาน"><i data-lucide="rotate-ccw" class="w-4 h-4"></i></button>`
+            }
             <button onclick="editMaintenance('${r.devId}', '${r.ticket_id}')" class="p-1.5 text-blue-500 hover:bg-blue-50 dark:hover:bg-slate-800 rounded-lg"><i data-lucide="edit-3" class="w-4 h-4"></i></button>
             <button onclick="deleteMaintenance('${r.devId}', '${r.ticket_id}')" class="p-1.5 text-red-500 hover:bg-red-50 dark:hover:bg-slate-800 rounded-lg"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
           </td>
         </tr>
       `).join('');
       lucide.createIcons();
+    }
+
+    function resolveMaintenance(devId, ticketId) {
+      Swal.fire({ title: 'สิ้นสุดการแจ้งซ่อม?', text: 'เปลี่ยนสถานะเป็นซ่อมสำเร็จและเครื่องส่งคืน', icon: 'question', showCancelButton: true, confirmButtonColor: '#10B981', confirmButtonText: 'สิ้นสุดการแจ้งซ่อม' }).then(res => {
+        if(res.isConfirmed) {
+          const d = APP_STATE.devices.find(x => x.id === devId);
+          const r = d.repairs.find(x => x.ticket_id === ticketId);
+          if(r) r.status = "ซ่อมสำเร็จ";
+          
+          const hasPending = d.repairs.some(x => x.status !== "ซ่อมสำเร็จ");
+          if(!hasPending) d.status = d.holder_code === "-" ? "พร้อมใช้งาน" : "กำลังถือครอง";
+          
+          logAction("Resolve Repair", `ปิดงานซ่อม ${ticketId}`);
+          renderPublicDirectory(); updateMetrics(); initLiveCharts(); renderAdminYearSummary();
+          Swal.fire({icon: 'success', title: 'ปิดงานซ่อมเรียบร้อย', timer:1200, showConfirmButton: false});
+        }
+      });
+    }
+
+    function undoMaintenance(devId, ticketId) {
+      Swal.fire({ title: 'ยกเลิกการสิ้นสุดงาน?', text: 'เปลี่ยนสถานะกลับเป็น "กำลังซ่อม"', icon: 'warning', showCancelButton: true, confirmButtonColor: '#D97706', confirmButtonText: 'ยกเลิกสถานะ' }).then(res => {
+        if(res.isConfirmed) {
+          const d = APP_STATE.devices.find(x => x.id === devId);
+          const r = d.repairs.find(x => x.ticket_id === ticketId);
+          if(r) r.status = "กำลังซ่อม";
+          d.status = "ส่งซ่อม";
+          
+          logAction("Undo Repair", `ยกเลิกสถานะซ่อมสำเร็จ ${ticketId}`);
+          renderPublicDirectory(); updateMetrics(); initLiveCharts(); renderAdminYearSummary();
+          Swal.fire({icon: 'success', title: 'คืนสถานะเรียบร้อย', timer:1200, showConfirmButton: false});
+        }
+      });
     }
 
     function searchMaintDevice(q) {
@@ -1152,13 +1190,15 @@
       const link = document.getElementById('maint-doc-link').value.trim();
       const tech = document.getElementById('maint-tech').value;
       const fileInput = document.getElementById('maint-doc-file');
+
+      // Validation
+      const snRegex = /^[A-Z0-9]{10}$/;
+      if (!sn) { Swal.fire({ icon: 'warning', title: 'ข้อมูลไม่ครบ', text: 'โปรดค้นหาและเลือกอุปกรณ์', confirmButtonColor: '#1E3A8A'}); return; }
+      if (!snRegex.test(sn)) { Swal.fire({ icon: 'error', title: 'S/N ไม่ถูกต้อง', text: 'Serial Number ต้องเป็นตัวอักษรพิมพ์ใหญ่และตัวเลข รวม 10 หลัก', confirmButtonColor: '#1E3A8A'}); return; }
+      if (issue.includes("อื่น ๆ") && !remark) { Swal.fire({ icon: 'warning', title: 'ข้อมูลไม่ครบ', text: 'โปรดระบุรายละเอียดในช่องหมายเหตุ', confirmButtonColor: '#1E3A8A'}); return; }
       
       let docRef = link;
-      if (fileInput.files.length > 0) {
-        docRef = `[ไฟล์] ${fileInput.files[0].name} ` + (link ? `| [ลิงก์] ${link}` : '');
-      }
-
-      if (!sn) { Swal.fire({ icon: 'warning', title: 'โปรดเลือกอุปกรณ์จากระบบค้นหา', confirmButtonColor: '#1E3A8A'}); return; }
+      if (fileInput.files.length > 0) docRef = `[ไฟล์] ${fileInput.files[0].name} ` + (link ? `| [ลิงก์] ${link}` : '');
 
       Swal.fire({ title: 'ยืนยันบันทึกแจ้งซ่อม?', icon: 'question', showCancelButton: true, confirmButtonColor: '#1E3A8A' }).then((res) => {
         if (res.isConfirmed) {
@@ -1178,31 +1218,6 @@
           }
           closeModal('maint-modal'); renderPublicDirectory(); updateMetrics(); initLiveCharts(); renderAdminYearSummary();
           Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', timer: 1200, showConfirmButton: false });
-        }
-      });
-    }
-
-    // Resolve / End Repair Smart Action
-    function resolveMaintenance(devId, ticketId) {
-      Swal.fire({
-        title: 'สิ้นสุดการแจ้งซ่อม?',
-        text: 'ระบบจะเปลี่ยนสถานะเครื่องกลับเป็นปกติ',
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#10B981',
-        confirmButtonText: 'ใช่, สิ้นสุดการซ่อม'
-      }).then(res => {
-        if(res.isConfirmed) {
-          const d = APP_STATE.devices.find(x => x.id === devId);
-          const r = d.repairs.find(x => x.ticket_id === ticketId);
-          if(r) r.status = "ซ่อมสำเร็จ";
-          
-          const hasPending = d.repairs.some(x => x.status !== "ซ่อมสำเร็จ");
-          if(!hasPending) d.status = d.holder_code === "-" ? "พร้อมใช้งาน" : "กำลังถือครอง";
-          
-          logAction("Resolve Repair", `ปิดงานแจ้งซ่อม ${ticketId}`);
-          renderPublicDirectory(); updateMetrics(); initLiveCharts(); renderAdminYearSummary();
-          Swal.fire({icon: 'success', title: 'ปิดงานซ่อมเรียบร้อย', timer:1200, showConfirmButton: false});
         }
       });
     }
@@ -1245,7 +1260,6 @@
       });
     }
 
-    // Tech & Issue Lists
     function populateDropdowns() {
       const selTech = document.getElementById('maint-tech');
       if (selTech) selTech.innerHTML = APP_STATE.technicians.map(t => `<option value="${t.name}">${t.name}</option>`).join('');
@@ -1272,7 +1286,10 @@
       ul.innerHTML = APP_STATE.issueTypes.map(i => `
         <li class="flex items-center justify-between input-box p-2 rounded-lg">
           <span class="text-xs font-semibold"><i data-lucide="alert-circle" class="w-3.5 h-3.5 inline text-accent"></i> ${i.name}</span>
-          <button type="button" onclick="deleteIssueType('${i.id}')" class="text-red-500 hover:opacity-50 p-1 rounded"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+          <div>
+            <button type="button" onclick="editIssueType('${i.id}')" class="text-blue-500 hover:opacity-50 p-1 rounded"><i data-lucide="edit-3" class="w-3.5 h-3.5"></i></button>
+            <button type="button" onclick="deleteIssueType('${i.id}')" class="text-red-500 hover:opacity-50 p-1 rounded"><i data-lucide="x" class="w-3.5 h-3.5"></i></button>
+          </div>
         </li>
       `).join('');
       lucide.createIcons();
@@ -1289,7 +1306,7 @@
     function deleteTechnician(id) {
       APP_STATE.technicians = APP_STATE.technicians.filter(t => t.id !== id);
       localStorage.setItem('ksp_techs', JSON.stringify(APP_STATE.technicians));
-      renderTechList(); populateDropdowns(); logAction("Settings", "ลบช่างเทคนิคออกจากระบบ");
+      renderTechList(); populateDropdowns(); logAction("Settings", "ลบช่างเทคนิค");
     }
 
     function addIssueType() {
@@ -1298,6 +1315,24 @@
       APP_STATE.issueTypes.push({ id: `iss_${Date.now()}`, name }); input.value = '';
       localStorage.setItem('ksp_issue_types', JSON.stringify(APP_STATE.issueTypes));
       renderIssueTypeList(); populateDropdowns(); logAction("Settings", `เพิ่มประเภทอาการชำรุด: ${name}`);
+    }
+
+    function editIssueType(id) {
+      const issue = APP_STATE.issueTypes.find(i => i.id === id);
+      if(!issue) return;
+      Swal.fire({
+        title: 'แก้ไขรายละเอียดอาการชำรุด',
+        input: 'text',
+        inputValue: issue.name,
+        showCancelButton: true,
+        confirmButtonColor: '#1E3A8A'
+      }).then(res => {
+        if(res.isConfirmed && res.value.trim()) {
+          issue.name = res.value.trim();
+          localStorage.setItem('ksp_issue_types', JSON.stringify(APP_STATE.issueTypes));
+          renderIssueTypeList(); populateDropdowns(); logAction("Settings", `แก้ไขประเภทอาการชำรุด`);
+        }
+      });
     }
 
     function deleteIssueType(id) {
