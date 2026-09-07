@@ -4,8 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
   
-  <!-- PWA & Mobile App Meta Tags -->
+  <!-- PWA & Mobile App Meta Tags (อัปเดตมาตรฐานใหม่) -->
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="KSP Smart iPad">
   <meta name="theme-color" content="#1E3A8A">
@@ -171,7 +172,7 @@
       ],
       logs: [],
       devices: [],
-      charts: { mainChart: null, adminTotal: null, adminReady: null, adminLoan: null, adminRepair: null, gradeChart: null } // Fixed: Restored Chart instances storage
+      charts: { mainChart: null, adminTotal: null, adminReady: null, adminLoan: null, adminRepair: null, gradeChart: null } // Restored Chart instances storage
     };
 
     function saveAppData() {
@@ -848,7 +849,7 @@
       const manifest = {
         name: "Smart iPad Hub KSP",
         short_name: "KSP Smart iPad",
-        start_url: ".",
+        start_url: window.location.href, // ดึง URL ปัจจุบันอัตโนมัติ
         display: "standalone",
         background_color: "#F0F4F8",
         theme_color: "#1E3A8A",
@@ -978,7 +979,6 @@
     function initLiveCharts() {
       if (typeof Chart === 'undefined') return;
       
-      // Ensure charts object exists
       if(!APP_STATE.charts) APP_STATE.charts = { mainChart: null, adminTotal: null, adminReady: null, adminLoan: null, adminRepair: null, gradeChart: null };
       
       const ctx = document.getElementById('unifiedLiveChart');
@@ -1362,11 +1362,9 @@
       sections.forEach(s => {
         document.getElementById(`admin-sec-${s}`)?.classList.toggle('hidden', s !== menu);
         
-        // Desktop nav update
         const nav = document.getElementById(`admin-nav-${s.replace('manage-', '').replace('system-', '')}`);
         if (nav) nav.className = s === menu ? "nav-item-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold bg-ksp-primary text-white shadow-md transition" : "nav-item-btn w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-gray-100 dark:hover:bg-slate-700 transition";
         
-        // Mobile nav update
         const mobNav = document.getElementById(`admin-nav-mobile-${s.replace('manage-', '').replace('system-', '')}`);
         if(mobNav) mobNav.className = s === menu ? "px-4 py-2 rounded-xl text-xs font-semibold bg-ksp-primary text-white shadow-md transition" : "px-4 py-2 rounded-xl text-xs font-semibold glass-panel transition";
       });
