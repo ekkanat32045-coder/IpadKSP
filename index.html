@@ -264,10 +264,11 @@
   <!-- ================= SCRIPTS ================= -->
   <script>
     // --- 1. SUPABASE INITIALIZATION ---
-    // ใส่ URL และ Anon Key ของครูที่นี่ครับ
     const SUPABASE_URL = 'https://redopwauisijeizvtrgi.supabase.co';
     const SUPABASE_KEY = 'sb_publishable_5rbLPuTZVuerxBB_MURoRw_q7Y2WinB';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    
+    // เปลี่ยนตัวแปรเป็น supabaseClient ป้องกันการชนกับไลบรารี
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
     // --- STATE MANAGEMENT ---
     const APP_STATE = {
@@ -287,9 +288,34 @@
       setupRealtimeSubscriptions();
     });
 
+    function generateYearOptions() {
+      const currentYear = new Date().getFullYear() + 543;
+      APP_STATE.currentYear = currentYear.toString();
+      let html = '';
+      for (let y = currentYear + 5; y >= currentYear - 5; y--) {
+        html += `<option value="${y}" ${y === currentYear ? 'selected' : ''}>ปีการศึกษา ${y}</option>`;
+      }
+      document.getElementById('global-year-filter').innerHTML = html;
+      if(document.getElementById('circ-academic-year')) document.getElementById('circ-academic-year').innerHTML = html;
+      document.getElementById('lbl-admin-year').innerText = `ปี ${APP_STATE.currentYear}`;
+    }
+
+    function changeGlobalYear(year) {
+      APP_STATE.currentYear = year;
+      document.getElementById('lbl-admin-year').innerText = `ปี ${year}`;
+      renderPublicDirectory(); updateMetrics();
+    }
+
+    function toggleTheme() {
+      APP_STATE.isDarkMode = !APP_STATE.isDarkMode;
+      document.documentElement.classList.toggle('dark', APP_STATE.isDarkMode);
+      document.getElementById('theme-icon').setAttribute('data-lucide', APP_STATE.isDarkMode ? 'sun' : 'moon');
+      lucide.createIcons();
+    }
+
     // --- 2. AUTHENTICATION & LOGIN ---
     async function checkAuthSession() {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session } } = await supabaseClient.auth.getSession();
       if (session) {
         APP_STATE.isAdmin = true;
         APP_STATE.adminEmail = session.user.email;
@@ -302,7 +328,7 @@
       fetchData(); // ดึงข้อมูลครั้งแรก
     }
 
-    supabase.auth.onAuthStateChange((event, session) => {
+    supabaseClient.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN') { APP_STATE.isAdmin = true; APP_STATE.adminEmail = session.user.email; toggleAdminView(true); fetchData(); }
       if (event === 'SIGNED_OUT') { APP_STATE.isAdmin = false; APP_STATE.adminEmail = null; toggleAdminView(false); fetchData(); }
     });
@@ -310,7 +336,7 @@
     function handleAuthClick() {
       if (APP_STATE.isAdmin) {
         Swal.fire({ title: 'ออกจากระบบ?', showCancelButton: true, confirmButtonText: 'ออกจากระบบ' }).then(async (res) => {
-          if (res.isConfirmed) { await supabase.auth.signOut(); logAdminAction('Logout', 'ผู้ดูแลระบบออกจากระบบ'); }
+          if (res.isConfirmed) { await supabaseClient.auth.signOut(); logAdminAction('Logout', 'ผู้ดูแลระบบออกจากระบบ'); }
         });
       } else {
         document.getElementById('login-email').value = '';
@@ -325,7 +351,7 @@
       const email = document.getElementById('login-email').value;
       const password = document.getElementById('login-password').value;
 
-      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
       btn.innerText = 'เข้าสู่ระบบ'; btn.disabled = false;
       
       if (error) {
@@ -370,7 +396,7 @@
 
     // --- 3. FETCH & REAL-TIME LOGIC ---
     function setupRealtimeSubscriptions() {
-      supabase.channel('custom-all-channel')
+      supabaseClient.channel('custom-all-channel')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'devices' }, () => { fetchData(); })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'maintenance' }, () => { fetchData(); })
         .on('postgres_changes', { event: '*', schema: 'public', table: 'logs' }, () => { fetchLogs(); })
@@ -379,11 +405,11 @@
 
     async function fetchData() {
       // ดึง Devices
-      const { data: devs } = await supabase.from('devices').select('*').order('created_at', { ascending: false });
+      const { data: devs } = await supabaseClient.from('devices').select('*').order('created_at', { ascending: false });
       if(devs) APP_STATE.devices = devs;
       
       // ดึง Maintenance
-      const { data: maints } = await supabase.from('maintenance').select('*, devices(asset_id, serial_number)').order('created_at', { ascending: false });
+      const { data: maints } = await supabaseClient.from('maintenance').select('*, devices(asset_id, serial_number)').order('created_at', { ascending: false });
       if(maints) APP_STATE.maintenance = maints;
 
       renderPublicDirectory();
@@ -393,13 +419,13 @@
     }
 
     async function fetchLogs() {
-      const { data } = await supabase.from('logs').select('*').order('created_at', { ascending: false }).limit(50);
+      const { data } = await supabaseClient.from('logs').select('*').order('created_at', { ascending: false }).limit(50);
       if(data) { APP_STATE.logs = data; renderLogsTable(); }
     }
 
     async function logAdminAction(action, detail) {
       if(!APP_STATE.isAdmin) return;
-      await supabase.from('logs').insert([{ user_email: APP_STATE.adminEmail, action, detail }]);
+      await supabaseClient.from('logs').insert([{ user_email: APP_STATE.adminEmail, action, detail }]);
     }
 
     // --- 4. PDPA MASKING HELPERS ---
@@ -407,14 +433,14 @@
       if(APP_STATE.isAdmin) return name; // แอดมินเห็นเต็ม
       if(!name || name === '-' || name === 'คลังพัสดุ') return name;
       const parts = name.split(' ');
-      if(parts.length > 1) return `${parts[0]} ${parts[1].charAt(0)}***`; // ด.ช.สมชาย ม***
+      if(parts.length > 1) return `${parts[0]} ${parts[1].charAt(0)}***`; 
       return `${name.substring(0, 3)}***`;
     }
 
     function maskCode(code) {
       if(APP_STATE.isAdmin) return code;
       if(!code || code === '-') return '-';
-      return `${code.substring(0, 2)}***`; // 28***
+      return `${code.substring(0, 2)}***`; 
     }
 
     // --- 5. RENDER FUNCTIONS ---
@@ -422,7 +448,6 @@
       const tbody = document.getElementById('public-directory-tbody'); if (!tbody) return;
       const q = (document.getElementById('public-search-input')?.value || '').toLowerCase();
       
-      // Filter year and search query
       const list = APP_STATE.devices.filter(d => d.academic_year === APP_STATE.currentYear).filter(d => 
         !q || d.asset_id.toLowerCase().includes(q) || d.serial_number.toLowerCase().includes(q) || 
         d.holder_name.toLowerCase().includes(q) || d.holder_code.includes(q)
@@ -432,7 +457,6 @@
       
       const badges = { 'พร้อมใช้งาน': 'badge-ready', 'กำลังถือครอง': 'badge-loan', 'ส่งซ่อม': 'badge-repair' };
       tbody.innerHTML = list.map(d => {
-        // PDPA Applied here
         const dispName = maskName(d.holder_name);
         const dispCode = maskCode(d.holder_code);
         return `
@@ -509,7 +533,7 @@
       ['stat-repair', 'adm-bar-repair'].forEach(id => { if(document.getElementById(id)) document.getElementById(id).innerText = repair; });
     }
 
-    // --- 6. EXCEL IMPORT (9 Columns, Auto Asset ID) ---
+    // --- 6. EXCEL IMPORT ---
     function downloadLoanTemplateExcel() {
       const templateData = [{
         "ปีการศึกษา": APP_STATE.currentYear, "Serial Number": "DMPZ0000Q1", "รหัสประจำตัว": "28752",
@@ -534,7 +558,6 @@
           const rows = XLSX.utils.sheet_to_json(workbook.Sheets[workbook.SheetNames[0]]);
           
           let count = 0;
-          // Get max asset ID logic for auto-increment
           let maxSeq = 0;
           APP_STATE.devices.filter(d => d.academic_year === APP_STATE.currentYear).forEach(d => {
             const parts = d.asset_id.split('-');
@@ -568,7 +591,7 @@
           });
 
           if(inserts.length > 0) {
-            const { error } = await supabase.from('devices').insert(inserts);
+            const { error } = await supabaseClient.from('devices').insert(inserts);
             if(error) throw error;
             await logAdminAction("Import Excel", `นำเข้าทะเบียนใหม่ ${count} เครื่อง พร้อมรันรหัสอัตโนมัติ`);
           }
@@ -586,24 +609,24 @@
     async function deleteDevice(id, assetId) {
       Swal.fire({ title: 'ยืนยันลบเครื่องนี้?', text: assetId, icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' }).then(async res => {
         if(res.isConfirmed) {
-          await supabase.from('devices').delete().eq('id', id);
+          await supabaseClient.from('devices').delete().eq('id', id);
           await logAdminAction('Delete Device', `ลบครุภัณฑ์ ${assetId}`);
           Swal.fire({ icon: 'success', title: 'ลบสำเร็จ', timer:1000, showConfirmButton:false });
         }
       });
     }
 
-    // --- 7. REPAIR & IMAGE UPLOAD (Supabase Storage) ---
+    // --- 7. REPAIR & IMAGE UPLOAD ---
     async function uploadImage(file) {
       if(!file) return null;
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(2)}.${fileExt}`;
       const filePath = `images/${fileName}`;
       
-      const { error } = await supabase.storage.from('repairs').upload(filePath, file);
+      const { error } = await supabaseClient.storage.from('repairs').upload(filePath, file);
       if (error) { console.error('Upload error:', error); return null; }
       
-      const { data } = supabase.storage.from('repairs').getPublicUrl(filePath);
+      const { data } = supabaseClient.storage.from('repairs').getPublicUrl(filePath);
       return data.publicUrl;
     }
 
@@ -633,17 +656,14 @@
           imageUrl = await uploadImage(fileInput.files[0]);
         }
 
-        const { error: err1 } = await supabase.from('maintenance').insert([{
+        const { error: err1 } = await supabaseClient.from('maintenance').insert([{
           ticket_id: ticketId, device_id: devId, date: new Date().toISOString().split('T')[0],
           issue_type: issue, remark: remark, reporter_phone: phone, evidence_image_url: imageUrl, status: 'รอดำเนินการ'
         }]);
         if(err1) throw err1;
 
-        // อัปเดตสถานะเครื่อง
-        await supabase.from('devices').update({ status: 'ส่งซ่อม' }).eq('id', devId);
-        
-        // Log แบบ Public
-        await supabase.from('logs').insert([{ action: 'Self-Repair', detail: `นักเรียนแจ้งซ่อม ${ticketId} อาการ: ${issue}` }]);
+        await supabaseClient.from('devices').update({ status: 'ส่งซ่อม' }).eq('id', devId);
+        await supabaseClient.from('logs').insert([{ action: 'Self-Repair', detail: `นักเรียนแจ้งซ่อม ${ticketId} อาการ: ${issue}` }]);
 
         closeModal('public-self-repair-modal');
         Swal.fire({ icon: 'success', title: 'แจ้งซ่อมสำเร็จ', text: `Ticket ID: ${ticketId} แอดมินได้รับข้อมูลเรียบร้อยแล้ว` });
@@ -678,16 +698,15 @@
           if(imageUrl) updateData.repair_image_url = imageUrl;
         }
 
-        const { error: err1 } = await supabase.from('maintenance').update(updateData).eq('id', repairId);
+        const { error: err1 } = await supabaseClient.from('maintenance').update(updateData).eq('id', repairId);
         if(err1) throw err1;
 
-        // ดึงข้อมูลการซ่อมเพื่อไปอัปเดตสถานะเครื่องให้ถูกต้อง
         const r = APP_STATE.maintenance.find(x => x.id === repairId);
         if(r) {
            if(status === 'ซ่อมสำเร็จ') {
               const d = APP_STATE.devices.find(x => x.id === r.device_id);
               const newStatus = (d && d.holder_type === 'คลังพัสดุ') ? 'พร้อมใช้งาน' : 'กำลังถือครอง';
-              await supabase.from('devices').update({ status: newStatus }).eq('id', r.device_id);
+              await supabaseClient.from('devices').update({ status: newStatus }).eq('id', r.device_id);
            }
         }
 
