@@ -74,7 +74,7 @@
     .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #94A3B8; border-radius: 9999px; }
     
-    .table-container { max-height: 72vh; overflow-y: auto; overflow-x: auto; }
+    .table-container { max-height: 70vh; overflow-y: auto; overflow-x: auto; }
     .th-bg th { position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); }
 
     aside.collapsed { width: 5rem !important; }
@@ -205,7 +205,7 @@
         <button onclick="toggleTheme()" class="p-2 bg-white bg-opacity-10 hover:bg-opacity-20 rounded-xl transition border border-white border-opacity-20">
           <i id="theme-icon" data-lucide="moon" class="w-4 h-4 text-white"></i>
         </button>
-        <!-- ปุ่มผู้ดูแลระบบ / ออกจากระบบ (มุมขวาบนสุด) -->
+        <!-- ปุ่มผู้ดูแลระบบ / ออกจากระบบ -->
         <button onclick="handleAdminAuth()" id="btn-admin-auth" class="px-4 py-2 rounded-xl bg-accent hover:opacity-90 text-white font-bold transition shadow flex items-center gap-2 text-xs">
           <i data-lucide="shield-check" class="w-4 h-4" id="icon-admin-auth"></i>
           <span id="btn-admin-label">ผู้ดูแลระบบ</span>
@@ -214,7 +214,7 @@
     </div>
   </header>
 
-  <!-- ================= 2. PUBLIC VIEW (Clean: No stats/charts) ================= -->
+  <!-- ================= 2. PUBLIC VIEW (With Stat Cards) ================= -->
   <div id="public-view" class="flex-1 flex flex-col">
     <div class="bg-ksp-primary text-white py-8 px-4 sm:px-8 shadow-inner bg-opacity-90">
       <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
@@ -230,7 +230,28 @@
       </div>
     </div>
 
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-4">
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-5">
+      <!-- Stat Cards (4 ช่องบนหน้าแรก) -->
+      <section class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        <div class="glass-panel p-4 rounded-2xl shadow-sm flex items-center justify-between">
+          <div><span class="text-xs opacity-70 font-medium">1. iPad ทั้งหมด</span><div id="stat-total" class="text-xl sm:text-2xl font-bold font-inter mt-0.5">0</div></div>
+          <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold"><i data-lucide="tablet" class="w-5 h-5"></i></div>
+        </div>
+        <div class="glass-panel p-4 rounded-2xl shadow-sm flex items-center justify-between">
+          <div><span class="text-xs opacity-70 font-medium">2. พร้อมใช้งาน</span><div id="stat-ready" class="text-xl sm:text-2xl font-bold font-inter text-green-500 mt-0.5">0</div></div>
+          <div class="w-10 h-10 rounded-xl bg-green-100 text-green-700 flex items-center justify-center font-bold"><i data-lucide="check-circle" class="w-5 h-5"></i></div>
+        </div>
+        <div class="glass-panel p-4 rounded-2xl shadow-sm flex items-center justify-between">
+          <div><span class="text-xs opacity-70 font-medium">3. กำลังถือครอง</span><div id="stat-loan" class="text-xl sm:text-2xl font-bold font-inter text-blue-500 mt-0.5">0</div></div>
+          <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold"><i data-lucide="users" class="w-5 h-5"></i></div>
+        </div>
+        <div class="glass-panel p-4 rounded-2xl shadow-sm flex items-center justify-between">
+          <div><span class="text-xs opacity-70 font-medium">4. งานซ่อมค้าง</span><div id="stat-repair" class="text-xl sm:text-2xl font-bold font-inter text-red-500 mt-0.5">0</div></div>
+          <div class="w-10 h-10 rounded-xl bg-red-100 text-red-700 flex items-center justify-center font-bold"><i data-lucide="wrench" class="w-5 h-5"></i></div>
+        </div>
+      </section>
+
+      <!-- Public Search Bar -->
       <section class="glass-panel p-4 rounded-2xl shadow-sm flex flex-col sm:flex-row items-center gap-3">
         <div class="relative flex-1 w-full">
           <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3.5 opacity-50"></i>
@@ -241,6 +262,7 @@
         </button>
       </section>
 
+      <!-- Public Directory Table -->
       <section class="glass-panel rounded-2xl shadow-sm overflow-hidden">
         <div class="p-4 th-bg flex flex-wrap items-center justify-between gap-2">
           <h4 class="font-bold text-xs sm:text-sm flex items-center gap-2"><i data-lucide="layers" class="w-4 h-4 text-ksp-primary"></i> ทำเนียบครุภัณฑ์ iPad & Digital Passport</h4>
@@ -608,23 +630,6 @@
     </div>
   </div>
 
-  <!-- Camera QR / Barcode Scanner Modal for Maintenance -->
-  <div id="camera-scanner-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
-    <div class="glass-panel w-full max-w-md rounded-3xl p-6 shadow-2xl text-center relative bg-white dark:bg-slate-800">
-      <button onclick="stopCameraScanner()" class="absolute top-4 right-4 opacity-50 hover:opacity-100"><i data-lucide="x" class="w-5 h-5"></i></button>
-      <h3 class="font-bold text-sm mb-2">สแกน QR Code / Barcode อุปกรณ์</h3>
-      <p class="text-[11px] opacity-70 mb-3">หันกล้องไปที่ QR Code หลังเครื่อง iPad (Real-time Auto-detect)</p>
-      
-      <div class="relative w-full h-64 bg-black rounded-2xl overflow-hidden flex items-center justify-center">
-        <video id="scanner-video" class="w-full h-full object-cover" autoplay playsinline muted></video>
-        <canvas id="scanner-canvas" class="hidden"></canvas>
-        <div class="absolute inset-0 border-2 border-dashed border-accent opacity-70 pointer-events-none m-8 rounded-xl"></div>
-      </div>
-      
-      <button onclick="stopCameraScanner()" class="mt-4 px-6 py-2 bg-gray-200 dark:bg-slate-700 text-xs font-bold rounded-xl">ปิดกล้อง</button>
-    </div>
-  </div>
-
   <!-- Admin Circulation Edit Modal -->
   <div id="circ-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
     <div class="glass-panel w-full max-w-xl rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
@@ -663,25 +668,33 @@
     </div>
   </div>
 
-  <!-- Admin Maintenance Form -->
+  <!-- Admin Maintenance Form (กล้องสแกนอยู่บนสุดเสมอ) -->
   <div id="maint-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
     <div class="glass-panel w-full max-w-xl rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar bg-white dark:bg-slate-800">
-      <button onclick="closeModal('maint-modal')" class="absolute top-5 right-5 opacity-50 hover:opacity-100"><i data-lucide="x" class="w-5 h-5"></i></button>
-      <h3 id="maint-modal-title" class="text-base font-bold mb-4 flex items-center gap-2"><i data-lucide="wrench" class="w-5 h-5 text-accent"></i> ออกใบแจ้งซ่อมอุปกรณ์ (Auto Ticket)</h3>
+      <button onclick="closeModal('maint-modal'); stopCameraScanner();" class="absolute top-5 right-5 opacity-50 hover:opacity-100"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <h3 id="maint-modal-title" class="text-base font-bold mb-3 flex items-center gap-2"><i data-lucide="wrench" class="w-5 h-5 text-accent"></i> ออกใบแจ้งซ่อมอุปกรณ์ (Auto Ticket)</h3>
 
       <form onsubmit="handleSaveMaintenance(event)" class="space-y-3">
         <input type="hidden" id="maint-edit-id" />
-        <div class="grid grid-cols-2 gap-3">
+
+        <!-- กล้องสแกนแสดงผลอยู่บนสุดทันที -->
+        <div class="space-y-1">
+          <label class="block text-xs font-bold text-accent flex items-center gap-1.5"><i data-lucide="scan" class="w-4 h-4"></i> สแกน QR Code / Barcode อุปกรณ์ (เปิดกล้องอัตโนมัติ)</label>
+          <div class="relative w-full h-44 bg-black rounded-2xl overflow-hidden flex items-center justify-center">
+            <video id="scanner-video" class="w-full h-full object-cover" autoplay playsinline muted></video>
+            <canvas id="scanner-canvas" class="hidden"></canvas>
+            <div class="absolute inset-0 border-2 border-dashed border-accent opacity-70 pointer-events-none m-4 rounded-xl"></div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 pt-1">
           <div><label class="block text-xs font-semibold mb-1">Ticket ID (Auto)</label><input type="text" id="maint-ticket-id" class="w-full px-3 py-2 text-xs rounded-xl font-mono input-box opacity-70 cursor-not-allowed" readonly /></div>
           <div><label class="block text-xs font-semibold mb-1">วันที่แจ้ง <span class="text-red-500">*</span></label><input type="date" id="maint-date" class="w-full px-3 py-2 text-xs rounded-xl input-box" /></div>
         </div>
         
         <div class="relative">
-          <label class="block text-xs font-semibold mb-1 flex justify-between items-center">
-            <span>ค้นหาหรือสแกนอุปกรณ์ (S/N 10 หลัก) <span class="text-red-500">*</span></span>
-            <button type="button" onclick="startCameraScanner()" class="px-2.5 py-1 bg-ksp-primary text-white rounded-lg text-[10px] font-bold flex items-center gap-1 shadow"><i data-lucide="scan" class="w-3 h-3"></i> เปิดกล้องสแกน</button>
-          </label>
-          <input type="text" id="maint-device-search" oninput="searchMaintDevice(this.value)" placeholder="พิมพ์ S/N หรือใช้เครื่องยิงบาร์โค้ดสแกนที่นี่..." class="w-full px-3 py-2 text-xs rounded-xl input-box focus:ring-2 focus:ring-ksp-primary focus:outline-none font-mono" autocomplete="off"/>
+          <label class="block text-xs font-semibold mb-1">ค้นหาหรือตรวจสอบอุปกรณ์ (S/N 10 หลัก) <span class="text-red-500">*</span></label>
+          <input type="text" id="maint-device-search" oninput="searchMaintDevice(this.value)" placeholder="พิมพ์ S/N หรือผลจากกล้อง..." class="w-full px-3 py-2 text-xs rounded-xl input-box font-mono" autocomplete="off"/>
           <input type="hidden" id="maint-device-sn-hidden">
           <div id="maint-device-results" class="absolute left-0 right-0 top-[70px] glass-panel rounded-xl shadow-lg z-50 hidden max-h-40 overflow-y-auto custom-scrollbar"></div>
         </div>
@@ -695,7 +708,7 @@
           <div><label class="block text-xs font-semibold mb-1">ผู้รับผิดชอบงานซ่อม <span class="text-red-500">*</span></label><select id="maint-tech" class="w-full px-3 py-2 text-xs rounded-xl input-box"></select></div>
         </div>
 
-        <div class="pt-3 border-t border-gray-200 dark:border-slate-700 flex justify-end gap-2"><button type="button" onclick="closeModal('maint-modal')" class="px-4 py-2 opacity-70 hover:opacity-100 rounded-xl text-xs font-medium">ยกเลิก</button><button type="submit" class="px-5 py-2 bg-accent hover:opacity-90 text-white rounded-xl text-xs font-semibold shadow">บันทึกแจ้งซ่อม</button></div>
+        <div class="pt-3 border-t border-gray-200 dark:border-slate-700 flex justify-end gap-2"><button type="button" onclick="closeModal('maint-modal'); stopCameraScanner();" class="px-4 py-2 opacity-70 hover:opacity-100 rounded-xl text-xs font-medium">ยกเลิก</button><button type="submit" class="px-5 py-2 bg-accent hover:opacity-90 text-white rounded-xl text-xs font-semibold shadow">บันทึกแจ้งซ่อม</button></div>
       </form>
     </div>
   </div>
@@ -845,13 +858,11 @@
       const yearOptHTML = `<option value="ALL">ทุกปีการศึกษา</option>` + html;
       if(document.getElementById('circ-filter-year')) document.getElementById('circ-filter-year').innerHTML = yearOptHTML;
       if(document.getElementById('maint-filter-year')) document.getElementById('maint-filter-year').innerHTML = yearOptHTML;
-      document.getElementById('lbl-chart-year').innerText = `ปี ${APP_STATE.currentYear}`;
       document.getElementById('lbl-admin-year').innerText = `ปี ${APP_STATE.currentYear}`;
     }
 
     function changeGlobalYear(year) {
       APP_STATE.currentYear = year;
-      document.getElementById('lbl-chart-year').innerText = `ปี ${year}`;
       document.getElementById('lbl-admin-year').innerText = `ปี ${year}`;
       renderPublicDirectory(); updateMetrics(); initLiveCharts();
     }
@@ -884,7 +895,7 @@
       const savedIssues = localStorage.getItem('ksp_issue_types'); if (savedIssues) APP_STATE.issueTypes = JSON.parse(savedIssues);
     }
 
-    // Auth & Navigation Logic (Classic PIN Modal + SessionStorage)
+    // Auth & Navigation Logic
     function handleAdminAuth() {
       if (APP_STATE.isAdmin) {
         toggleAdminView(true);
@@ -963,7 +974,7 @@
         document.getElementById('public-view').classList.remove('hidden');
         document.getElementById('header-year-selector').classList.remove('hidden');
         document.getElementById('btn-back-public').classList.add('hidden');
-        renderPublicDirectory(); initLiveCharts();
+        renderPublicDirectory(); updateMetrics(); initLiveCharts();
       }
     }
 
@@ -1006,9 +1017,6 @@
       if (typeof Chart === 'undefined') return;
       if(!APP_STATE.charts) APP_STATE.charts = { mainChart: null, adminTotal: null, adminReady: null, adminLoan: null, adminRepair: null, gradeChart: null };
       
-      const ctx = document.getElementById('unifiedLiveChart');
-      if (!ctx) return;
-
       const filtered = APP_STATE.devices.filter(d => d.academic_year === APP_STATE.currentYear);
       const total = filtered.length;
       const ready = filtered.filter(d => d.status === 'พร้อมใช้งาน').length;
@@ -1016,15 +1024,7 @@
       const repair = filtered.reduce((acc, d) => acc + d.repairs.filter(r => r.status !== 'ซ่อมสำเร็จ').length, 0);
 
       const tColor = APP_STATE.isDarkMode ? '#F8FAFC' : '#1E293B';
-      const gColor = APP_STATE.isDarkMode ? '#334155' : '#E2E8F0';
       const themeColors = CHART_THEMES[APP_STATE.settings.chartTheme].colors;
-
-      if (APP_STATE.charts.mainChart) APP_STATE.charts.mainChart.destroy();
-      APP_STATE.charts.mainChart = new Chart(ctx, {
-        type: APP_STATE.settings.chartType, 
-        data: { labels: ['iPad ทั้งหมด', 'พร้อมใช้', 'กำลังถือครอง', 'งานซ่อมค้าง'], datasets: [{ data: [total, ready, loan, repair], backgroundColor: themeColors, borderColor: APP_STATE.settings.chartType === 'line' ? themeColors[0] : 'transparent', borderWidth: APP_STATE.settings.chartType === 'line' ? 3 : 0, tension: 0.3, fill: APP_STATE.settings.chartType === 'line', borderRadius: 6 }] },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { stepSize: 1, color: tColor }, grid: { color: gColor } }, x: { ticks: { color: tColor }, grid: { display: false } } } }
-      });
 
       const gradeCtx = document.getElementById('gradeDistributionChart');
       if (gradeCtx) {
@@ -1053,8 +1053,22 @@
 
     function updateMetrics() {
       const filtered = APP_STATE.devices.filter(d => d.academic_year === APP_STATE.currentYear);
+      const total = filtered.length;
+      const ready = filtered.filter(d => d.status === 'พร้อมใช้งาน').length;
+      const loan = filtered.filter(d => d.status === 'กำลังถือครอง').length;
+      const repair = filtered.reduce((acc, d) => acc + d.repairs.filter(r => r.status !== 'ซ่อมสำเร็จ').length, 0);
+
       const setT = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
-      setT('adm-bar-total-val', filtered.length); setT('adm-bar-ready-val', filtered.filter(d => d.status === 'พร้อมใช้งาน').length); setT('adm-bar-loan-val', filtered.filter(d => d.status === 'กำลังถือครอง').length); setT('adm-bar-repair-val', filtered.reduce((acc, d) => acc + d.repairs.filter(r => r.status !== 'ซ่อมสำเร็จ').length, 0));
+      // อัปเดตการ์ดสถิติหน้าแรกสาธารณะด้วย
+      setT('stat-total', total);
+      setT('stat-ready', ready);
+      setT('stat-loan', loan);
+      setT('stat-repair', repair);
+
+      setT('adm-bar-total-val', total); 
+      setT('adm-bar-ready-val', ready); 
+      setT('adm-bar-loan-val', loan); 
+      setT('adm-bar-repair-val', repair);
     }
 
     function renderAdminYearSummary() {
@@ -1073,7 +1087,7 @@
       document.getElementById('directory-record-count').innerText = `แสดง ${list.length} รายการ (ปี ${APP_STATE.currentYear})`;
       const statusBadges = { 'พร้อมใช้งาน': 'badge-ready', 'กำลังถือครอง': 'badge-loan', 'ส่งซ่อม': 'badge-damage' };
       tbody.innerHTML = list.map(d => `<tr class="hover-row transition"><td class="p-3.5 font-bold">${d.asset_id}</td><td class="p-3.5 font-mono opacity-70">${d.serial_number}</td><td class="p-3.5">${d.holder_name} <span class="text-[10px] opacity-50 font-mono">(${d.holder_code})</span></td><td class="p-3.5"><span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold ${statusBadges[d.status] || 'badge-ready'}">${d.status}</span></td><td class="p-3.5 text-center"><button onclick="openQrPassportModal('${d.id}')" class="px-2 py-1 bg-white dark:bg-slate-700 border border-gray-300 dark:border-slate-600 rounded-lg text-xs font-bold hover:shadow-md transition"><i data-lucide="qr-code" class="w-3.5 h-3.5 inline text-blue-600"></i> QR</button></td><td class="p-3.5 text-right"><button onclick="viewRepairDetail('${d.id}')" class="p-1.5 opacity-60 hover:opacity-100 rounded-lg bg-gray-100 dark:bg-slate-800"><i data-lucide="history" class="w-4 h-4"></i></button></td></tr>`).join('');
-      renderAdminCirculationTable(); renderAdminMaintenanceTable(); renderLogsTable(); lucide.createIcons();
+      renderAdminCirculationTable(); renderAdminMaintenanceTable(); renderLogsTable(); updateMetrics(); lucide.createIcons();
     }
 
     function viewRepairDetail(deviceId) {
@@ -1256,7 +1270,7 @@
       showModal('sticker-modal');
     }
 
-    // Maintenance logic
+    // Maintenance logic & Top Camera Start
     function renderAdminMaintenanceTable() {
       const tbody = document.getElementById('adm-maint-table-body'); if (!tbody) return;
       const fYear = document.getElementById('maint-filter-year')?.value || 'ALL'; const fGrade = document.getElementById('maint-filter-grade')?.value || 'ALL'; const fRoom = (document.getElementById('maint-filter-room')?.value || '').toLowerCase().trim(); const fIssue = document.getElementById('maint-filter-issue')?.value || 'ALL'; const fName = (document.getElementById('maint-filter-name')?.value || '').toLowerCase().trim();
@@ -1283,21 +1297,62 @@
     function undoMaintenance(devId, ticketId) { Swal.fire({ title: 'ยกเลิกสถานะสิ้นสุดงาน?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#D97706', confirmButtonText: 'ยกเลิก' }).then(res => { if(res.isConfirmed) { const d = APP_STATE.devices.find(x => x.id === devId); const r = d.repairs.find(x => x.ticket_id === ticketId); if(r) r.status = "กำลังซ่อม"; d.status = "ส่งซ่อม"; saveAppData(); renderPublicDirectory(); updateMetrics(); initLiveCharts(); renderAdminYearSummary(); } }); }
 
     function startCameraScanner() {
-      showModal('camera-scanner-modal'); const video = document.getElementById('scanner-video'); const canvasElement = document.getElementById('scanner-canvas'); const canvas = canvasElement.getContext('2d');
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(stream => { cameraStream = stream; video.srcObject = stream; video.setAttribute("playsinline", true); video.play(); requestAnimationFrame(tick); }).catch(err => { Swal.fire({ icon: 'error', title: 'ไม่สามารถเปิดกล้องได้', confirmButtonColor: '#1E3A8A' }); closeModal('camera-scanner-modal'); });
-      function tick() { if (video.readyState === video.HAVE_ENOUGH_DATA) { canvasElement.height = video.videoHeight; canvasElement.width = video.videoWidth; canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height); var imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height); var code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "dontInvert" }); if (code) { stopCameraScanner(); handleScannedCode(code.data); return; } } if (cameraStream) scannerAnimationFrame = requestAnimationFrame(tick); }
-    }
-    function stopCameraScanner() { if (cameraStream) { cameraStream.getTracks().forEach(track => track.stop()); cameraStream = null; } if (scannerAnimationFrame) cancelAnimationFrame(scannerAnimationFrame); closeModal('camera-scanner-modal'); }
+      const video = document.getElementById('scanner-video'); const canvasElement = document.getElementById('scanner-canvas'); const canvas = canvasElement.getContext('2d');
+      if (!video) return;
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } }).then(stream => {
+        cameraStream = stream; video.srcObject = stream; video.setAttribute("playsinline", true); video.play();
+        requestAnimationFrame(tick);
+      }).catch(err => { console.log("Camera access not available or denied"); });
 
-    function handleScannedCode(rawText) { let sn = rawText.trim().toUpperCase(); if (rawText.startsWith('KSP-PASS:')) { const parts = rawText.split(':'); if (parts.length >= 3) sn = parts[2].trim().toUpperCase(); } const device = APP_STATE.devices.find(d => d.serial_number.toUpperCase() === sn); if (!device) { Swal.fire({ icon: 'error', title: 'ไม่พบครุภัณฑ์', confirmButtonColor: '#1E3A8A' }); return; } selectMaintDevice(device.serial_number, device.asset_id); Swal.fire({ icon: 'success', title: 'สแกนสำเร็จ', timer: 1200, showConfirmButton: false }); }
-    function searchMaintDevice(q) { const resEl = document.getElementById('maint-device-results'); if (!q) { resEl.classList.add('hidden'); return; } const qlow = q.toLowerCase(); const matched = APP_STATE.devices.filter(d => d.asset_id.toLowerCase().includes(qlow) || d.serial_number.toLowerCase().includes(qlow) || d.holder_name.toLowerCase().includes(qlow)); if (matched.length === 0) { resEl.innerHTML = '<div class="p-2 text-xs opacity-50 text-center">ไม่พบอุปกรณ์</div>'; resEl.classList.remove('hidden'); return; } resEl.innerHTML = matched.map(d => `<div onclick="selectMaintDevice('${d.serial_number}', '${d.asset_id}')" class="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 cursor-pointer border-b text-xs transition"><strong class="text-blue-500">${d.asset_id}</strong> (S/N: ${d.serial_number})<br><span class="opacity-70">${d.holder_name}</span></div>`).join(''); resEl.classList.remove('hidden'); }
-    function selectMaintDevice(sn, asset) { document.getElementById('maint-device-search').value = `${asset} (S/N: ${sn})`; document.getElementById('maint-device-sn-hidden').value = sn; document.getElementById('maint-device-results').classList.add('hidden'); }
+      function tick() {
+        if (video && video.readyState === video.HAVE_ENOUGH_DATA) {
+          canvasElement.height = video.videoHeight; canvasElement.width = video.videoWidth;
+          canvas.drawImage(video, 0, 0, canvasElement.width, canvasElement.height);
+          var imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+          var code = jsQR(imageData.data, imageData.width, imageData.height, { inversionAttempts: "dontInvert" });
+          if (code) { stopCameraScanner(); handleScannedCode(code.data); return; }
+        }
+        if (cameraStream) scannerAnimationFrame = requestAnimationFrame(tick);
+      }
+    }
+
+    function stopCameraScanner() {
+      if (cameraStream) { cameraStream.getTracks().forEach(track => track.stop()); cameraStream = null; }
+      if (scannerAnimationFrame) cancelAnimationFrame(scannerAnimationFrame);
+    }
+
+    function handleScannedCode(rawText) {
+      let sn = rawText.trim().toUpperCase(); if (rawText.startsWith('KSP-PASS:')) { const parts = rawText.split(':'); if (parts.length >= 3) sn = parts[2].trim().toUpperCase(); }
+      const device = APP_STATE.devices.find(d => d.serial_number.toUpperCase() === sn);
+      if (!device) { Swal.fire({ icon: 'error', title: 'ไม่พบครุภัณฑ์', confirmButtonColor: '#1E3A8A' }); return; }
+      selectMaintDevice(device.serial_number, device.asset_id);
+      Swal.fire({ icon: 'success', title: 'สแกนสำเร็จ', timer: 1200, showConfirmButton: false });
+    }
+
+    function searchMaintDevice(q) {
+      const resEl = document.getElementById('maint-device-results'); if (!q) { resEl.classList.add('hidden'); return; }
+      const qlow = q.toLowerCase(); const matched = APP_STATE.devices.filter(d => d.asset_id.toLowerCase().includes(qlow) || d.serial_number.toLowerCase().includes(qlow) || d.holder_name.toLowerCase().includes(qlow));
+      if (matched.length === 0) { resEl.innerHTML = '<div class="p-2 text-xs opacity-50 text-center">ไม่พบอุปกรณ์</div>'; resEl.classList.remove('hidden'); return; }
+      resEl.innerHTML = matched.map(d => `<div onclick="selectMaintDevice('${d.serial_number}', '${d.asset_id}')" class="p-2 hover:bg-gray-100 dark:hover:bg-slate-700 cursor-pointer border-b text-xs transition"><strong class="text-blue-500">${d.asset_id}</strong> (S/N: ${d.serial_number})<br><span class="opacity-70">${d.holder_name}</span></div>`).join('');
+      resEl.classList.remove('hidden');
+    }
+
+    function selectMaintDevice(sn, asset) {
+      document.getElementById('maint-device-search').value = `${asset} (S/N: ${sn})`;
+      document.getElementById('maint-device-sn-hidden').value = sn;
+      document.getElementById('maint-device-results').classList.add('hidden');
+    }
 
     function openMaintenanceModal(devId = null, ticketId = null) {
       populateDropdowns();
-      if (ticketId && devId) { const d = APP_STATE.devices.find(x => x.id === devId); const r = d.repairs.find(x => x.ticket_id === ticketId); document.getElementById('maint-edit-id').value = devId + '|' + ticketId; document.getElementById('maint-ticket-id').value = r.ticket_id; document.getElementById('maint-date').value = r.date; document.getElementById('maint-device-search').value = `${d.asset_id} (S/N: ${d.serial_number})`; document.getElementById('maint-device-sn-hidden').value = d.serial_number; document.getElementById('maint-issue-type').value = r.issue_type; document.getElementById('maint-remark').value = r.remark || ''; document.getElementById('maint-doc-link').value = r.doc_link || ''; document.getElementById('maint-phone').value = r.phone || ''; document.getElementById('maint-tech').value = r.tech; } 
-      else { document.getElementById('maint-edit-id').value = ''; document.getElementById('maint-ticket-id').value = `TK-2569-${String(Date.now()).slice(-3)}`; document.getElementById('maint-date').value = new Date().toISOString().split('T')[0]; document.getElementById('maint-device-search').value = ''; document.getElementById('maint-device-sn-hidden').value = ''; document.getElementById('maint-remark').value = ''; document.getElementById('maint-doc-link').value = ''; document.getElementById('maint-phone').value = ''; }
+      if (ticketId && devId) {
+        const d = APP_STATE.devices.find(x => x.id === devId); const r = d.repairs.find(x => x.ticket_id === ticketId);
+        document.getElementById('maint-edit-id').value = devId + '|' + ticketId; document.getElementById('maint-ticket-id').value = r.ticket_id; document.getElementById('maint-date').value = r.date; document.getElementById('maint-device-search').value = `${d.asset_id} (S/N: ${d.serial_number})`; document.getElementById('maint-device-sn-hidden').value = d.serial_number; document.getElementById('maint-issue-type').value = r.issue_type; document.getElementById('maint-remark').value = r.remark || ''; document.getElementById('maint-doc-link').value = r.doc_link || ''; document.getElementById('maint-phone').value = r.phone || ''; document.getElementById('maint-tech').value = r.tech;
+      } else {
+        document.getElementById('maint-edit-id').value = ''; document.getElementById('maint-ticket-id').value = `TK-2569-${String(Date.now()).slice(-3)}`; document.getElementById('maint-date').value = new Date().toISOString().split('T')[0]; document.getElementById('maint-device-search').value = ''; document.getElementById('maint-device-sn-hidden').value = ''; document.getElementById('maint-remark').value = ''; document.getElementById('maint-doc-link').value = ''; document.getElementById('maint-phone').value = '';
+      }
       showModal('maint-modal');
+      setTimeout(startCameraScanner, 300); // เปิดกล้องที่ด้านบนสุดทันทีเมื่อ Modal เปิด
     }
     function editMaintenance(devId, ticketId) { openMaintenanceModal(devId, ticketId); }
 
@@ -1308,6 +1363,7 @@
 
       Swal.fire({ title: 'ยืนยันบันทึกแจ้งซ่อม?', icon: 'question', showCancelButton: true, confirmButtonColor: '#1E3A8A' }).then((res) => {
         if (res.isConfirmed) {
+          stopCameraScanner();
           if (editInfo) { const [devId, tId] = editInfo.split('|'); const d = APP_STATE.devices.find(x => x.id === devId); const r = d.repairs.find(x => x.ticket_id === tId); if (r) { r.date = date; r.issue_type = issue; r.remark = remark; r.doc_link = docLink; r.phone = phone; r.tech = tech; } } 
           else { device.status = "ส่งซ่อม"; device.repairs.unshift({ ticket_id: ticket, date: date, issue_type: issue, remark: remark, doc_link: docLink, status: "รอดำเนินการ", tech: tech, phone: phone }); }
           saveAppData(); closeModal('maint-modal'); renderPublicDirectory(); updateMetrics(); initLiveCharts(); renderAdminYearSummary(); Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', timer: 1200, showConfirmButton: false });
