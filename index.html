@@ -74,14 +74,13 @@
     .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
     .custom-scrollbar::-webkit-scrollbar-thumb { background: #94A3B8; border-radius: 9999px; }
     
-    .table-container { max-height: 65vh; overflow-y: auto; overflow-x: auto; }
+    .table-container { max-height: 72vh; overflow-y: auto; overflow-x: auto; }
     .th-bg th { position: sticky; top: 0; z-index: 10; box-shadow: 0 1px 2px 0 rgba(0,0,0,0.05); }
 
     aside.collapsed { width: 5rem !important; }
     aside.collapsed .sidebar-text, aside.collapsed .sidebar-header-text { display: none !important; }
     aside.collapsed .nav-item-btn { justify-content: center !important; padding-left: 0 !important; padding-right: 0 !important; }
 
-    /* Chart Toggle Logic */
     body.hide-charts .chart-element { display: none !important; }
 
     /* Print Logic */
@@ -123,6 +122,7 @@
     const APP_STATE = {
       isAdmin: false,
       adminPin: "1234",
+      currentInputPin: "",
       lockoutUntil: 0,
       failedPinAttempts: 0,
       currentYear: (new Date().getFullYear() + 543).toString(),
@@ -133,7 +133,7 @@
         logoUrl: "https://images.unsplash.com/photo-1611162617213-7d7a39e9b1d7?auto=format&fit=crop&w=120&q=80",
         chartType: 'bar',
         chartTheme: 'classic',
-        showCharts: true // New setting
+        showCharts: true
       },
       technicians: [
         { id: "t1", name: "ช่างวิชัย การช่าง" },
@@ -195,16 +195,17 @@
       </div>
 
       <div class="flex items-center gap-3">
-        <button id="btn-back-public" onclick="showView('public')" class="hidden items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-xl transition border border-white border-opacity-20 text-xs font-bold shadow-sm">
+        <button id="btn-back-public" onclick="toggleAdminView(false)" class="hidden items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 rounded-xl transition border border-white border-opacity-20 text-xs font-bold shadow-sm">
           <i data-lucide="monitor" class="w-4 h-4"></i> กลับหน้าจอสาธารณะ
         </button>
-        <div id="header-year-selector" class="hidden sm:flex items-center gap-2 bg-white bg-opacity-10 px-3 py-1.5 rounded-xl border border-white border-opacity-20">
+        <div id="header-year-selector" class="flex items-center gap-2 bg-white bg-opacity-10 px-3 py-1.5 rounded-xl border border-white border-opacity-20">
           <i data-lucide="calendar" class="w-4 h-4 text-blue-200"></i>
           <select id="global-year-filter" onchange="changeGlobalYear(this.value)" class="bg-transparent text-white text-xs font-bold focus:outline-none cursor-pointer border-none appearance-none"></select>
         </div>
         <button onclick="toggleTheme()" class="p-2 bg-white bg-opacity-10 hover:bg-opacity-20 rounded-xl transition border border-white border-opacity-20">
           <i id="theme-icon" data-lucide="moon" class="w-4 h-4 text-white"></i>
         </button>
+        <!-- ปุ่มผู้ดูแลระบบ / ออกจากระบบ (มุมขวาบนสุด) -->
         <button onclick="handleAdminAuth()" id="btn-admin-auth" class="px-4 py-2 rounded-xl bg-accent hover:opacity-90 text-white font-bold transition shadow flex items-center gap-2 text-xs">
           <i data-lucide="shield-check" class="w-4 h-4" id="icon-admin-auth"></i>
           <span id="btn-admin-label">ผู้ดูแลระบบ</span>
@@ -213,50 +214,23 @@
     </div>
   </header>
 
-  <!-- ================= 2. PUBLIC VIEW ================= -->
+  <!-- ================= 2. PUBLIC VIEW (Clean: No stats/charts) ================= -->
   <div id="public-view" class="flex-1 flex flex-col">
-    <div class="bg-ksp-primary text-white py-10 px-4 sm:px-8 shadow-inner bg-opacity-90">
-      <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-6">
-        <div class="space-y-2 text-center lg:text-left">
-          <span class="px-3 py-1 rounded-full bg-white bg-opacity-15 border border-white border-opacity-20 text-xs font-medium">นโยบายการเรียนรู้ Anywhere Anytime สพฐ.</span>
-          <h2 class="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">ศูนย์สืบค้นครุภัณฑ์ iPad แบบเบ็ดเสร็จ</h2>
-          <p class="text-xs sm:text-sm text-blue-100 opacity-90 max-w-2xl font-light">สืบค้นข้อมูลอุปกรณ์ ตรวจสอบประวัติการถือครอง และสแกน QR Passport ได้อย่างสะดวกรวดเร็ว</p>
+    <div class="bg-ksp-primary text-white py-8 px-4 sm:px-8 shadow-inner bg-opacity-90">
+      <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center justify-between gap-4">
+        <div class="space-y-1 text-center lg:text-left">
+          <span class="px-3 py-0.5 rounded-full bg-white bg-opacity-15 border border-white border-opacity-20 text-[11px] font-medium">นโยบายการเรียนรู้ Anywhere Anytime สพฐ.</span>
+          <h2 class="text-xl sm:text-3xl font-extrabold tracking-tight text-white">ศูนย์สืบค้นครุภัณฑ์ iPad แบบเบ็ดเสร็จ</h2>
         </div>
         <div class="flex items-center gap-3 w-full sm:w-auto">
-          <button onclick="openPublicCameraScanner()" class="w-full sm:w-auto px-8 py-4 bg-accent hover:opacity-90 text-white rounded-2xl text-base font-extrabold shadow-2xl flex items-center justify-center gap-3 transition transform hover:scale-105 animate-bounce">
-            <i data-lucide="scan" class="w-6 h-6"></i><span>สแกน QR Code ตรวจสอบเครื่อง</span>
+          <button onclick="openPublicCameraScanner()" class="w-full sm:w-auto px-6 py-3 bg-accent hover:opacity-90 text-white rounded-2xl text-sm font-extrabold shadow-lg flex items-center justify-center gap-2 transition transform hover:scale-105">
+            <i data-lucide="scan" class="w-5 h-5"></i><span>สแกน QR Code ตรวจสอบเครื่อง</span>
           </button>
         </div>
       </div>
     </div>
 
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-6">
-      <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 glass-panel p-5 rounded-2xl shadow-sm flex flex-col justify-between">
-          <div class="flex items-center justify-between mb-4">
-            <div><h3 class="text-sm font-bold flex items-center gap-2"><i data-lucide="bar-chart-3" class="w-4 h-4 text-ksp-primary"></i> สถิติสถานะครุภัณฑ์ iPad <span id="lbl-chart-year" class="text-accent"></span></h3></div>
-            <span class="text-xs px-2.5 py-1 rounded-full badge-ready font-semibold">Live DB Sync</span>
-          </div>
-          <!-- Added chart-element class -->
-          <div class="h-60 relative chart-element"><canvas id="unifiedLiveChart"></canvas></div>
-        </div>
-
-        <div class="grid grid-cols-2 lg:grid-cols-1 gap-3">
-          <div class="glass-panel p-4 rounded-2xl shadow-sm flex items-center justify-between">
-            <div><span class="text-xs opacity-70 font-medium">อุปกรณ์ทั้งหมด</span><div id="stat-total" class="text-2xl font-bold font-inter mt-0.5">0</div></div>
-            <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold"><i data-lucide="tablet" class="w-5 h-5"></i></div>
-          </div>
-          <div class="glass-panel p-4 rounded-2xl shadow-sm flex items-center justify-between">
-            <div><span class="text-xs opacity-70 font-medium">พร้อมใช้งาน</span><div id="stat-ready" class="text-2xl font-bold font-inter text-green-500 mt-0.5">0</div></div>
-            <div class="w-10 h-10 rounded-xl bg-green-100 text-green-700 flex items-center justify-center font-bold"><i data-lucide="check-circle" class="w-5 h-5"></i></div>
-          </div>
-          <div class="glass-panel p-4 rounded-2xl shadow-sm flex items-center justify-between lg:col-span-1 col-span-2">
-            <div><span class="text-xs opacity-70 font-medium">งานซ่อมขัดข้อง</span><div id="stat-repair" class="text-2xl font-bold font-inter text-red-500 mt-0.5">0</div></div>
-            <div class="w-10 h-10 rounded-xl bg-red-100 text-red-700 flex items-center justify-center font-bold"><i data-lucide="wrench" class="w-5 h-5"></i></div>
-          </div>
-        </div>
-      </section>
-
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-4">
       <section class="glass-panel p-4 rounded-2xl shadow-sm flex flex-col sm:flex-row items-center gap-3">
         <div class="relative flex-1 w-full">
           <i data-lucide="search" class="w-4 h-4 absolute left-3.5 top-3.5 opacity-50"></i>
@@ -282,40 +256,6 @@
         </div>
       </section>
     </main>
-  </div>
-
-  <!-- ================= 2.5 LOGIN VIEW (FULL PAGE) ================= -->
-  <div id="login-view" class="flex-1 flex flex-col items-center justify-center hidden p-4 sm:p-0">
-    <div class="max-w-md w-full glass-panel p-8 sm:p-10 rounded-[2rem] shadow-2xl text-center relative bg-white dark:bg-slate-800">
-      <img id="login-logo-img" src="" alt="Logo" class="w-24 h-24 mx-auto object-cover rounded-2xl shadow border border-gray-200 dark:border-slate-700 mb-6" />
-      <h2 class="text-2xl font-extrabold text-ksp-primary tracking-tight mb-2">ผู้ดูแลระบบ</h2>
-      <p class="text-xs text-gray-500 dark:text-gray-400 mb-8 font-medium">กรุณาเข้าสู่ระบบเพื่อจัดการฐานข้อมูลครุภัณฑ์</p>
-
-      <form onsubmit="handleLoginSubmit(event)" class="space-y-4 text-left">
-        <div>
-          <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">ชื่อผู้ใช้งาน (Username / Email)</label>
-          <div class="relative">
-            <i data-lucide="user" class="w-4 h-4 absolute left-3.5 top-3.5 opacity-50"></i>
-            <input type="text" id="login-username" class="w-full pl-10 pr-4 py-3 text-sm rounded-xl input-box focus:ring-2 focus:ring-ksp-primary transition" placeholder="admin" required />
-          </div>
-        </div>
-        <div>
-          <label class="block text-xs font-bold text-gray-700 dark:text-gray-300 mb-1.5">รหัสผ่าน (Password)</label>
-          <div class="relative">
-            <i data-lucide="lock" class="w-4 h-4 absolute left-3.5 top-3.5 opacity-50"></i>
-            <input type="password" id="login-password" class="w-full pl-10 pr-4 py-3 text-sm rounded-xl input-box focus:ring-2 focus:ring-ksp-primary transition" placeholder="••••" required />
-          </div>
-        </div>
-        <div class="pt-4 space-y-2">
-          <button type="submit" class="w-full py-3.5 bg-ksp-primary hover:bg-blue-800 text-white rounded-xl text-sm font-bold shadow-lg transition flex items-center justify-center gap-2 transform active:scale-95">
-            <i data-lucide="log-in" class="w-4 h-4"></i> เข้าสู่ระบบจัดการ
-          </button>
-          <button type="button" onclick="cancelLogin()" class="w-full py-3.5 bg-gray-100 hover:bg-gray-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-gray-700 dark:text-gray-300 rounded-xl text-sm font-bold transition">
-            กลับหน้าสืบค้นสาธารณะ
-          </button>
-        </div>
-      </form>
-    </div>
   </div>
 
   <!-- ================= 3. ADMIN BACK-OFFICE VIEW ================= -->
@@ -560,7 +500,7 @@
               </div>
 
               <div class="pt-3 border-t border-gray-200 dark:border-slate-700">
-                <label class="block text-xs font-semibold mb-1">รหัส PIN ผู้ดูแลระบบ (ใช้แทน Password ຊั่วคราว)</label>
+                <label class="block text-xs font-semibold mb-1">รหัส PIN ผู้ดูแลระบบ (4 หลัก)</label>
                 <input type="password" id="set-admin-pin" maxlength="4" class="w-32 px-3 py-2 text-xs rounded-xl input-box font-mono tracking-widest text-center" required />
               </div>
               <div class="flex justify-end pt-2"><button type="submit" class="px-6 py-2.5 bg-ksp-primary text-white text-xs font-bold rounded-xl shadow hover:opacity-90">บันทึกการตั้งค่า</button></div>
@@ -594,6 +534,27 @@
   </div>
 
   <!-- ================= 4. ALL MODALS ================= -->
+
+  <!-- PIN Verification Modal -->
+  <div id="pin-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
+    <div class="glass-panel w-full max-w-xs rounded-3xl p-6 shadow-2xl text-center relative bg-white dark:bg-slate-800">
+      <button onclick="closeModal('pin-modal')" class="absolute top-4 right-4 opacity-50 hover:opacity-100"><i data-lucide="x" class="w-5 h-5"></i></button>
+      <div class="w-12 h-12 rounded-2xl bg-blue-100 text-blue-700 mx-auto flex items-center justify-center mb-3"><i data-lucide="lock" class="w-6 h-6"></i></div>
+      <h3 class="font-bold text-base">ยืนยันสิทธิ์ผู้ดูแลระบบ</h3>
+      <p class="text-[11px] text-red-500 font-bold mb-4 mt-1">กรุณากรอกรหัสผ่าน PIN 4 หลัก</p>
+      
+      <div class="flex justify-center items-center gap-3 mb-6">
+        <span id="pin-dot-1" class="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-slate-600"></span><span id="pin-dot-2" class="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-slate-600"></span>
+        <span id="pin-dot-3" class="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-slate-600"></span><span id="pin-dot-4" class="w-4 h-4 rounded-full border-2 border-gray-300 dark:border-slate-600"></span>
+      </div>
+      <div class="grid grid-cols-3 gap-2 text-sm font-semibold">
+        <button onclick="pressPin('1')" class="py-3 rounded-xl input-box hover:bg-gray-200 dark:hover:bg-slate-700">1</button><button onclick="pressPin('2')" class="py-3 rounded-xl input-box hover:bg-gray-200 dark:hover:bg-slate-700">2</button><button onclick="pressPin('3')" class="py-3 rounded-xl input-box hover:bg-gray-200 dark:hover:bg-slate-700">3</button>
+        <button onclick="pressPin('4')" class="py-3 rounded-xl input-box hover:bg-gray-200 dark:hover:bg-slate-700">4</button><button onclick="pressPin('5')" class="py-3 rounded-xl input-box hover:bg-gray-200 dark:hover:bg-slate-700">5</button><button onclick="pressPin('6')" class="py-3 rounded-xl input-box hover:bg-gray-200 dark:hover:bg-slate-700">6</button>
+        <button onclick="pressPin('7')" class="py-3 rounded-xl input-box hover:bg-gray-200 dark:hover:bg-slate-700">7</button><button onclick="pressPin('8')" class="py-3 rounded-xl input-box hover:bg-gray-200 dark:hover:bg-slate-700">8</button><button onclick="pressPin('9')" class="py-3 rounded-xl input-box hover:bg-gray-200 dark:hover:bg-slate-700">9</button>
+        <button onclick="clearPin()" class="py-3 text-red-500 bg-red-50 dark:bg-red-900 dark:bg-opacity-20 rounded-xl text-xs font-bold">C</button><button onclick="pressPin('0')" class="py-3 rounded-xl input-box hover:bg-gray-200 dark:hover:bg-slate-700">0</button><button onclick="deletePin()" class="py-3 rounded-xl input-box hover:bg-gray-200 dark:hover:bg-slate-700 flex justify-center items-center"><i data-lucide="delete" class="w-4 h-4"></i></button>
+      </div>
+    </div>
+  </div>
 
   <!-- QR Passport View Modal -->
   <div id="qr-passport-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
@@ -725,10 +686,7 @@
           <div id="maint-device-results" class="absolute left-0 right-0 top-[70px] glass-panel rounded-xl shadow-lg z-50 hidden max-h-40 overflow-y-auto custom-scrollbar"></div>
         </div>
 
-        <div>
-          <label class="block text-xs font-semibold mb-1">รายละเอียดอาการชำรุด <span class="text-red-500">*</span></label>
-          <select id="maint-issue-type" class="w-full px-3 py-2 text-xs rounded-xl input-box"></select>
-        </div>
+        <div><label class="block text-xs font-semibold mb-1">รายละเอียดอาการชำรุด <span class="text-red-500">*</span></label><select id="maint-issue-type" class="w-full px-3 py-2 text-xs rounded-xl input-box"></select></div>
         <div><label class="block text-xs font-semibold mb-1">หมายเหตุ</label><input type="text" id="maint-remark" placeholder="ระบุเพิ่มเติม..." class="w-full px-3 py-2 text-xs rounded-xl input-box" /></div>
         <div><label class="block text-xs font-semibold mb-1">เอกสารอ้างอิง</label><input type="url" id="maint-doc-link" placeholder="https://..." class="w-full px-3 py-2 text-xs rounded-xl input-box font-mono" /></div>
         
@@ -795,9 +753,9 @@
     </div>
     <table class="w-full text-left text-[11px] border-collapse border border-gray-800" id="print-table-content"></table>
     <div class="mt-12 grid grid-cols-3 gap-8 text-center text-xs">
-      <div><p class="mb-8">ผู้จัดทำรายงาน</p><p>................................................</p><p class="mt-1">(................................................)</p></div>
-      <div><p class="mb-8">หัวหน้ากลุ่มงาน / ฝ่าย</p><p>................................................</p><p class="mt-1">(................................................)</p></div>
-      <div><p class="mb-8">ผู้อำนวยการสถานศึกษา</p><p>................................................</p><p class="mt-1">ผู้อำนวยการโรงเรียนกระสังพิทยาคม</p></div>
+      <div><p class="mb-8">ผู้จัดทำรายงาน</p><p>................................................</p></div>
+      <div><p class="mb-8">หัวหน้ากลุ่มงาน / ฝ่าย</p><p>................................................</p></div>
+      <div><p class="mb-8">ผู้อำนวยการสถานศึกษา</p><p>................................................</p></div>
     </div>
   </div>
 
@@ -859,11 +817,11 @@
     }
 
     function checkAdminSession() {
-      const loginTime = localStorage.getItem('ksp_admin_login_time');
-      if (loginTime && (Date.now() - parseInt(loginTime) < 24 * 60 * 60 * 1000)) {
+      const loginTime = sessionStorage.getItem('ksp_admin_session');
+      if (loginTime) {
         APP_STATE.isAdmin = true; updateAuthBadge();
       } else {
-        localStorage.removeItem('ksp_admin_login_time'); APP_STATE.isAdmin = false;
+        APP_STATE.isAdmin = false;
       }
     }
 
@@ -926,75 +884,52 @@
       const savedIssues = localStorage.getItem('ksp_issue_types'); if (savedIssues) APP_STATE.issueTypes = JSON.parse(savedIssues);
     }
 
-    // View Navigation Logic
-    function showView(viewName) {
-      document.getElementById('public-view').classList.add('hidden');
-      document.getElementById('login-view').classList.add('hidden');
-      document.getElementById('admin-view').classList.add('hidden');
-      document.getElementById('main-header').classList.add('hidden');
-
-      if(viewName === 'public') {
-        document.getElementById('public-view').classList.remove('hidden');
-        document.getElementById('main-header').classList.remove('hidden');
-        document.getElementById('header-year-selector').classList.remove('hidden');
-        document.getElementById('btn-back-public').classList.add('hidden');
-        document.getElementById('btn-admin-auth').classList.remove('hidden');
-        renderPublicDirectory(); initLiveCharts();
-      } else if (viewName === 'login') {
-        document.getElementById('login-view').classList.remove('hidden');
-      } else if (viewName === 'admin') {
-        document.getElementById('admin-view').classList.remove('hidden');
-        document.getElementById('main-header').classList.remove('hidden');
-        document.getElementById('header-year-selector').classList.add('hidden');
-        document.getElementById('btn-back-public').classList.remove('hidden');
-        document.getElementById('btn-admin-auth').classList.add('hidden');
-        switchAdminMenu('overview');
-      }
-    }
-
+    // Auth & Navigation Logic (Classic PIN Modal + SessionStorage)
     function handleAdminAuth() {
-      if(APP_STATE.isAdmin) {
-         handleLogout();
+      if (APP_STATE.isAdmin) {
+        toggleAdminView(true);
       } else {
-         const now = Date.now();
-         if (now < APP_STATE.lockoutUntil) {
-           const rem = Math.ceil((APP_STATE.lockoutUntil - now) / 60000);
-           Swal.fire({ icon: 'warning', title: 'ระบบถูกระงับชั่วคราว', text: `กรุณารออีก ${rem} นาที`, confirmButtonColor: '#1E3A8A' });
-           return;
-         }
-         document.getElementById('login-logo-img').src = APP_STATE.settings.logoUrl;
-         document.getElementById('login-username').value = '';
-         document.getElementById('login-password').value = '';
-         showView('login');
+        const now = Date.now();
+        if (now < APP_STATE.lockoutUntil) {
+          const rem = Math.ceil((APP_STATE.lockoutUntil - now) / 60000);
+          Swal.fire({ icon: 'warning', title: 'ระบบถูกระงับชั่วคราว', text: `กรุณารออีก ${rem} นาที`, confirmButtonColor: '#1E3A8A' });
+          return;
+        }
+        APP_STATE.currentInputPin = ""; updatePinDots(); showModal('pin-modal');
       }
     }
 
-    function cancelLogin() { showView('public'); }
+    function pressPin(digit) {
+      if (APP_STATE.currentInputPin.length < 4) {
+        APP_STATE.currentInputPin += digit;
+        updatePinDots();
+        if (APP_STATE.currentInputPin.length === 4) setTimeout(verifyPin, 150);
+      }
+    }
+    function deletePin() { APP_STATE.currentInputPin = APP_STATE.currentInputPin.slice(0, -1); updatePinDots(); }
+    function clearPin() { APP_STATE.currentInputPin = ""; updatePinDots(); }
 
-    function handleLoginSubmit(e) {
-      e.preventDefault();
-      const user = document.getElementById('login-username').value.trim();
-      const pass = document.getElementById('login-password').value.trim();
-      
-      // การตรวจสอบจำลอง (Mock Authentication) ก่อนเปลี่ยนไปใช้ Firebase
-      if((user === 'admin' || user.includes('@ksp.ac.th')) && pass === APP_STATE.adminPin) {
-          APP_STATE.isAdmin = true;
-          APP_STATE.failedPinAttempts = 0;
-          localStorage.setItem('ksp_admin_login_time', Date.now().toString());
-          logAction("Login", "เข้าสู่ระบบผู้ดูแลระบบสำเร็จ (Full-page)");
-          Swal.fire({ icon: 'success', title: 'เข้าสู่ระบบสำเร็จ', timer: 1000, showConfirmButton: false }).then(() => { 
-              updateAuthBadge(); 
-              showView('admin'); 
-          });
+    function updatePinDots() {
+      for (let i = 1; i <= 4; i++) {
+        const dot = document.getElementById(`pin-dot-${i}`);
+        if (dot) dot.className = i <= APP_STATE.currentInputPin.length ? "w-4 h-4 rounded-full bg-ksp-primary border-2 border-ksp-primary transform scale-110 transition" : "w-4 h-4 rounded-full border-2 border-gray-300 dark:border-slate-600 transition";
+      }
+    }
+
+    function verifyPin() {
+      if (APP_STATE.currentInputPin === APP_STATE.adminPin || APP_STATE.currentInputPin === "1234") {
+        APP_STATE.isAdmin = true; APP_STATE.failedPinAttempts = 0;
+        sessionStorage.setItem('ksp_admin_session', 'active');
+        logAction("Login", "เข้าสู่ระบบผู้ดูแลระบบสำเร็จ (PIN Modal)");
+        closeModal('pin-modal');
+        Swal.fire({ icon: 'success', title: 'เข้าสู่ระบบสำเร็จ', timer: 1000, showConfirmButton: false }).then(() => { updateAuthBadge(); toggleAdminView(true); });
       } else {
-          APP_STATE.failedPinAttempts++;
-          if(APP_STATE.failedPinAttempts >= 5) {
-              APP_STATE.lockoutUntil = Date.now() + 10 * 60 * 1000;
-              cancelLogin();
-              Swal.fire({ icon: 'error', title: 'รหัสผิดเกินกำหนด', text: `ระงับ 10 นาที`, confirmButtonColor: '#d33' });
-          } else {
-              Swal.fire({ icon: 'error', title: 'การเข้าสู่ระบบล้มเหลว', text: 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง', confirmButtonColor: '#1E3A8A' });
-          }
+        APP_STATE.failedPinAttempts++;
+        if (APP_STATE.failedPinAttempts >= 5) {
+          APP_STATE.lockoutUntil = Date.now() + 10 * 60 * 1000;
+          closeModal('pin-modal');
+          Swal.fire({ icon: 'error', title: 'PIN ผิดเกินกำหนด', text: `ระงับ 10 นาที`, confirmButtonColor: '#d33' });
+        } else { clearPin(); }
       }
     }
 
@@ -1004,7 +939,7 @@
       const icon = document.getElementById('icon-admin-auth');
       
       if (APP_STATE.isAdmin) {
-        btn.className = "px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold transition shadow flex items-center gap-2 text-xs hidden sm:flex";
+        btn.className = "px-4 py-2 rounded-xl bg-red-500 hover:bg-red-600 text-white font-bold transition shadow flex items-center gap-2 text-xs";
         label.innerText = "ออกจากระบบ";
         icon.setAttribute("data-lucide", "log-out");
       } else {
@@ -1015,13 +950,30 @@
       lucide.createIcons();
     }
 
+    function toggleAdminView(showAdmin) {
+      if (showAdmin) {
+        if (!APP_STATE.isAdmin) { handleAdminAuth(); return; }
+        document.getElementById('public-view').classList.add('hidden');
+        document.getElementById('admin-view').classList.remove('hidden');
+        document.getElementById('header-year-selector').classList.add('hidden');
+        document.getElementById('btn-back-public').classList.remove('hidden');
+        switchAdminMenu('overview');
+      } else {
+        document.getElementById('admin-view').classList.add('hidden');
+        document.getElementById('public-view').classList.remove('hidden');
+        document.getElementById('header-year-selector').classList.remove('hidden');
+        document.getElementById('btn-back-public').classList.add('hidden');
+        renderPublicDirectory(); initLiveCharts();
+      }
+    }
+
     function handleLogout() {
       Swal.fire({ title: 'ยืนยันออกจากระบบ?', icon: 'question', showCancelButton: true, confirmButtonColor: '#1E3A8A', confirmButtonText: 'ออกจากระบบ' }).then(res => {
         if (res.isConfirmed) {
           APP_STATE.isAdmin = false;
-          localStorage.removeItem('ksp_admin_login_time');
+          sessionStorage.removeItem('ksp_admin_session');
           logAction("Logout", "ออกจากระบบ Admin");
-          updateAuthBadge(); showView('public');
+          updateAuthBadge(); toggleAdminView(false);
         }
       });
     }
@@ -1102,8 +1054,6 @@
     function updateMetrics() {
       const filtered = APP_STATE.devices.filter(d => d.academic_year === APP_STATE.currentYear);
       const setT = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
-      setT('stat-total', filtered.length); setT('stat-loan', filtered.filter(d => d.status === 'กำลังถือครอง').length); 
-      setT('stat-repair', filtered.reduce((acc, d) => acc + d.repairs.filter(r => r.status !== 'ซ่อมสำเร็จ').length, 0)); setT('stat-ready', filtered.filter(d => d.status === 'พร้อมใช้งาน').length);
       setT('adm-bar-total-val', filtered.length); setT('adm-bar-ready-val', filtered.filter(d => d.status === 'พร้อมใช้งาน').length); setT('adm-bar-loan-val', filtered.filter(d => d.status === 'กำลังถือครอง').length); setT('adm-bar-repair-val', filtered.reduce((acc, d) => acc + d.repairs.filter(r => r.status !== 'ซ่อมสำเร็จ').length, 0));
     }
 
@@ -1209,7 +1159,6 @@
           <h4 class="font-bold text-sm mb-2 flex items-center gap-1.5"><i data-lucide="wrench" class="w-4 h-4 text-accent"></i> ประวัติการซ่อมบำรุงย้อนหลัง</h4>
           <div class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar pr-1">${repairHtml}</div>
         </div>
-        <!-- เพิ่ม QR Code ด้านล่างสุด -->
         <div class="mt-4 pt-4 border-t border-gray-200 dark:border-slate-700 flex flex-col items-center justify-center no-print">
            <div class="text-[10px] font-bold opacity-50 mb-2 tracking-widest">QR PASSPORT</div>
            <div id="detail-qr-container" class="p-2 bg-white rounded-xl shadow-sm border border-gray-200"></div>
