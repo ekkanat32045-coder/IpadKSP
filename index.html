@@ -166,8 +166,8 @@
       if (savedDevs) APP_STATE.devices = JSON.parse(savedDevs);
       else {
         APP_STATE.devices = [
-          { id: "dev-01", academic_year: APP_STATE.currentYear, asset_id: "OBEC-IPAD-2567-0042", serial_number: "DMPZ1234Q1", model: "iPad (Gen 10) Wi-Fi", status: "ส่งซ่อม", holder_code: "28752", holder_name: "เด็กชายธนากร ใจมั่น", grade: "ม.1", room: "5", holder_type: "นักเรียน", borrow_date: "2026-08-28", return_date: "2026-09-10", repairs: [{ ticket_id: "TK-2569-001", date: "2026-09-03", issue_type: "🖥️ หน้าจอมีปัญหา (แตก/ร้าว/ไม่แสดงผล)", remark: "หล่นกระแทกพื้น", status: "กำลังซ่อม", tech: "ช่างวิชัย การช่าง", phone: "089-111-2233", doc_ref: "", doc_link: "" }] },
-          { id: "dev-02", academic_year: APP_STATE.currentYear, asset_id: "OBEC-IPAD-2567-0108", serial_number: "DMPZ5678Q1", model: "iPad (Gen 9) Wi-Fi", status: "พร้อมใช้งาน", holder_code: "-", holder_name: "คลังพัสดุ", grade: "-", room: "-", holder_type: "พัสดุสำรอง", borrow_date: "-", return_date: "-", repairs: [] }
+          { id: "dev-01", academic_year: APP_STATE.currentYear, asset_id: `OBEC-IPAD-${APP_STATE.currentYear}-0001`, serial_number: "DMPZ1234Q1", model: "iPad (Gen 10) Wi-Fi", status: "ส่งซ่อม", holder_code: "28752", holder_name: "เด็กชายธนากร ใจมั่น", grade: "ม.1", room: "5", holder_type: "นักเรียน", borrow_date: "2026-08-28", return_date: "2026-09-10", remark: "ปกติ", repairs: [{ ticket_id: "TK-2569-001", date: "2026-09-03", issue_type: "🖥️ หน้าจอมีปัญหา (แตก/ร้าว/ไม่แสดงผล)", remark: "หล่นกระแทกพื้น", status: "กำลังซ่อม", tech: "ช่างวิชัย การช่าง", phone: "089-111-2233", doc_ref: "", doc_link: "" }] },
+          { id: "dev-02", academic_year: APP_STATE.currentYear, asset_id: `OBEC-IPAD-${APP_STATE.currentYear}-0002`, serial_number: "DMPZ5678Q1", model: "iPad (Gen 9) Wi-Fi", status: "พร้อมใช้งาน", holder_code: "-", holder_name: "คลังพัสดุ", grade: "-", room: "-", holder_type: "คลังพัสดุ", borrow_date: "-", return_date: "-", remark: "สำรอง", repairs: [] }
         ];
         saveAppData();
       }
@@ -231,7 +231,7 @@
     </div>
 
     <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 space-y-5">
-      <!-- Stat Cards (4 ช่องบนหน้าแรก) -->
+      <!-- Stat Cards -->
       <section class="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <div class="glass-panel p-4 rounded-2xl shadow-sm flex items-center justify-between">
           <div><span class="text-xs opacity-70 font-medium">1. iPad ทั้งหมด</span><div id="stat-total" class="text-xl sm:text-2xl font-bold font-inter mt-0.5">0</div></div>
@@ -364,13 +364,13 @@
         </div>
       </section>
 
-      <!-- ADMIN SEC 2: CIRCULATION WITH FILTER BAR -->
+      <!-- ADMIN SEC 2: CIRCULATION -->
       <section id="admin-sec-manage-circulation" class="space-y-4 hidden">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <h3 class="text-base font-bold">จัดการข้อมูลทะเบียนการเบิกยืม</h3>
+          <h3 class="text-base font-bold">จัดการข้อมูลทะเบียนการเบิกยืม (Auto Asset ID)</h3>
           <div class="flex flex-wrap items-center gap-2">
             <button onclick="downloadLoanTemplateExcel()" class="px-3.5 py-2 glass-panel hover:bg-gray-100 dark:hover:bg-slate-700 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition"><i data-lucide="download" class="w-3.5 h-3.5"></i> Template Excel</button>
-            <input type="file" id="import-excel-input" accept=".csv" class="hidden" onchange="handleExcelImport(event)" />
+            <input type="file" id="import-excel-input" accept=".xlsx, .xls, .csv" class="hidden" onchange="handleExcelImport(event)" />
             <button onclick="document.getElementById('import-excel-input').click()" class="px-3.5 py-2 glass-panel text-blue-600 hover:bg-blue-50 dark:hover:bg-slate-700 rounded-xl text-xs font-bold flex items-center gap-1.5 transition"><i data-lucide="upload" class="w-3.5 h-3.5"></i> Import Excel</button>
             <button onclick="openStickerBatchPrintModal()" class="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl text-xs font-semibold shadow flex items-center gap-1.5 transition"><i data-lucide="printer" class="w-3.5 h-3.5"></i> สติ๊กเกอร์ QR</button>
             <button onclick="openCirculationModal()" class="px-4 py-2 bg-ksp-primary hover:opacity-90 text-white rounded-xl text-xs font-semibold shadow flex items-center gap-1.5 transition"><i data-lucide="plus" class="w-4 h-4"></i> + ยืม</button>
@@ -381,7 +381,7 @@
           <select id="circ-filter-year" onchange="renderAdminCirculationTable()" class="px-3 py-2 text-xs rounded-xl input-box"><option value="ALL">ทุกปีการศึกษา</option></select>
           <select id="circ-filter-grade" onchange="renderAdminCirculationTable()" class="px-3 py-2 text-xs rounded-xl input-box"><option value="ALL">ทุกระดับชั้น</option><option value="ม.1">ม.1</option><option value="ม.2">ม.2</option><option value="ม.3">ม.3</option><option value="ม.4">ม.4</option><option value="ม.5">ม.5</option><option value="ม.6">ม.6</option></select>
           <input type="text" id="circ-filter-room" oninput="renderAdminCirculationTable()" placeholder="ห้อง..." class="px-3 py-2 text-xs rounded-xl input-box" />
-          <select id="circ-filter-type" onchange="renderAdminCirculationTable()" class="px-3 py-2 text-xs rounded-xl input-box"><option value="ALL">ผู้ถือครอง</option><option value="นักเรียน">นักเรียน</option><option value="ครู">ครู</option></select>
+          <select id="circ-filter-type" onchange="renderAdminCirculationTable()" class="px-3 py-2 text-xs rounded-xl input-box"><option value="ALL">ผู้ถือครอง</option><option value="นักเรียน">นักเรียน</option><option value="ครู">ครู</option><option value="คลังพัสดุ">คลังพัสดุ</option></select>
           <input type="text" id="circ-filter-name" oninput="renderAdminCirculationTable()" placeholder="ค้นหา ชื่อ/ S/N..." class="px-3 py-2 text-xs rounded-xl input-box font-mono col-span-2 sm:col-span-1" />
         </div>
 
@@ -397,7 +397,7 @@
         </div>
       </section>
 
-      <!-- ADMIN SEC 3: MAINTENANCE WITH FILTER BAR -->
+      <!-- ADMIN SEC 3: MAINTENANCE -->
       <section id="admin-sec-manage-maintenance" class="space-y-4 hidden">
         <div class="flex items-center justify-between">
           <h3 class="text-base font-bold">จัดการงานซ่อม</h3>
@@ -424,7 +424,7 @@
         </div>
       </section>
 
-      <!-- ADMIN SEC 4: ADVANCED REPORTS -->
+      <!-- ADMIN SEC 4: REPORTS -->
       <section id="admin-sec-manage-reports" class="space-y-6 hidden">
         <div class="glass-panel p-6 rounded-2xl shadow-sm space-y-4">
           <h3 class="text-base font-bold flex items-center gap-2"><i data-lucide="file-spreadsheet" class="w-5 h-5 text-ksp-primary"></i> ศูนย์รายงานสารบรรณและสถิติ</h3>
@@ -445,7 +445,7 @@
             </div>
             <div>
               <label class="block text-[11px] font-semibold mb-1">ประเภทผู้ถือครอง</label>
-              <select id="rep-holder" class="w-full px-3 py-2 text-xs rounded-xl input-box"><option value="ALL">ทั้งหมด</option><option value="นักเรียน">นักเรียน</option><option value="ครู">ครู</option><option value="พัสดุสำรอง">พัสดุสำรอง</option></select>
+              <select id="rep-holder" class="w-full px-3 py-2 text-xs rounded-xl input-box"><option value="ALL">ทั้งหมด</option><option value="นักเรียน">นักเรียน</option><option value="ครู">ครู</option><option value="คลังพัสดุ">คลังพัสดุ</option></select>
             </div>
           </div>
 
@@ -466,7 +466,7 @@
         </div>
       </section>
 
-      <!-- ADMIN SEC 5: AUDIT LOGS -->
+      <!-- ADMIN SEC 5: LOGS -->
       <section id="admin-sec-system-logs" class="space-y-4 hidden">
         <div class="flex items-center justify-between">
           <h3 class="text-base font-bold flex items-center gap-2"><i data-lucide="history" class="w-5 h-5 text-ksp-primary"></i> ประวัติกิจกรรม (Audit Logs)</h3>
@@ -630,45 +630,45 @@
     </div>
   </div>
 
-  <!-- Admin Circulation Edit Modal -->
+  <!-- Admin Circulation Edit Modal (Auto Asset ID) -->
   <div id="circ-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
     <div class="glass-panel w-full max-w-xl rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar">
       <button onclick="closeModal('circ-modal')" class="absolute top-5 right-5 opacity-50 hover:opacity-100"><i data-lucide="x" class="w-5 h-5"></i></button>
-      <h3 id="circ-modal-title" class="text-base font-bold mb-3 flex items-center gap-2"><i data-lucide="tablet" class="w-5 h-5 text-ksp-primary"></i> บันทึกการเบิกยืม iPad</h3>
+      <h3 id="circ-modal-title" class="text-base font-bold mb-3 flex items-center gap-2"><i data-lucide="tablet" class="w-5 h-5 text-ksp-primary"></i> บันทึกการเบิกยืม iPad (Auto Asset ID)</h3>
 
       <form onsubmit="handleSaveCirculation(event)" class="space-y-3">
         <input type="hidden" id="circ-edit-id" />
         <div class="flex justify-between items-center bg-blue-50 dark:bg-slate-900 p-3 rounded-xl border border-blue-200 dark:border-slate-700">
-          <div><span class="text-[11px] text-blue-700 dark:text-blue-400 font-semibold block">รหัสครุภัณฑ์ (Auto Asset ID)</span><strong id="auto-asset-display" class="text-xs font-mono text-ksp-primary">OBEC-IPAD-...</strong></div>
+          <div><span class="text-[11px] text-blue-700 dark:text-blue-400 font-semibold block">รหัสครุภัณฑ์ (Auto-generated)</span><strong id="auto-asset-display" class="text-xs font-mono text-ksp-primary">OBEC-IPAD-...</strong></div>
           <select id="circ-academic-year" class="bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 text-xs px-2 py-1.5 rounded-lg font-bold focus:outline-none"></select>
         </div>
 
         <div><label class="block text-xs font-semibold mb-1">Serial Number (S/N) 10 หลัก <span class="text-red-500">*</span></label><input type="text" id="circ-serial" placeholder="เช่น DMPZ1234Q1" class="w-full px-3 py-2 text-xs rounded-xl font-mono uppercase input-box" /></div>
         <div class="grid grid-cols-2 gap-3">
-          <div><label class="block text-xs font-semibold mb-1">รหัสประจำตัวนักเรียน <span class="text-red-500">*</span></label><input type="text" id="circ-code" placeholder="เช่น 28752" class="w-full px-3 py-2 text-xs rounded-xl font-mono input-box" /></div>
-          <div><label class="block text-xs font-semibold mb-1">ชื่อ - นามสกุล ผู้ถือครอง <span class="text-red-500">*</span></label><input type="text" id="circ-holder-name" placeholder="เด็กชาย..." class="w-full px-3 py-2 text-xs rounded-xl input-box" /></div>
+          <div><label class="block text-xs font-semibold mb-1">รหัสประจำตัว <span class="text-red-500">*</span></label><input type="text" id="circ-code" placeholder="เช่น 28752 หรือ -" class="w-full px-3 py-2 text-xs rounded-xl font-mono input-box" /></div>
+          <div><label class="block text-xs font-semibold mb-1">ชื่อ - นามสกุล ผู้ถือครอง <span class="text-red-500">*</span></label><input type="text" id="circ-holder-name" placeholder="เด็กชาย... / คลังพัสดุ" class="w-full px-3 py-2 text-xs rounded-xl input-box" /></div>
         </div>
         <div class="grid grid-cols-2 gap-3">
           <div>
             <label class="block text-xs font-semibold mb-1">ชั้น <span class="text-red-500">*</span></label>
             <select id="circ-grade" class="w-full px-3 py-2 text-xs rounded-xl input-box">
-              <option value="ม.1">ม.1</option><option value="ม.2">ม.2</option><option value="ม.3">ม.3</option><option value="ม.4">ม.4</option><option value="ม.5">ม.5</option><option value="ม.6">ม.6</option>
+              <option value="ม.1">ม.1</option><option value="ม.2">ม.2</option><option value="ม.3">ม.3</option><option value="ม.4">ม.4</option><option value="ม.5">ม.5</option><option value="ม.6">ม.6</option><option value="-">- (คลังพัสดุ)</option>
             </select>
           </div>
-          <div><label class="block text-xs font-semibold mb-1">ห้อง <span class="text-red-500">*</span></label><input type="text" id="circ-room" placeholder="เช่น 8" class="w-full px-3 py-2 text-xs rounded-xl input-box" /></div>
+          <div><label class="block text-xs font-semibold mb-1">ห้อง <span class="text-red-500">*</span></label><input type="text" id="circ-room" placeholder="เช่น 8 หรือ -" class="w-full px-3 py-2 text-xs rounded-xl input-box" /></div>
         </div>
         <div class="grid grid-cols-2 gap-3">
-          <div><label class="block text-xs font-semibold mb-1">ประเภทผู้ถือครอง <span class="text-red-500">*</span></label><select id="circ-holder-type" class="w-full px-3 py-2 text-xs rounded-xl input-box"><option value="นักเรียน">นักเรียน</option><option value="ครู">ครู</option></select></div>
-          <div><label class="block text-xs font-semibold mb-1">วันที่ยืม (พ.ศ.) <span class="text-red-500">*</span></label><input type="date" id="circ-borrow-date" class="w-full px-3 py-2 text-xs rounded-xl input-box" /></div>
+          <div><label class="block text-xs font-semibold mb-1">ประเภทผู้ถือครอง <span class="text-red-500">*</span></label><select id="circ-holder-type" class="w-full px-3 py-2 text-xs rounded-xl input-box"><option value="นักเรียน">นักเรียน</option><option value="ครู">ครู</option><option value="คลังพัสดุ">คลังพัสดุ</option></select></div>
+          <div><label class="block text-xs font-semibold mb-1">วันที่ยืม <span class="text-red-500">*</span></label><input type="date" id="circ-borrow-date" class="w-full px-3 py-2 text-xs rounded-xl input-box" /></div>
         </div>
-        <div><label class="block text-xs font-semibold mb-1">กำหนดคืน (พ.ศ.) <span class="text-red-500">*</span></label><input type="date" id="circ-return-date" class="w-full px-3 py-2 text-xs rounded-xl input-box" /></div>
+        <div><label class="block text-xs font-semibold mb-1">หมายเหตุ</label><input type="text" id="circ-remark" placeholder="ระบุเพิ่มเติม..." class="w-full px-3 py-2 text-xs rounded-xl input-box" /></div>
 
         <div class="pt-3 border-t border-gray-200 dark:border-slate-700 flex justify-end gap-2"><button type="button" onclick="closeModal('circ-modal')" class="px-4 py-2 opacity-70 hover:opacity-100 rounded-xl text-xs font-medium">ยกเลิก</button><button type="submit" class="px-5 py-2 bg-ksp-primary hover:opacity-90 text-white rounded-xl text-xs font-semibold shadow">ยืนยันบันทึก</button></div>
       </form>
     </div>
   </div>
 
-  <!-- Admin Maintenance Form (กล้องสแกนอยู่บนสุดเสมอ) -->
+  <!-- Admin Maintenance Form -->
   <div id="maint-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
     <div class="glass-panel w-full max-w-xl rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar bg-white dark:bg-slate-800">
       <button onclick="closeModal('maint-modal'); stopCameraScanner();" class="absolute top-5 right-5 opacity-50 hover:opacity-100"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -677,7 +677,6 @@
       <form onsubmit="handleSaveMaintenance(event)" class="space-y-3">
         <input type="hidden" id="maint-edit-id" />
 
-        <!-- กล้องสแกนแสดงผลอยู่บนสุดทันที -->
         <div class="space-y-1">
           <label class="block text-xs font-bold text-accent flex items-center gap-1.5"><i data-lucide="scan" class="w-4 h-4"></i> สแกน QR Code / Barcode อุปกรณ์ (เปิดกล้องอัตโนมัติ)</label>
           <div class="relative w-full h-44 bg-black rounded-2xl overflow-hidden flex items-center justify-center">
@@ -772,7 +771,7 @@
     </div>
   </div>
 
-  <!-- Device Detail Integrated Modal (ข้อมูลเบ็ดเสร็จ) -->
+  <!-- Device Detail Integrated Modal -->
   <div id="device-detail-modal" class="fixed inset-0 z-50 modal-backdrop flex items-center justify-center p-4 hidden">
     <div class="glass-panel w-full max-w-2xl rounded-3xl p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto custom-scrollbar bg-white dark:bg-slate-800">
       <button onclick="closeModal('device-detail-modal')" class="absolute top-5 right-5 opacity-50 hover:opacity-100 no-print"><i data-lucide="x" class="w-5 h-5"></i></button>
@@ -784,7 +783,6 @@
     </div>
   </div>
 
-  <!-- Individual Device Print Area -->
   <div id="individual-print-area" class="print-area hidden bg-white text-black p-8 text-sm"></div>
 
   <!-- ================= 5. CORE APPLICATION LOGIC ================= -->
@@ -1059,7 +1057,6 @@
       const repair = filtered.reduce((acc, d) => acc + d.repairs.filter(r => r.status !== 'ซ่อมสำเร็จ').length, 0);
 
       const setT = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
-      // อัปเดตการ์ดสถิติหน้าแรกสาธารณะด้วย
       setT('stat-total', total);
       setT('stat-ready', ready);
       setT('stat-loan', loan);
@@ -1167,7 +1164,7 @@
         </div>
         <div class="flex flex-col sm:flex-row justify-between gap-2 text-xs bg-emerald-50 dark:bg-emerald-900 dark:bg-opacity-20 p-3.5 rounded-2xl border border-emerald-100 dark:border-emerald-800">
           <div><span class="opacity-70">วันที่บันทึกยืม:</span> <strong class="text-emerald-700 dark:text-emerald-400">${formatDateThai(d.borrow_date)}</strong></div>
-          <div><span class="opacity-70">กำหนดส่งคืน:</span> <strong class="text-emerald-700 dark:text-emerald-400">${formatDateThai(d.return_date)}</strong></div>
+          <div><span class="opacity-70">หมายเหตุ:</span> <strong class="text-emerald-700 dark:text-emerald-400">${d.remark || '-'}</strong></div>
         </div>
         <div>
           <h4 class="font-bold text-sm mb-2 flex items-center gap-1.5"><i data-lucide="wrench" class="w-4 h-4 text-accent"></i> ประวัติการซ่อมบำรุงย้อนหลัง</h4>
@@ -1181,64 +1178,26 @@
       `;
 
       setTimeout(() => { new QRCode(document.getElementById('detail-qr-container'), { text: `KSP-PASS:${d.asset_id}:${d.serial_number}`, width: 100, height: 100 }); }, 100);
-
-      document.getElementById('individual-print-area').innerHTML = `
-        <div class="text-center mb-6 border-b-2 border-gray-800 pb-4">
-          <h2 class="text-lg font-bold">แฟ้มประวัติและข้อมูลครุภัณฑ์รายบุคคล (Dossier)</h2>
-          <h3 class="text-base font-semibold">${APP_STATE.settings.orgName}</h3>
-        </div>
-        <div class="grid grid-cols-2 gap-8 mb-6">
-          <div>
-            <h4 class="font-bold text-sm bg-gray-200 p-1 text-center border border-gray-800 mb-2">ข้อมูลครุภัณฑ์อุปกรณ์</h4>
-            <table class="w-full text-xs">
-              <tr><td class="py-1.5 w-24">Asset ID:</td><td class="font-bold border-b border-gray-400">${d.asset_id}</td></tr>
-              <tr><td class="py-1.5">Serial S/N:</td><td class="font-mono font-bold border-b border-gray-400">${d.serial_number}</td></tr>
-              <tr><td class="py-1.5">สถานะล่าสุด:</td><td class="font-bold border-b border-gray-400">${d.status}</td></tr>
-              <tr><td class="py-1.5">ปีการศึกษา:</td><td class="border-b border-gray-400">${d.academic_year}</td></tr>
-            </table>
-          </div>
-          <div>
-            <h4 class="font-bold text-sm bg-gray-200 p-1 text-center border border-gray-800 mb-2">ข้อมูลผู้ถือครองปัจจุบัน</h4>
-            <table class="w-full text-xs">
-              <tr><td class="py-1.5 w-24">ชื่อ-นามสกุล:</td><td class="font-bold border-b border-gray-400">${d.holder_name}</td></tr>
-              <tr><td class="py-1.5">รหัสประจำตัว:</td><td class="font-mono border-b border-gray-400">${d.holder_code}</td></tr>
-              <tr><td class="py-1.5">ระดับชั้น/ห้อง:</td><td class="border-b border-gray-400">${d.grade}/${d.room}</td></tr>
-              <tr><td class="py-1.5">ประเภท:</td><td class="border-b border-gray-400">${d.holder_type}</td></tr>
-            </table>
-          </div>
-        </div>
-        <div class="mb-6 p-2.5 border border-gray-800 text-center text-xs bg-gray-50">
-          <strong>วันที่บันทึกยืม:</strong> ${formatDateThai(d.borrow_date)} &nbsp;&nbsp;&nbsp;|&nbsp;&nbsp;&nbsp; <strong>กำหนดส่งคืน:</strong> ${formatDateThai(d.return_date)}
-        </div>
-        <div>
-          <h4 class="font-bold text-sm bg-gray-200 p-1 text-center border border-gray-800 mb-2">ประวัติการแจ้งซ่อมและซ่อมบำรุง (${d.repairs.length} รายการ)</h4>
-          <table class="w-full text-left text-[11px] border-collapse border border-gray-800">
-            <thead>
-              <tr class="bg-gray-100">
-                <th class="p-2 border border-gray-800">Ticket ID</th><th class="p-2 border border-gray-800 w-24">วันที่แจ้ง</th><th class="p-2 border border-gray-800">รายละเอียดอาการชำรุด</th><th class="p-2 border border-gray-800 w-28">ช่างผู้รับผิดชอบ</th><th class="p-2 border border-gray-800 text-center w-20">สถานะ</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${d.repairs.length === 0 ? `<tr><td colspan="5" class="p-4 border border-gray-800 text-center italic">ไม่มีประวัติการซ่อมบำรุง</td></tr>` : d.repairs.map(r => `<tr><td class="p-2 border border-gray-800 font-mono">${r.ticket_id}</td><td class="p-2 border border-gray-800">${formatDateThai(r.date)}</td><td class="p-2 border border-gray-800">${r.issue_type} <br><span class="text-[10px] opacity-80">${r.remark ? `หมายเหตุ: ${r.remark}` : ''}</span></td><td class="p-2 border border-gray-800">${r.tech}</td><td class="p-2 border border-gray-800 text-center font-bold">${r.status}</td></tr>`).join('')}
-            </tbody>
-          </table>
-        </div>
-        <div class="mt-16 pt-4 flex justify-between text-xs border-t border-gray-400">
-          <span>พิมพ์เมื่อ: ${formatDateThai(new Date().toISOString().split('T')[0])}</span><span>ผู้พิมพ์: ........................................ (เจ้าหน้าที่ผู้ดูแลระบบ)</span>
-        </div>
-      `;
       showModal('device-detail-modal'); lucide.createIcons();
     }
 
     function openCirculationModal(editId = null) {
       document.getElementById('circ-edit-id').value = editId || '';
-      const autoAsset = editId ? APP_STATE.devices.find(d => d.id === editId).asset_id : `OBEC-IPAD-2567-${String(APP_STATE.devices.length + 10).padStart(4, '0')}`;
+      const year = APP_STATE.currentYear;
+      const autoAsset = editId ? APP_STATE.devices.find(d => d.id === editId).asset_id : `OBEC-IPAD-${year}-${String(APP_STATE.devices.length + 1).padStart(4, '0')}`;
       document.getElementById('auto-asset-display').innerText = autoAsset;
-      document.getElementById('circ-academic-year').value = editId ? APP_STATE.devices.find(d => d.id === editId).academic_year : APP_STATE.currentYear;
+      document.getElementById('circ-academic-year').value = editId ? APP_STATE.devices.find(d => d.id === editId).academic_year : year;
       
       const today = new Date().toISOString().split('T')[0];
       const d = editId ? APP_STATE.devices.find(x => x.id === editId) : null;
-      document.getElementById('circ-serial').value = d ? d.serial_number : ''; document.getElementById('circ-code').value = d ? d.holder_code : ''; document.getElementById('circ-holder-name').value = d ? d.holder_name : ''; document.getElementById('circ-grade').value = d ? d.grade : 'ม.1'; document.getElementById('circ-room').value = d ? d.room : ''; document.getElementById('circ-borrow-date').value = d && d.borrow_date !== '-' ? d.borrow_date : today; document.getElementById('circ-return-date').value = d && d.return_date !== '-' ? d.return_date : today;
+      document.getElementById('circ-serial').value = d ? d.serial_number : ''; 
+      document.getElementById('circ-code').value = d ? d.holder_code : ''; 
+      document.getElementById('circ-holder-name').value = d ? d.holder_name : ''; 
+      document.getElementById('circ-grade').value = d ? d.grade : 'ม.1'; 
+      document.getElementById('circ-room').value = d ? d.room : ''; 
+      document.getElementById('circ-holder-type').value = d ? d.holder_type : 'นักเรียน';
+      document.getElementById('circ-borrow-date').value = d && d.borrow_date !== '-' ? d.borrow_date : today; 
+      document.getElementById('circ-remark').value = d ? (d.remark || '') : '';
       showModal('circ-modal');
     }
 
@@ -1246,19 +1205,136 @@
 
     function handleSaveCirculation(e) {
       e.preventDefault();
-      const editId = document.getElementById('circ-edit-id').value; const assetId = document.getElementById('auto-asset-display').innerText; const year = document.getElementById('circ-academic-year').value; const serial = document.getElementById('circ-serial').value.trim().toUpperCase(); const code = document.getElementById('circ-code').value.trim(); const name = document.getElementById('circ-holder-name').value.trim(); const grade = document.getElementById('circ-grade').value; const room = document.getElementById('circ-room').value.trim(); const holderType = document.getElementById('circ-holder-type').value; const borrow = document.getElementById('circ-borrow-date').value; const ret = document.getElementById('circ-return-date').value;
+      const editId = document.getElementById('circ-edit-id').value; 
+      const assetId = document.getElementById('auto-asset-display').innerText; 
+      const year = document.getElementById('circ-academic-year').value; 
+      const serial = document.getElementById('circ-serial').value.trim().toUpperCase(); 
+      const code = document.getElementById('circ-code').value.trim(); 
+      const name = document.getElementById('circ-holder-name').value.trim(); 
+      const grade = document.getElementById('circ-grade').value; 
+      const room = document.getElementById('circ-room').value.trim(); 
+      const holderType = document.getElementById('circ-holder-type').value; 
+      const borrow = document.getElementById('circ-borrow-date').value; 
+      const remark = document.getElementById('circ-remark').value.trim();
 
-      const snRegex = /^[A-Z0-9]{10}$/; if (!snRegex.test(serial)) { Swal.fire({ icon: 'error', title: 'S/N ไม่ถูกต้อง', confirmButtonColor: '#1E3A8A' }); return; }
+      const snRegex = /^[A-Z0-9]{10}$/; if (!snRegex.test(serial)) { Swal.fire({ icon: 'error', title: 'S/N ไม่ถูกต้อง', text: 'Serial Number ต้องเป็นตัวอักษรภาษาอังกฤษหรือตัวเลข 10 หลัก', confirmButtonColor: '#1E3A8A' }); return; }
       const isDuplicate = APP_STATE.devices.some(d => d.academic_year === year && d.serial_number.toUpperCase() === serial && d.id !== editId);
-      if (isDuplicate) { Swal.fire({ icon: 'error', title: 'Serial Number ซ้ำ', confirmButtonColor: '#1E3A8A' }); document.getElementById('circ-serial').focus(); return; }
+      if (isDuplicate) { Swal.fire({ icon: 'error', title: 'Serial Number ซ้ำ', text: 'มี S/N นี้อยู่ในระบบแล้ว', confirmButtonColor: '#1E3A8A' }); document.getElementById('circ-serial').focus(); return; }
 
-      if (editId) { const d = APP_STATE.devices.find(x => x.id === editId); if (d) { d.academic_year = year; d.serial_number = serial; d.holder_code = code; d.holder_name = name; d.grade = grade; d.room = room; d.holder_type = holderType; d.borrow_date = borrow; d.return_date = ret; } } 
-      else { APP_STATE.devices.unshift({ id: `dev_${Date.now()}`, academic_year: year, asset_id: assetId, serial_number: serial, model: "iPad", status: "กำลังถือครอง", holder_code: code, holder_name: name, grade: grade, room: room, holder_type: holderType, borrow_date: borrow, return_date: ret, repairs: [] }); }
+      const statusVal = (holderType === 'คลังพัสดุ') ? 'พร้อมใช้งาน' : 'กำลังถือครอง';
+
+      if (editId) { 
+        const d = APP_STATE.devices.find(x => x.id === editId); 
+        if (d) { 
+          d.academic_year = year; d.serial_number = serial; d.holder_code = code; d.holder_name = name; d.grade = grade; d.room = room; d.holder_type = holderType; d.borrow_date = borrow; d.status = statusVal; d.remark = remark; 
+        } 
+      } else { 
+        APP_STATE.devices.unshift({ id: `dev_${Date.now()}`, academic_year: year, asset_id: assetId, serial_number: serial, model: "iPad", status: statusVal, holder_code: code, holder_name: name, grade: grade, room: room, holder_type: holderType, borrow_date: borrow, return_date: "-", remark: remark, repairs: [] }); 
+      }
       saveAppData(); closeModal('circ-modal'); renderPublicDirectory(); updateMetrics(); initLiveCharts(); renderAdminYearSummary();
       Swal.fire({ icon: 'success', title: 'บันทึกสำเร็จ', timer: 1200, showConfirmButton: false });
     }
 
     function deleteDevice(id) { Swal.fire({ title: 'ยืนยันลบข้อมูล?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#d33' }).then(res => { if (res.isConfirmed) { APP_STATE.devices = APP_STATE.devices.filter(x => x.id !== id); saveAppData(); renderPublicDirectory(); updateMetrics(); initLiveCharts(); renderAdminYearSummary(); } }); }
+
+    // --- TEMPLATE EXCEL (No Asset ID column) & IMPORT LOGIC ---
+    function downloadLoanTemplateExcel() {
+      if (typeof XLSX === 'undefined') { Swal.fire({ icon: 'error', title: 'ข้อผิดพลาด', text: 'ไลบรารี SheetJS ยังไม่พร้อมใช้งาน' }); return; }
+      
+      const templateData = [
+        {
+          "ปีการศึกษา": APP_STATE.currentYear,
+          "Serial Number": "DMPZ0000Q1",
+          "รหัสประจำตัว": "28752",
+          "ชื่อ-นามสกุล ผู้ถือครอง": "เด็กชายตัวอย่าง ใจดี",
+          "ระดับชั้น": "ม.1",
+          "ห้อง": "1",
+          "ประเภทผู้ถือครอง": "นักเรียน",
+          "วันที่ยืม": new Date().toISOString().split('T')[0],
+          "หมายเหตุ": "เบิกเครื่องใหม่"
+        }
+      ];
+
+      const ws = XLSX.utils.json_to_sheet(templateData);
+      ws['!cols'] = [
+        {wch: 12}, {wch: 15}, {wch: 14}, {wch: 25}, {wch: 10}, {wch: 8}, {wch: 16}, {wch: 14}, {wch: 20}
+      ];
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, "Template_ยืมคืน");
+      XLSX.writeFile(wb, `KSP_Loan_Template_${APP_STATE.currentYear}.xlsx`);
+      Swal.fire({ icon: 'success', title: 'ดาวน์โหลด Template สำเร็จ', text: 'ไฟล์ Excel ไม่มีคอลัมน์ Asset ID ระบบจะรันเลขอัตโนมัติให้เองครับ', timer: 2000, showConfirmButton: false });
+    }
+
+    function handleExcelImport(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        try {
+          const data = new Uint8Array(evt.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const firstSheet = workbook.SheetNames[0];
+          const rows = XLSX.utils.sheet_to_json(workbook.Sheets[firstSheet]);
+
+          if (rows.length === 0) {
+            Swal.fire({ icon: 'warning', title: 'ไฟล์ว่างเปล่า', text: 'ไม่พบข้อมูลในไฟล์ Excel ที่อัปโหลด' });
+            return;
+          }
+
+          let importedCount = 0;
+          rows.forEach((r, idx) => {
+            const year = String(r["ปีการศึกษา"] || APP_STATE.currentYear);
+            // Auto-generate Asset ID counting existing total devices + imported offset
+            const nextSeq = APP_STATE.devices.length + importedCount + 1;
+            const assetId = `OBEC-IPAD-${year}-${String(nextSeq).padStart(4, '0')}`;
+            
+            const serial = String(r["Serial Number"] || "").trim().toUpperCase();
+            const code = String(r["รหัสประจำตัว"] || "-").trim();
+            const name = String(r["ชื่อ-นามสกุล ผู้ถือครอง"] || "ไม่ระบุ").trim();
+            const grade = String(r["ระดับชั้น"] || "ม.1").trim();
+            const room = String(r["ห้อง"] || "1").trim();
+            const holderType = String(r["ประเภทผู้ถือครอง"] || "นักเรียน").trim();
+            const borrowDate = String(r["วันที่ยืม"] || new Date().toISOString().split('T')[0]).trim();
+            const remark = String(r["หมายเหตุ"] || "").trim();
+
+            if (serial && !APP_STATE.devices.some(d => d.serial_number.toUpperCase() === serial)) {
+              const statusVal = (holderType === 'คลังพัสดุ') ? 'พร้อมใช้งาน' : 'กำลังถือครอง';
+              APP_STATE.devices.unshift({
+                id: `dev_imp_${Date.now()}_${idx}`,
+                academic_year: year,
+                asset_id: assetId,
+                serial_number: serial,
+                model: "iPad",
+                status: statusVal,
+                holder_code: code,
+                holder_name: name,
+                grade: grade,
+                room: room,
+                holder_type: holderType,
+                borrow_date: borrowDate,
+                return_date: "-",
+                remark: remark,
+                repairs: []
+              });
+              importedCount++;
+            }
+          });
+
+          saveAppData();
+          renderPublicDirectory();
+          updateMetrics();
+          initLiveCharts();
+          renderAdminYearSummary();
+          document.getElementById('import-excel-input').value = '';
+
+          Swal.fire({ icon: 'success', title: 'Import สำเร็จ!', text: `นำเข้าอุปกรณ์สำเร็จ ${importedCount} รายการ และรัน Asset ID อัตโนมัติเรียบร้อย`, confirmButtonColor: '#1E3A8A' });
+        } catch (err) {
+          console.error(err);
+          Swal.fire({ icon: 'error', title: 'เกิดข้อผิดพลาด', text: 'ไม่สามารถอ่านไฟล์ Excel ได้ กรุณาใช้ Template ที่จัดเตรียมให้' });
+        }
+      };
+      reader.readAsArrayBuffer(file);
+    }
 
     function openStickerBatchPrintModal() {
       const container = document.getElementById('sticker-print-area'); const list = APP_STATE.devices.filter(d => d.academic_year === APP_STATE.currentYear); container.innerHTML = '';
@@ -1352,7 +1428,7 @@
         document.getElementById('maint-edit-id').value = ''; document.getElementById('maint-ticket-id').value = `TK-2569-${String(Date.now()).slice(-3)}`; document.getElementById('maint-date').value = new Date().toISOString().split('T')[0]; document.getElementById('maint-device-search').value = ''; document.getElementById('maint-device-sn-hidden').value = ''; document.getElementById('maint-remark').value = ''; document.getElementById('maint-doc-link').value = ''; document.getElementById('maint-phone').value = '';
       }
       showModal('maint-modal');
-      setTimeout(startCameraScanner, 300); // เปิดกล้องที่ด้านบนสุดทันทีเมื่อ Modal เปิด
+      setTimeout(startCameraScanner, 300);
     }
     function editMaintenance(devId, ticketId) { openMaintenanceModal(devId, ticketId); }
 
@@ -1397,7 +1473,7 @@
     function exportSheetJSExcel() {
       if(typeof XLSX === 'undefined') { Swal.fire({ icon: 'error', title: 'ข้อผิดพลาด', text: 'ไลบรารีส่งออก Excel ยังไม่พร้อมใช้งาน' }); return; }
       const data = generateReportData(); let excelData = []; let sheetName = "";
-      if(data.type === 'circ') { sheetName = "ทะเบียนครุภัณฑ์"; excelData = data.list.map(d => ({ "ปีการศึกษา": d.academic_year, "Asset ID": d.asset_id, "Serial Number": d.serial_number, "รหัสประจำตัว": d.holder_code, "ชื่อ-นามสกุล": d.holder_name, "ชั้น": d.grade, "ห้อง": d.room, "ประเภท": d.holder_type, "วันที่ยืม": d.borrow_date, "สถานะ": d.status })); } 
+      if(data.type === 'circ') { sheetName = "ทะเบียนครุภัณฑ์"; excelData = data.list.map(d => ({ "ปีการศึกษา": d.academic_year, "Asset ID": d.asset_id, "Serial Number": d.serial_number, "รหัสประจำตัว": d.holder_code, "ชื่อ-นามสกุล": d.holder_name, "ชั้น": d.grade, "ห้อง": d.room, "ประเภท": d.holder_type, "วันที่ยืม": d.borrow_date, "หมายเหตุ": d.remark, "สถานะ": d.status })); } 
       else { sheetName = "ประวัติแจ้งซ่อม"; data.list.forEach(d => { d.repairs.forEach(r => { excelData.push({ "Ticket ID": r.ticket_id, "วันที่แจ้งซ่อม": r.date, "Asset ID": d.asset_id, "Serial Number": d.serial_number, "ผู้ถือครอง": d.holder_name, "อาการชำรุด": r.issue_type, "หมายเหตุ": r.remark, "ผู้รับผิดชอบ": r.tech, "สถานะงานซ่อม": r.status }); }); }); }
       if(excelData.length === 0) { Swal.fire({ icon: 'warning', title: 'ไม่มีข้อมูล' }); return; }
       const ws = XLSX.utils.json_to_sheet(excelData); const wscols = Object.keys(excelData[0]).map(key => ({ wch: Math.max(key.length, 15) })); ws['!cols'] = wscols; const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, sheetName); XLSX.writeFile(wb, `KSP_${sheetName}_${new Date().toISOString().split('T')[0]}.xlsx`); Swal.fire({ icon: 'success', title: 'Export สำเร็จ', timer: 1200, showConfirmButton: false });
